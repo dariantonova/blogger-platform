@@ -38,4 +38,16 @@ describe('tests for /blogs', () => {
             .get(SETTINGS.PATH.BLOGS)
             .expect(HTTP_STATUSES.OK_200, blogs);
     });
+
+    it('should return 404 for non-existing blog', async () => {
+        await req
+            .get(SETTINGS.PATH.BLOGS + '/-100')
+            .expect(HTTP_STATUSES.NOT_FOUND_404);
+    });
+
+    it('should return the second blog', async () => {
+        await req
+            .get(SETTINGS.PATH.BLOGS + '/2')
+            .expect(HTTP_STATUSES.OK_200, blogs[1]);
+    });
 });
