@@ -5,4 +5,7 @@ export const blogsRepository = {
     findBlogs(): BlogType[] {
         return db.blogs;
     },
+    deleteAllBlogs() {
+        db.blogs = [];
+    },
 };
