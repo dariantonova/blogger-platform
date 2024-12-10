@@ -102,7 +102,7 @@ describe('tests for /blogs', () => {
 
         await req
             .get(SETTINGS.PATH.BLOGS + '/2')
-            .expect(HTTP_STATUSES.OK_200, blogs[0]);
+            .expect(HTTP_STATUSES.OK_200, blogs[1]);
     });
 
     it('should delete the second blog', async () => {
