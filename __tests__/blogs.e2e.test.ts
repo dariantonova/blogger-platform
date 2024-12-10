@@ -4,6 +4,7 @@ import {encodeToBase64, HTTP_STATUSES} from "../src/utils";
 import {BlogType} from "../src/types";
 import {setDB} from "../src/db/db";
 import {getValidAuthValue} from "../src/middlewares/authorization-middleware";
+import * as dataset from './dataset';
 
 describe('tests for /blogs', () => {
     beforeAll(async () => {
@@ -19,20 +20,7 @@ describe('tests for /blogs', () => {
 
     let blogs: BlogType[];
     it('should return array with all blogs', async () => {
-        blogs = [
-            {
-                id: '1',
-                name: 'blog 1',
-                description: 'superblog 1',
-                websiteUrl: 'https://superblog.com/1',
-            },
-            {
-                id: '2',
-                name: 'blog 2',
-                description: 'superblog 2',
-                websiteUrl: 'https://superblog.com/2',
-            },
-        ];
+        blogs = dataset.blogs;
         setDB({ blogs });
 
         await req
