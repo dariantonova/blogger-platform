@@ -1,9 +1,10 @@
-import {BlogDBType, RequestWithParams} from "../../types";
+import {BlogDBType, RequestWithBody, RequestWithParams} from "../../types";
 import {BlogViewModel} from "./models/BlogViewModel";
 import {Request, Response} from "express";
 import {blogsRepository} from "./blogs.repository";
 import {URIParamsBlogIdModel} from "./models/URIParamsBlogIdModel";
 import {HTTP_STATUSES} from "../../utils";
+import {CreateBlogInputModel} from "./models/CreateBlogInputModel";
 
 export const mapBlogToViewModel = (dbBlog: BlogDBType): BlogViewModel => {
     return {
@@ -38,5 +39,15 @@ export const blogsController = {
         }
 
         res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
+    },
+    createBlog: (req: RequestWithBody<CreateBlogInputModel>,
+                 res: Response<BlogViewModel>) => {
+        const createdBlog = blogsRepository.createBlog(
+            req.body.name, req.body.description, req.body.websiteUrl
+        );
+
+        res
+            .status(HTTP_STATUSES.CREATED_201)
+            .json(mapBlogToViewModel(createdBlog));
     },
 };

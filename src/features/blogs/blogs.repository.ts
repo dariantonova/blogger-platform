@@ -18,6 +18,19 @@ export const blogsRepository = {
         }
         return false;
     },
+    createBlog(name: string, description: string, websiteUrl: string): BlogDBType {
+        const createdBlog: BlogDBType = {
+            id: String(+new Date()),
+            name,
+            description,
+            websiteUrl,
+            isDeleted: false,
+        };
+
+        db.blogs.push(createdBlog);
+
+        return createdBlog;
+    },
     deleteAllBlogs() {
         db.blogs = [];
     },
