@@ -1,11 +1,11 @@
 import {db} from "../../db/db";
-import {BlogType} from "../../types";
+import {BlogDBType} from "../../types";
 
 export const blogsRepository = {
-    findBlogs(): BlogType[] {
+    findBlogs(): BlogDBType[] {
         return db.blogs;
     },
-    findBlogById(id: string): BlogType | undefined {
+    findBlogById(id: string): BlogDBType | undefined {
         return db.blogs.find(b => b.id === id);
     },
     deleteBlog(id: string): boolean {

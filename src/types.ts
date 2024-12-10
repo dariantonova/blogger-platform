@@ -13,14 +13,14 @@ export type APIErrorResult = {
     errorsMessages: FieldError[] | null,
 };
 
-export type BlogType = {
+export type BlogDBType = {
     id: string,
     name: string,
     description: string,
     websiteUrl: string,
 };
 
-export type PostType = {
+export type PostDBType = {
     id: string,
     title: string,
     shortDescription: string,
@@ -29,6 +29,6 @@ export type PostType = {
 };
 
 export type DBType = {
-    blogs: BlogType[],
-    posts: PostType[],
+    blogs: BlogDBType[],
+    posts: PostDBType[],
 };

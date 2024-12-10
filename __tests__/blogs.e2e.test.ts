@@ -1,7 +1,7 @@
 import {req} from "./test-helpers";
 import {SETTINGS} from "../src/settings";
 import {encodeToBase64, HTTP_STATUSES} from "../src/utils";
-import {BlogType} from "../src/types";
+import {BlogDBType} from "../src/types";
 import {setDB} from "../src/db/db";
 import {getValidAuthValue} from "../src/middlewares/authorization-middleware";
 import * as dataset from './dataset';
@@ -18,7 +18,7 @@ describe('tests for /blogs', () => {
             .expect(HTTP_STATUSES.OK_200, []);
     });
 
-    let blogs: BlogType[];
+    let blogs: BlogDBType[];
     it('should return array with all blogs', async () => {
         blogs = dataset.blogs;
         setDB({ blogs });

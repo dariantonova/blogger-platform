@@ -1,6 +1,6 @@
-import {BlogType} from "../src/types";
+import {BlogDBType} from "../src/types";
 
-export const blogs: BlogType[] = [
+export const blogs: BlogDBType[] = [
     {
         id: '1',
         name: 'blog 1',

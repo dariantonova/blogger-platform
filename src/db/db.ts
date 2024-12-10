@@ -1,4 +1,4 @@
-import {BlogType, DBType, PostType} from "../types";
+import {BlogDBType, DBType, PostDBType} from "../types";
 
 export const db: DBType = {
     blogs: [],
@@ -16,7 +16,7 @@ export const setDB = (dataset?: Partial<DBType>) => {
     db.posts = dataset.posts?.slice() || db.posts;
 };
 
-const blogs: BlogType[] = [
+const blogs: BlogDBType[] = [
     {
         id: '1',
         name: 'blog 1',
@@ -31,7 +31,7 @@ const blogs: BlogType[] = [
     },
 ];
 
-const posts: PostType[] = [
+const posts: PostDBType[] = [
     {
         id: '1',
         title: 'post 1',

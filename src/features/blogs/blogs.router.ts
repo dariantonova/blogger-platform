@@ -1,12 +1,12 @@
 import {Router, Request, Response} from 'express';
 import {blogsRepository} from "./blogs.repository";
-import {BlogType, RequestWithParams} from "../../types";
+import {BlogDBType, RequestWithParams} from "../../types";
 import {BlogViewModel} from "./models/BlogViewModel";
 import {URIParamsBlogIdModel} from "./models/URIParamsBlogIdModel";
 import {HTTP_STATUSES} from "../../utils";
 import {authorizationMiddleware} from "../../middlewares/authorization-middleware";
 
-const mapBlogToViewModel = (dbBlog: BlogType): BlogViewModel => {
+const mapBlogToViewModel = (dbBlog: BlogDBType): BlogViewModel => {
     return {
         id: dbBlog.id,
         name: dbBlog.name,
