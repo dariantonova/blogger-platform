@@ -8,5 +8,9 @@ export const SETTINGS = {
         BLOGS: '/api/blogs',
         POSTS: '/api/posts',
         TESTING: '/api/testing',
+    },
+    CREDENTIALS: {
+        LOGIN: 'admin',
+        PASSWORD: 'qwerty',
     }
 }

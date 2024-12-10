@@ -1,11 +1,20 @@
 import {Request, Response, NextFunction} from "express";
-import {HTTP_STATUSES} from "../utils";
+import {encodeToBase64, HTTP_STATUSES} from "../utils";
+import {SETTINGS} from "../settings";
+
+export const getValidAuthValue = () => {
+    const credentials = `${SETTINGS.CREDENTIALS.LOGIN}:${SETTINGS.CREDENTIALS.PASSWORD}`;
+    const encodedCredentials = encodeToBase64(credentials);
+    return `Base ${encodedCredentials}`;
+}
 
 export const authorizationMiddleware = (req: Request, res: Response, next: NextFunction) => {
-    if (req.headers['authorization'] !== 'Basic YWRtaW46cXdlcnR5') {
-        res.sendStatus(HTTP_STATUSES.UNAUTHORIZED_401);
-        return;
+    const validAuthValue = getValidAuthValue();
+    const authHeader = req.headers.authorization;
+    if (authHeader === validAuthValue) {
+        next();
     }
-
-    next();
+    else {
+        res.sendStatus(HTTP_STATUSES.UNAUTHORIZED_401);
+    }
 };

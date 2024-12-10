@@ -7,3 +7,7 @@ export enum HTTP_STATUSES {
     UNAUTHORIZED_401 = 401,
     NOT_FOUND_404 = 404,
 }
+
+export const encodeToBase64 = (data: string) => {
+    return Buffer.from(data).toString('base64');
+}
