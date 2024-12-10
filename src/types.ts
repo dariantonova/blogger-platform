@@ -18,6 +18,7 @@ export type BlogDBType = {
     name: string,
     description: string,
     websiteUrl: string,
+    isDeleted: boolean,
 };
 
 export type PostDBType = {
@@ -26,6 +27,7 @@ export type PostDBType = {
     shortDescription: string,
     content: string,
     blogId: string,
+    isDeleted: boolean,
 };
 
 export type DBType = {

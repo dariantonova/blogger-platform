@@ -22,12 +22,14 @@ const blogs: BlogDBType[] = [
         name: 'blog 1',
         description: 'superblog 1',
         websiteUrl: 'https://superblog.com/1',
+        isDeleted: false,
     },
     {
         id: '2',
         name: 'blog 2',
         description: 'superblog 2',
         websiteUrl: 'https://superblog.com/2',
+        isDeleted: false,
     },
 ];
 
@@ -38,6 +40,7 @@ const posts: PostDBType[] = [
         shortDescription: 'superpost 1',
         content: 'content of superpost 1',
         blogId: '2',
+        isDeleted: false,
     },
     {
         id: '2',
@@ -45,6 +48,7 @@ const posts: PostDBType[] = [
         shortDescription: 'superpost 2',
         content: 'content of superpost 2',
         blogId: '1',
+        isDeleted: false,
     },
 ];
 

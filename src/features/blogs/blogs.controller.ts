@@ -5,7 +5,7 @@ import {blogsRepository} from "./blogs.repository";
 import {URIParamsBlogIdModel} from "./models/URIParamsBlogIdModel";
 import {HTTP_STATUSES} from "../../utils";
 
-const mapBlogToViewModel = (dbBlog: BlogDBType): BlogViewModel => {
+export const mapBlogToViewModel = (dbBlog: BlogDBType): BlogViewModel => {
     return {
         id: dbBlog.id,
         name: dbBlog.name,

@@ -5,6 +5,7 @@ import {BlogDBType} from "../src/types";
 import {db, setDB} from "../src/db/db";
 import {getValidAuthValue} from "../src/middlewares/authorization-middleware";
 import * as dataset from './dataset';
+import {mapBlogToViewModel} from "../src/features/blogs/blogs.controller";
 
 describe('tests for /blogs', () => {
     beforeAll(async () => {
@@ -37,7 +38,7 @@ describe('tests for /blogs', () => {
 
             await req
                 .get(SETTINGS.PATH.BLOGS)
-                .expect(HTTP_STATUSES.OK_200, blogs);
+                .expect(HTTP_STATUSES.OK_200, blogs.map(mapBlogToViewModel));
         });
     });
 
@@ -63,7 +64,7 @@ describe('tests for /blogs', () => {
         it('should return the second blog', async () => {
             await req
                 .get(SETTINGS.PATH.BLOGS + '/2')
-                .expect(HTTP_STATUSES.OK_200, blogs[1]);
+                .expect(HTTP_STATUSES.OK_200, mapBlogToViewModel(blogs[1]));
         });
     });
 
@@ -108,7 +109,7 @@ describe('tests for /blogs', () => {
 
             await req
                 .get(SETTINGS.PATH.BLOGS + '/1')
-                .expect(HTTP_STATUSES.OK_200, blogs[0]);
+                .expect(HTTP_STATUSES.OK_200, mapBlogToViewModel(blogs[0]));
         });
 
         it('should return 404 when deleting non-existing blog', async () => {
@@ -130,7 +131,7 @@ describe('tests for /blogs', () => {
 
             await req
                 .get(SETTINGS.PATH.BLOGS + '/2')
-                .expect(HTTP_STATUSES.OK_200, blogs[1]);
+                .expect(HTTP_STATUSES.OK_200, mapBlogToViewModel(blogs[1]));
         });
 
         it('should delete the second blog', async () => {
