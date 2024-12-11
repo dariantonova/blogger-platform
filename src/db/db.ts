@@ -12,8 +12,8 @@ export const setDB = (dataset?: Partial<DBType>) => {
         return;
     }
 
-    db.blogs = dataset.blogs?.slice() || db.blogs;
-    db.posts = dataset.posts?.slice() || db.posts;
+    db.blogs = dataset.blogs ? structuredClone(dataset.blogs) : db.blogs;
+    db.posts = dataset.posts ? structuredClone(dataset.posts) : db.posts;
 };
 
 const blogs: BlogDBType[] = [
