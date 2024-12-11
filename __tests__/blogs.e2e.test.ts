@@ -161,7 +161,8 @@ describe('tests for /blogs', () => {
 
         // authorization
         it('should forbid creating blogs for non-admin users', async () => {
-            const data: CreateBlogInputModel = dataset.blogs[0];
+            const {name, description, websiteUrl} = dataset.blogs[0];
+            const data: CreateBlogInputModel = {name, description, websiteUrl};
 
             await req
                 .post(SETTINGS.PATH.BLOGS)
@@ -564,14 +565,16 @@ describe('tests for /blogs', () => {
 
         // correct input
         it('should create blog if input data is correct', async () => {
-            const datasetBlog = dataset.blogs[0];
-            const data: CreateBlogInputModel = {
-                name: datasetBlog.name,
-                description: datasetBlog.description,
-                websiteUrl: datasetBlog.websiteUrl,
-            };
+            const {name, description, websiteUrl} = dataset.blogs[0];
+            const data: CreateBlogInputModel = {name, description, websiteUrl};
 
-            await blogTestManager.createBlog(data, HTTP_STATUSES.CREATED_201, getValidAuthValue());
+            const createResponse = await blogTestManager
+                .createBlog(data, HTTP_STATUSES.CREATED_201, getValidAuthValue());
+
+            const createdBlog = createResponse.body;
+            await req
+                .get(SETTINGS.PATH.BLOGS)
+                .expect(HTTP_STATUSES.OK_200, [createdBlog]);
         });
     });
 });
