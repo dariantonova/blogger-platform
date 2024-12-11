@@ -31,6 +31,18 @@ export const blogsRepository = {
 
         return createdBlog;
     },
+    updateBlog(id: string, name: string, description: string, websiteUrl: string): boolean {
+        const blog = db.blogs.find(b => b.id === id);
+        if (!blog) {
+            return false;
+        }
+
+        blog.name = name;
+        blog.description = description;
+        blog.websiteUrl = websiteUrl;
+
+        return true;
+    },
     deleteAllBlogs() {
         db.blogs = [];
     },

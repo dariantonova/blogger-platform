@@ -24,5 +24,12 @@ router.post('/',
     websiteUrlFieldValidator,
     errorsResultMiddleware,
     blogsController.createBlog);
+router.put('/:id',
+    authorizationMiddleware,
+    nameFieldValidator,
+    descriptionFieldValidator,
+    websiteUrlFieldValidator,
+    errorsResultMiddleware,
+    blogsController.updateBlog);
 
 export { router as blogsRouter };

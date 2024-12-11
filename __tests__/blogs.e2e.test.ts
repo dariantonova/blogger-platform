@@ -4,11 +4,13 @@ import {encodeToBase64, HTTP_STATUSES} from "../src/utils";
 import {BlogDBType} from "../src/types";
 import {db, setDB} from "../src/db/db";
 import {getValidAuthValue} from "../src/middlewares/authorization-middleware";
-import * as dataset from './dataset';
+import * as datasets from './datasets';
 import {mapBlogToViewModel} from "../src/features/blogs/blogs.controller";
 import {CreateBlogInputModel} from "../src/features/blogs/models/CreateBlogInputModel";
 import {blogTestManager} from "./blog-test-manager";
 import {WEBSITE_URL_PATTERN} from "../src/validation/field-validators/blogs-field-validators";
+import {BlogViewModel} from "../src/features/blogs/models/BlogViewModel";
+import {UpdateBlogInputModel} from "../src/features/blogs/models/UpdateBlogInputModel";
 
 describe('tests for /blogs', () => {
     beforeAll(async () => {
@@ -36,7 +38,7 @@ describe('tests for /blogs', () => {
         });
 
         it('should return array with all blogs', async () => {
-            blogs = dataset.blogs;
+            blogs = datasets.blogs;
             setDB({ blogs });
 
             await req
@@ -49,7 +51,7 @@ describe('tests for /blogs', () => {
         let blogs: BlogDBType[];
 
         beforeAll(() => {
-            blogs = dataset.blogs;
+            blogs = datasets.blogs;
             setDB({ blogs });
         });
 
@@ -75,7 +77,7 @@ describe('tests for /blogs', () => {
         let blogs: BlogDBType[];
 
         beforeAll(() => {
-            blogs = dataset.blogs;
+            blogs = datasets.blogs;
             setDB({ blogs });
         });
 
@@ -161,7 +163,7 @@ describe('tests for /blogs', () => {
 
         // authorization
         it('should forbid creating blogs for non-admin users', async () => {
-            const {name, description, websiteUrl} = dataset.blogs[0];
+            const {name, description, websiteUrl} = datasets.blogs[0];
             const data: CreateBlogInputModel = {name, description, websiteUrl};
 
             await req
@@ -565,7 +567,7 @@ describe('tests for /blogs', () => {
 
         // correct input
         it('should create blog if input data is correct', async () => {
-            const {name, description, websiteUrl} = dataset.blogs[0];
+            const {name, description, websiteUrl} = datasets.blogs[0];
             const data: CreateBlogInputModel = {name, description, websiteUrl};
 
             const createResponse = await blogTestManager
@@ -575,6 +577,453 @@ describe('tests for /blogs', () => {
             await req
                 .get(SETTINGS.PATH.BLOGS)
                 .expect(HTTP_STATUSES.OK_200, [createdBlog]);
+        });
+    });
+
+    describe('update blog', () => {
+        let createdBlogs: BlogViewModel[] = [];
+
+        beforeAll(async () => {
+            setDB({ blogs: datasets.blogs })
+            createdBlogs = datasets.blogs.map(mapBlogToViewModel);
+        });
+
+        afterAll(async () => {
+            await req
+                .delete(SETTINGS.PATH.TESTING + '/all-data');
+        });
+
+        // authorization
+        it('should forbid updating blogs for non-admin users', async () => {
+            const data: UpdateBlogInputModel = datasets.blogsDataForUpdate[0];
+            const blogId = createdBlogs[0].id;
+
+            await req
+                .put(SETTINGS.PATH.BLOGS + '/' + blogId)
+                .send(data)
+                .expect(HTTP_STATUSES.UNAUTHORIZED_401);
+
+            await blogTestManager.updateBlog(blogId, data, HTTP_STATUSES.UNAUTHORIZED_401,
+                'Basic somethingWeird');
+
+            await blogTestManager.updateBlog(blogId, data, HTTP_STATUSES.UNAUTHORIZED_401,
+                'Basic ');
+
+            const credentials = SETTINGS.CREDENTIALS.LOGIN + ':' + SETTINGS.CREDENTIALS.PASSWORD;
+
+            await blogTestManager.updateBlog(blogId, data, HTTP_STATUSES.UNAUTHORIZED_401,
+                `Bearer ${encodeToBase64(credentials)}`);
+
+            await blogTestManager.updateBlog(blogId, data, HTTP_STATUSES.UNAUTHORIZED_401,
+                encodeToBase64(credentials));
+
+            await req
+                .get(SETTINGS.PATH.BLOGS)
+                .expect(HTTP_STATUSES.OK_200, createdBlogs);
+        });
+
+        // validation
+        it(`shouldn't update blog if required fields are missing`, async () => {
+            const blogId = createdBlogs[0].id;
+
+            const data1 = {
+                description: 'description',
+                websiteUrl: 'https://superblog.com',
+            };
+
+            const response1 = await blogTestManager.updateBlog(blogId, data1,
+                HTTP_STATUSES.BAD_REQUEST_400, getValidAuthValue());
+            expect(response1.body).toEqual({
+                errorsMessages: [
+                    {
+                        field: 'name',
+                        message: 'Name is required',
+                    }
+                ],
+            });
+
+            const data2 = {
+                name: 'name',
+                websiteUrl: 'https://superblog.com',
+            };
+
+            const response2 = await blogTestManager.updateBlog(blogId, data2,
+                HTTP_STATUSES.BAD_REQUEST_400, getValidAuthValue());
+            expect(response2.body).toEqual({
+                errorsMessages: [
+                    {
+                        field: 'description',
+                        message: 'Description is required',
+                    }
+                ],
+            });
+
+            const data3 = {
+                name: 'name',
+                description: 'description',
+            };
+
+            const response3 = await blogTestManager.updateBlog(blogId, data3,
+                HTTP_STATUSES.BAD_REQUEST_400, getValidAuthValue());
+            expect(response3.body).toEqual({
+                errorsMessages: [
+                    {
+                        field: 'websiteUrl',
+                        message: 'Website url is required',
+                    }
+                ],
+            });
+
+            await req
+                .get(SETTINGS.PATH.BLOGS)
+                .expect(HTTP_STATUSES.OK_200, createdBlogs);
+        });
+
+        it(`shouldn't update blog if name is invalid`, async () => {
+            const blogId = createdBlogs[0].id;
+
+            // not string
+            const data1 = {
+                name: 24,
+                description: 'description',
+                websiteUrl: 'https://superblog.com',
+            };
+
+            const response1 = await blogTestManager.updateBlog(blogId, data1,
+                HTTP_STATUSES.BAD_REQUEST_400, getValidAuthValue());
+            expect(response1.body).toEqual({
+                errorsMessages: [
+                    {
+                        field: 'name',
+                        message: 'Name must be a string',
+                    }
+                ],
+            });
+
+            // empty string
+            const data2 = {
+                name: '',
+                description: 'description',
+                websiteUrl: 'https://superblog.com',
+            };
+
+            const response2 = await blogTestManager.updateBlog(blogId, data2,
+                HTTP_STATUSES.BAD_REQUEST_400, getValidAuthValue());
+            expect(response2.body).toEqual({
+                errorsMessages: [
+                    {
+                        field: 'name',
+                        message: 'Name must not be empty',
+                    }
+                ],
+            });
+
+            // empty string with spaces
+            const data3 = {
+                name: '  ',
+                description: 'description',
+                websiteUrl: 'https://superblog.com',
+            };
+
+            const response3 = await blogTestManager.updateBlog(blogId, data3,
+                HTTP_STATUSES.BAD_REQUEST_400, getValidAuthValue());
+            expect(response3.body).toEqual({
+                errorsMessages: [
+                    {
+                        field: 'name',
+                        message: 'Name must not be empty',
+                    }
+                ],
+            });
+
+            // long string
+            const data4 = {
+                name: 'a'.repeat(16),
+                description: 'description',
+                websiteUrl: 'https://superblog.com',
+            };
+
+            const response4 = await blogTestManager.updateBlog(blogId, data4,
+                HTTP_STATUSES.BAD_REQUEST_400, getValidAuthValue());
+            expect(response4.body).toEqual({
+                errorsMessages: [
+                    {
+                        field: 'name',
+                        message: 'Name length must be between 1 and 15 symbols',
+                    }
+                ],
+            });
+
+            await req
+                .get(SETTINGS.PATH.BLOGS)
+                .expect(HTTP_STATUSES.OK_200, createdBlogs);
+        });
+
+        it(`shouldn't update blog if description is invalid`, async () => {
+            const blogId = createdBlogs[0].id;
+
+            // not string
+            const data1 = {
+                name: 'name',
+                description: 24,
+                websiteUrl: 'https://superblog.com',
+            };
+
+            const response1 = await blogTestManager.updateBlog(blogId, data1,
+                HTTP_STATUSES.BAD_REQUEST_400, getValidAuthValue());
+            expect(response1.body).toEqual({
+                errorsMessages: [
+                    {
+                        field: 'description',
+                        message: 'Description must be a string',
+                    }
+                ],
+            });
+
+            // empty string
+            const data2 = {
+                name: 'name',
+                description: '',
+                websiteUrl: 'https://superblog.com',
+            };
+
+            const response2 = await blogTestManager.updateBlog(blogId, data2,
+                HTTP_STATUSES.BAD_REQUEST_400, getValidAuthValue());
+            expect(response2.body).toEqual({
+                errorsMessages: [
+                    {
+                        field: 'description',
+                        message: 'Description must not be empty',
+                    }
+                ],
+            });
+
+            // empty string with spaces
+            const data3 = {
+                name: 'name',
+                description: '  ',
+                websiteUrl: 'https://superblog.com',
+            };
+
+            const response3 = await blogTestManager.updateBlog(blogId, data3,
+                HTTP_STATUSES.BAD_REQUEST_400, getValidAuthValue());
+            expect(response3.body).toEqual({
+                errorsMessages: [
+                    {
+                        field: 'description',
+                        message: 'Description must not be empty',
+                    }
+                ],
+            });
+
+            // long string
+            const data4 = {
+                name: 'name',
+                description: 'a'.repeat(501),
+                websiteUrl: 'https://superblog.com',
+            };
+
+            const response4 = await blogTestManager.updateBlog(blogId, data4,
+                HTTP_STATUSES.BAD_REQUEST_400, getValidAuthValue());
+            expect(response4.body).toEqual({
+                errorsMessages: [
+                    {
+                        field: 'description',
+                        message: 'Description length must be between 1 and 500 symbols',
+                    }
+                ],
+            });
+
+            await req
+                .get(SETTINGS.PATH.BLOGS)
+                .expect(HTTP_STATUSES.OK_200, createdBlogs);
+        });
+
+        it(`shouldn't update blog if website url is invalid`, async () => {
+            const blogId = createdBlogs[0].id;
+
+            // not string
+            const data1 = {
+                name: 'name',
+                description: 'description',
+                websiteUrl: 24,
+            };
+
+            const response1 = await blogTestManager.updateBlog(blogId, data1,
+                HTTP_STATUSES.BAD_REQUEST_400, getValidAuthValue());
+            expect(response1.body).toEqual({
+                errorsMessages: [
+                    {
+                        field: 'websiteUrl',
+                        message: 'Website url must be a string',
+                    }
+                ],
+            });
+
+            // empty string
+            const data2 = {
+                name: 'name',
+                description: 'description',
+                websiteUrl: '',
+            };
+
+            const response2 = await blogTestManager.updateBlog(blogId, data2,
+                HTTP_STATUSES.BAD_REQUEST_400, getValidAuthValue());
+            expect(response2.body).toEqual({
+                errorsMessages: [
+                    {
+                        field: 'websiteUrl',
+                        message: 'Website url must not be empty',
+                    }
+                ],
+            });
+
+            // empty string with spaces
+            const data3 = {
+                name: 'name',
+                description: 'description',
+                websiteUrl: '  ',
+            };
+
+            const response3 = await blogTestManager.updateBlog(blogId, data3,
+                HTTP_STATUSES.BAD_REQUEST_400, getValidAuthValue());
+            expect(response3.body).toEqual({
+                errorsMessages: [
+                    {
+                        field: 'websiteUrl',
+                        message: 'Website url must not be empty',
+                    }
+                ],
+            });
+
+            // long string
+            const data4 = {
+                name: 'name',
+                description: 'description',
+                websiteUrl: 'a'.repeat(101),
+            };
+
+            const response4 = await blogTestManager.updateBlog(blogId, data4,
+                HTTP_STATUSES.BAD_REQUEST_400, getValidAuthValue());
+            expect(response4.body).toEqual({
+                errorsMessages: [
+                    {
+                        field: 'websiteUrl',
+                        message: 'Website url length must be between 1 and 100 symbols',
+                    }
+                ],
+            });
+
+            // invalid url
+            const invalidUrlData = [];
+
+            const invalidUrlData1 = {
+                name: 'name',
+                description: 'description',
+                websiteUrl: 'http://superblog.com',
+            };
+            invalidUrlData.push(invalidUrlData1);
+
+            const invalidUrlData2 = {
+                name: 'name',
+                description: 'description',
+                websiteUrl: 'https:superblog.com',
+            };
+            invalidUrlData.push(invalidUrlData2);
+
+            const invalidUrlData3 = {
+                name: 'name',
+                description: 'description',
+                websiteUrl: 'superblog.com',
+            };
+            invalidUrlData.push(invalidUrlData3);
+
+            const invalidUrlData4 = {
+                name: 'name',
+                description: 'description',
+                websiteUrl: 'https://superblog',
+            };
+            invalidUrlData.push(invalidUrlData4);
+
+            const invalidUrlData5 = {
+                name: 'name',
+                description: 'description',
+                websiteUrl: 'https://superblog.',
+            };
+            invalidUrlData.push(invalidUrlData5);
+
+            const invalidUrlData6 = {
+                name: 'name',
+                description: 'description',
+                websiteUrl: 'https://.com',
+            };
+            invalidUrlData.push(invalidUrlData6);
+
+            const invalidUrlData7 = {
+                name: 'name',
+                description: 'description',
+                websiteUrl: 'https://superblog!.com',
+            };
+            invalidUrlData.push(invalidUrlData7);
+
+            for (const dataItem of invalidUrlData) {
+                const response = await blogTestManager.updateBlog(blogId, dataItem,
+                    HTTP_STATUSES.BAD_REQUEST_400, getValidAuthValue());
+                expect(response.body).toEqual({
+                    errorsMessages: [
+                        {
+                            field: 'websiteUrl',
+                            message: 'Website url must match the following pattern: ' + WEBSITE_URL_PATTERN,
+                        }
+                    ],
+                });
+            }
+
+            await req
+                .get(SETTINGS.PATH.BLOGS)
+                .expect(HTTP_STATUSES.OK_200, createdBlogs);
+        });
+
+        it(`shouldn't update blog if multiple fields are invalid`, async () => {
+            const blogId = createdBlogs[0].id;
+
+            const data = {
+                name: 'a'.repeat(20),
+                description: '  ',
+            };
+
+            const createResponse = await blogTestManager.updateBlog(blogId, data,
+                HTTP_STATUSES.BAD_REQUEST_400, getValidAuthValue());
+            expect(createResponse.body).toEqual({
+                errorsMessages: expect.arrayContaining([
+                    { message: expect.any(String), field: 'name' },
+                    { message: expect.any(String), field: 'description' },
+                    { message: expect.any(String), field: 'websiteUrl' },
+                ]),
+            });
+
+            await req
+                .get(SETTINGS.PATH.BLOGS)
+                .expect(HTTP_STATUSES.OK_200, createdBlogs);
+        });
+
+        // non-existing blog
+        it('should return 404 when updating non-existing blog', async () => {
+            await blogTestManager.updateBlog('-100', datasets.blogsDataForUpdate[0],
+                HTTP_STATUSES.NOT_FOUND_404, getValidAuthValue());
+        });
+
+        // correct input
+        it('should update blog if input data is correct', async () => {
+            const data = datasets.blogsDataForUpdate[0];
+            const blogId = createdBlogs[0].id;
+
+            await blogTestManager.updateBlog(blogId, data,
+                HTTP_STATUSES.NO_CONTENT_204, getValidAuthValue());
+
+            await req
+                .get(SETTINGS.PATH.BLOGS + '/' + createdBlogs[1].id)
+                .expect(HTTP_STATUSES.OK_200, createdBlogs[1]);
         });
     });
 });

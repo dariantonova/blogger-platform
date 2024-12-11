@@ -27,4 +27,32 @@ export const blogTestManager = {
 
         return response;
     },
+    async updateBlog(blogId: string, data: any, expectedStatusCode: number, auth: string) {
+        const getBlogResponse = await req
+            .get(SETTINGS.PATH.BLOGS + '/' + blogId);
+
+        const response = await req
+            .put(SETTINGS.PATH.BLOGS + '/' + blogId)
+            .set('Authorization', auth)
+            .send(data)
+            .expect(expectedStatusCode);
+
+        if (expectedStatusCode === HTTP_STATUSES.NO_CONTENT_204) {
+            const blogBeforeUpdate: BlogViewModel = getBlogResponse.body;
+
+            const getUpdatedVideoResponse = await req
+                .get(SETTINGS.PATH.BLOGS + '/' + blogId)
+                .expect(HTTP_STATUSES.OK_200);
+            const updatedBlog: BlogViewModel = getUpdatedVideoResponse.body;
+
+            expect(updatedBlog).toEqual({
+                id: blogBeforeUpdate.id,
+                name: data.name,
+                description: data.description,
+                websiteUrl: data.websiteUrl,
+            });
+        }
+
+        return response;
+    },
 };
