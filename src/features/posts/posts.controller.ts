@@ -34,4 +34,13 @@ export const postsController = {
 
         res.json(mapPostToViewModel(foundPost));
     },
+    deletePost: (req: RequestWithParams<URIParamsPostIdModel>, res: Response) => {
+        const isDeleted = postsRepository.deletePost(req.params.id);
+        if (!isDeleted) {
+            res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
+            return;
+        }
+
+        res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
+    },
 };

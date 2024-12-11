@@ -9,6 +9,15 @@ export const postsRepository = {
         return db.posts.filter(p => !p.isDeleted)
             .find(p => p.id === id);
     },
+    deletePost(id: string): boolean {
+        for (let i = 0; i < db.posts.length; i++) {
+            if (db.posts[i].id === id) {
+                db.posts[i].isDeleted = true;
+                return true;
+            }
+        }
+        return false;
+    },
     deleteAllPosts() {
         db.posts = [];
     },
