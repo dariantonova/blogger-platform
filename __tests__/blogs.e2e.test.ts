@@ -45,6 +45,15 @@ describe('tests for /blogs', () => {
                 .get(SETTINGS.PATH.BLOGS)
                 .expect(HTTP_STATUSES.OK_200, blogs.map(mapBlogToViewModel));
         });
+
+        it(`shouldn't return deleted blogs`, async () => {
+            const blogs = datasets.blogsWithDeleted;
+            setDB({ blogs });
+
+            await req
+                .get(SETTINGS.PATH.BLOGS)
+                .expect(HTTP_STATUSES.OK_200, [blogs[1]].map(mapBlogToViewModel));
+        });
     });
 
     describe('get blog', () => {
@@ -70,6 +79,15 @@ describe('tests for /blogs', () => {
             await req
                 .get(SETTINGS.PATH.BLOGS + '/2')
                 .expect(HTTP_STATUSES.OK_200, mapBlogToViewModel(blogs[1]));
+        });
+
+        it('should return 404 for deleted blog', async () => {
+            const blogs = datasets.blogsWithDeleted;
+            setDB({ blogs });
+
+            await req
+                .get(SETTINGS.PATH.BLOGS + '/' + blogs[0].id)
+                .expect(HTTP_STATUSES.NOT_FOUND_404);
         });
     });
 
@@ -152,6 +170,31 @@ describe('tests for /blogs', () => {
             await req
                 .get(SETTINGS.PATH.BLOGS)
                 .expect(HTTP_STATUSES.OK_200, []);
+        });
+
+        it('should return 404 when deleting deleted blog', async () => {
+            const blogs = datasets.blogsWithDeleted;
+            setDB({ blogs });
+
+            await req
+                .delete(SETTINGS.PATH.BLOGS + '/' + blogs[0])
+                .set('Authorization', getValidAuthValue())
+                .expect(HTTP_STATUSES.NOT_FOUND_404);
+        });
+
+        it('should delete related posts when deleting blog', async () => {
+            const blogs = datasets.blogs;
+            const posts = datasets.posts;
+            setDB({ blogs, posts });
+
+            await req
+                .delete(SETTINGS.PATH.BLOGS + '/' + blogs[0].id)
+                .set('Authorization', getValidAuthValue())
+                .expect(HTTP_STATUSES.NO_CONTENT_204);
+
+            await req
+                .get(SETTINGS.PATH.POSTS + '/' + posts[1].id)
+                .expect(HTTP_STATUSES.NOT_FOUND_404);
         });
     });
 
@@ -1024,6 +1067,14 @@ describe('tests for /blogs', () => {
             await req
                 .get(SETTINGS.PATH.BLOGS + '/' + createdBlogs[1].id)
                 .expect(HTTP_STATUSES.OK_200, createdBlogs[1]);
+        });
+
+        it(`should return 404 when updating deleted blog`, async () => {
+            const blogs = datasets.blogsWithDeleted;
+            setDB({ blogs });
+
+            await blogTestManager.updateBlog(blogs[0].id, datasets.blogsDataForUpdate[0],
+                HTTP_STATUSES.NOT_FOUND_404, getValidAuthValue());
         });
     });
 });

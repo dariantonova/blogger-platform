@@ -1,18 +1,28 @@
 import {db} from "../../db/db";
 import {BlogDBType} from "../../types";
+import {postsRepository} from "../posts/posts.repository";
 
 export const blogsRepository = {
     findBlogs(): BlogDBType[] {
         return db.blogs.filter(b => !b.isDeleted);
     },
     findBlogById(id: string): BlogDBType | undefined {
-        return db.blogs.filter(b => !b.isDeleted)
+        return blogsRepository.findBlogs()
             .find(b => b.id === id);
     },
     deleteBlog(id: string): boolean {
-        for (let i = 0; i < db.blogs.length; i++) {
-            if (db.blogs[i].id === id) {
-                db.blogs[i].isDeleted = true;
+        const blogs = blogsRepository.findBlogs();
+        for (let i = 0; i < blogs.length; i++) {
+            if (blogs[i].id === id) {
+                blogs[i].isDeleted = true;
+
+                // delete all related posts
+                postsRepository.findPosts().forEach(p => {
+                    if (p.blogId === id) {
+                        p.isDeleted = true;
+                    }
+                });
+
                 return true;
             }
         }
@@ -32,7 +42,8 @@ export const blogsRepository = {
         return createdBlog;
     },
     updateBlog(id: string, name: string, description: string, websiteUrl: string): boolean {
-        const blog = db.blogs.find(b => b.id === id);
+        const blog = blogsRepository.findBlogs()
+            .find(b => b.id === id);
         if (!blog) {
             return false;
         }

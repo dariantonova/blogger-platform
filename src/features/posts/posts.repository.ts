@@ -6,13 +6,14 @@ export const postsRepository = {
         return db.posts.filter(p => !p.isDeleted);
     },
     findPostById(id: string): PostDBType | undefined {
-        return db.posts.filter(p => !p.isDeleted)
+        return postsRepository.findPosts()
             .find(p => p.id === id);
     },
     deletePost(id: string): boolean {
-        for (let i = 0; i < db.posts.length; i++) {
-            if (db.posts[i].id === id) {
-                db.posts[i].isDeleted = true;
+        const posts = postsRepository.findPosts();
+        for (let i = 0; i < posts.length; i++) {
+            if (posts[i].id === id) {
+                posts[i].isDeleted = true;
                 return true;
             }
         }

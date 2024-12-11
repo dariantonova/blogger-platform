@@ -38,6 +38,15 @@ describe('tests for /posts', () => {
                 .get(SETTINGS.PATH.POSTS)
                 .expect(HTTP_STATUSES.OK_200, posts.map(mapPostToViewModel));
         });
+
+        it(`shouldn't return deleted posts`, async () => {
+            const posts = datasets.postsWithDeleted;
+            setDB( { posts, blogs: datasets.blogs });
+
+            await req
+                .get(SETTINGS.PATH.POSTS)
+                .expect(HTTP_STATUSES.OK_200, posts.slice(0, 1).map(mapPostToViewModel));
+        });
     });
 
     describe('get post', () => {
@@ -63,6 +72,15 @@ describe('tests for /posts', () => {
             await req
                 .get(SETTINGS.PATH.POSTS + '/2')
                 .expect(HTTP_STATUSES.OK_200, mapPostToViewModel(posts[1]));
+        });
+
+        it(`shouldn't return deleted post`, async () => {
+            const posts = datasets.postsWithDeleted;
+            setDB( { posts, blogs: datasets.blogs });
+
+            await req
+                .get(SETTINGS.PATH.POSTS + '/' + posts[1].id)
+                .expect(HTTP_STATUSES.NOT_FOUND_404);
         });
     });
 
@@ -151,6 +169,13 @@ describe('tests for /posts', () => {
             await req
                 .get(SETTINGS.PATH.POSTS)
                 .expect(HTTP_STATUSES.OK_200, []);
+        });
+
+        it('should return 404 when deleting deleted post', async () => {
+            await req
+                .delete(SETTINGS.PATH.POSTS + '/' + posts[0].id)
+                .set('Authorization', getValidAuthValue())
+                .expect(HTTP_STATUSES.NOT_FOUND_404);
         });
     });
 });
