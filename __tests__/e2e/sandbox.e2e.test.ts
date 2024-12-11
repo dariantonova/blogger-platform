@@ -1,5 +1,5 @@
-import {req} from "./test-helpers";
-import {SETTINGS} from "../src/settings";
+import {req} from "../test-helpers";
+import {SETTINGS} from "../../src/settings";
 
 describe('sandbox tests', () => {
     beforeAll(async () => {

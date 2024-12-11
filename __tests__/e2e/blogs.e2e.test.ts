@@ -1,16 +1,16 @@
-import {req} from "./test-helpers";
-import {SETTINGS} from "../src/settings";
-import {encodeToBase64, HTTP_STATUSES} from "../src/utils";
-import {BlogDBType} from "../src/types";
-import {db, setDB} from "../src/db/db";
-import {getValidAuthValue} from "../src/middlewares/authorization-middleware";
-import * as datasets from './datasets';
-import {mapBlogToViewModel} from "../src/features/blogs/blogs.controller";
-import {CreateBlogInputModel} from "../src/features/blogs/models/CreateBlogInputModel";
-import {blogTestManager} from "./blog-test-manager";
-import {WEBSITE_URL_PATTERN} from "../src/validation/field-validators/blogs-field-validators";
-import {BlogViewModel} from "../src/features/blogs/models/BlogViewModel";
-import {UpdateBlogInputModel} from "../src/features/blogs/models/UpdateBlogInputModel";
+import {req} from "../test-helpers";
+import {SETTINGS} from "../../src/settings";
+import {encodeToBase64, HTTP_STATUSES} from "../../src/utils";
+import {BlogDBType} from "../../src/types";
+import {db, setDB} from "../../src/db/db";
+import {getValidAuthValue} from "../../src/middlewares/authorization-middleware";
+import * as datasets from '../datasets';
+import {mapBlogToViewModel} from "../../src/features/blogs/blogs.controller";
+import {CreateBlogInputModel} from "../../src/features/blogs/models/CreateBlogInputModel";
+import {blogTestManager} from "../test-managers/blog-test-manager";
+import {WEBSITE_URL_PATTERN} from "../../src/validation/field-validators/blogs-field-validators";
+import {BlogViewModel} from "../../src/features/blogs/models/BlogViewModel";
+import {UpdateBlogInputModel} from "../../src/features/blogs/models/UpdateBlogInputModel";
 
 describe('tests for /blogs', () => {
     beforeAll(async () => {
@@ -199,6 +199,8 @@ describe('tests for /blogs', () => {
     });
 
     describe('create blog', () => {
+        let createdBlogs: BlogViewModel[] = [];
+
         afterAll(async () => {
             await req
                 .delete(SETTINGS.PATH.TESTING + '/all-data');
@@ -620,6 +622,23 @@ describe('tests for /blogs', () => {
             await req
                 .get(SETTINGS.PATH.BLOGS)
                 .expect(HTTP_STATUSES.OK_200, [createdBlog]);
+
+            createdBlogs.push(createdBlog);
+        });
+
+        it('should create one more blog', async () => {
+            const {name, description, websiteUrl} = datasets.blogs[1];
+            const data: CreateBlogInputModel = {name, description, websiteUrl};
+
+            const createResponse = await blogTestManager
+                .createBlog(data, HTTP_STATUSES.CREATED_201, getValidAuthValue());
+
+            const createdBlog = createResponse.body;
+            await req
+                .get(SETTINGS.PATH.BLOGS)
+                .expect(HTTP_STATUSES.OK_200, [...createdBlogs, createdBlog]);
+
+            createdBlogs.push(createdBlog);
         });
     });
 

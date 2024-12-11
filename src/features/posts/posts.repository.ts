@@ -19,6 +19,20 @@ export const postsRepository = {
         }
         return false;
     },
+    createPost(title: string, shortDescription: string, content: string, blogId: string): PostDBType {
+        const createdPost: PostDBType = {
+            id: String(+new Date()),
+            title,
+            shortDescription,
+            content,
+            blogId,
+            isDeleted: false,
+        };
+
+        db.posts.push(createdPost);
+
+        return createdPost;
+    },
     deleteAllPosts() {
         db.posts = [];
     },

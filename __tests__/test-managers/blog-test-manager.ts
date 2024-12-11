@@ -1,7 +1,7 @@
-import {req} from "./test-helpers";
-import {SETTINGS} from "../src/settings";
-import {HTTP_STATUSES} from "../src/utils";
-import {BlogViewModel} from "../src/features/blogs/models/BlogViewModel";
+import {req} from "../test-helpers";
+import {SETTINGS} from "../../src/settings";
+import {HTTP_STATUSES} from "../../src/utils";
+import {BlogViewModel} from "../../src/features/blogs/models/BlogViewModel";
 
 export const blogTestManager = {
     async createBlog(data: any, expectedStatusCode: number, auth: string) {
