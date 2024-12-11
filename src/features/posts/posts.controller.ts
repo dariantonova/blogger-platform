@@ -1,8 +1,10 @@
 import {Request, Response} from 'express';
 import {PostViewModel} from "./models/PostViewModel";
 import {postsRepository} from "./posts.repository";
-import {PostDBType} from "../../types";
+import {PostDBType, RequestWithParams} from "../../types";
 import {blogsRepository} from "../blogs/blogs.repository";
+import {URIParamsPostIdModel} from "./models/URIParamsPostIdModel";
+import {HTTP_STATUSES} from "../../utils";
 
 export const mapPostToViewModel = (dbPost: PostDBType): PostViewModel => {
     const blogName = blogsRepository.findBlogById(dbPost.blogId)?.name || '';
@@ -22,5 +24,14 @@ export const postsController = {
         const foundPosts = postsRepository.findPosts();
 
         res.json(foundPosts.map(mapPostToViewModel));
+    },
+    getPost: (req: RequestWithParams<URIParamsPostIdModel>, res: Response<PostViewModel>) => {
+        const foundPost = postsRepository.findPostById(req.params.id);
+        if (!foundPost) {
+            res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
+            return;
+        }
+
+        res.json(mapPostToViewModel(foundPost));
     },
 };

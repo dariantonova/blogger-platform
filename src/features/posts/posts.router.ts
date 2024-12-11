@@ -5,5 +5,7 @@ const router = Router();
 
 router.get('/',
     postsController.getPosts);
+router.get('/:id',
+    postsController.getPost);
 
 export { router as postsRouter };
