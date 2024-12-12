@@ -30,4 +30,34 @@ export const postTestManager = {
 
         return response;
     },
+    async updatePost(postId: string, data: any, expectedStatusCode: number, auth: string) {
+        const getPostResponse = await req
+            .get(SETTINGS.PATH.POSTS + '/' + postId);
+
+        const response = await req
+            .put(SETTINGS.PATH.POSTS + '/' + postId)
+            .set('Authorization', auth)
+            .send(data)
+            .expect(expectedStatusCode);
+
+        if (expectedStatusCode === HTTP_STATUSES.NO_CONTENT_204) {
+            const postBeforeUpdate: PostViewModel = getPostResponse.body;
+
+            const getUpdatedPostResponse = await req
+                .get(SETTINGS.PATH.POSTS + '/' + postId)
+                .expect(HTTP_STATUSES.OK_200);
+            const updatedPost: PostViewModel = getUpdatedPostResponse.body;
+
+            expect(updatedPost).toEqual({
+                id: postBeforeUpdate.id,
+                title: data.title,
+                shortDescription: data.shortDescription,
+                content: data.content,
+                blogId: data.blogId,
+                blogName: blogsRepository.findBlogById(data.blogId)?.name || '',
+            });
+        }
+
+        return response;
+    },
 };

@@ -10,7 +10,6 @@ import {CreateBlogInputModel} from "../../src/features/blogs/models/CreateBlogIn
 import {blogTestManager} from "../test-managers/blog-test-manager";
 import {WEBSITE_URL_PATTERN} from "../../src/validation/field-validators/blogs-field-validators";
 import {BlogViewModel} from "../../src/features/blogs/models/BlogViewModel";
-import {UpdateBlogInputModel} from "../../src/features/blogs/models/UpdateBlogInputModel";
 
 describe('tests for /blogs', () => {
     beforeAll(async () => {
@@ -657,7 +656,7 @@ describe('tests for /blogs', () => {
 
         // authorization
         it('should forbid updating blogs for non-admin users', async () => {
-            const data: UpdateBlogInputModel = datasets.blogsDataForUpdate[0];
+            const data = datasets.blogsDataForUpdate[0];
             const blogId = createdBlogs[0].id;
 
             await req
@@ -1088,6 +1087,7 @@ describe('tests for /blogs', () => {
                 .expect(HTTP_STATUSES.OK_200, createdBlogs[1]);
         });
 
+        // deleted blog
         it(`should return 404 when updating deleted blog`, async () => {
             const blogs = datasets.blogsWithDeleted;
             setDB({ blogs });

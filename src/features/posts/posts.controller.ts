@@ -1,11 +1,12 @@
 import {Request, Response} from 'express';
 import {PostViewModel} from "./models/PostViewModel";
 import {postsRepository} from "./posts.repository";
-import {PostDBType, RequestWithBody, RequestWithParams} from "../../types";
+import {PostDBType, RequestWithBody, RequestWithParams, RequestWithParamsAndBody} from "../../types";
 import {blogsRepository} from "../blogs/blogs.repository";
 import {URIParamsPostIdModel} from "./models/URIParamsPostIdModel";
 import {HTTP_STATUSES} from "../../utils";
 import {CreatePostInputModel} from "./models/CreatePostInputModel";
+import {UpdatePostInputModel} from "./models/UpdatePostInputModel";
 
 export const mapPostToViewModel = (dbPost: PostDBType): PostViewModel => {
     const blogName = blogsRepository.findBlogById(dbPost.blogId)?.name || '';
@@ -53,5 +54,18 @@ export const postsController = {
         res
             .status(HTTP_STATUSES.CREATED_201)
             .json(mapPostToViewModel(createdPost));
+    },
+    updatePost: (req: RequestWithParamsAndBody<URIParamsPostIdModel, UpdatePostInputModel>,
+                 res: Response) => {
+        const isUpdated = postsRepository.updatePost(
+            req.params.id, req.body.title, req.body.shortDescription, req.body.content, req.body.blogId
+        );
+
+        if (!isUpdated) {
+            res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
+            return;
+        }
+
+        res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
     },
 };

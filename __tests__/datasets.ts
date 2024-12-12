@@ -1,5 +1,6 @@
 import {BlogDBType, PostDBType} from "../src/types";
 import {UpdateBlogInputModel} from "../src/features/blogs/models/UpdateBlogInputModel";
+import {UpdatePostInputModel} from "../src/features/posts/models/UpdatePostInputModel";
 
 export const blogs: BlogDBType[] = [
     {
@@ -85,5 +86,14 @@ export const postsWithDeleted: PostDBType[] = [
         content: 'content of superpost 2',
         blogId: '1',
         isDeleted: true,
+    },
+];
+
+export const postsDataForUpdate: UpdatePostInputModel[] = [
+    {
+        title: 'post 3',
+        shortDescription: 'superpost 3',
+        content: 'content of superpost 3',
+        blogId: '1',
     },
 ];

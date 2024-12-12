@@ -26,5 +26,13 @@ router.post('/',
     blogIdFieldValidator,
     errorsResultMiddleware,
     postsController.createPost);
+router.put('/:id',
+    authorizationMiddleware,
+    titleFieldValidator,
+    shortDescriptionFieldValidator,
+    contentFieldValidator,
+    blogIdFieldValidator,
+    errorsResultMiddleware,
+    postsController.updatePost);
 
 export { router as postsRouter };

@@ -33,6 +33,19 @@ export const postsRepository = {
 
         return createdPost;
     },
+    updatePost(id: string, title: string, shortDescription: string, content: string, blogId: string): boolean {
+        const post = postsRepository.findPostById(id);
+        if (!post) {
+            return false;
+        }
+
+        post.title = title;
+        post.shortDescription = shortDescription;
+        post.content = content;
+        post.blogId = blogId;
+
+        return true;
+    },
     deleteAllPosts() {
         db.posts = [];
     },

@@ -40,10 +40,10 @@ export const blogTestManager = {
         if (expectedStatusCode === HTTP_STATUSES.NO_CONTENT_204) {
             const blogBeforeUpdate: BlogViewModel = getBlogResponse.body;
 
-            const getUpdatedVideoResponse = await req
+            const getUpdatedBlogResponse = await req
                 .get(SETTINGS.PATH.BLOGS + '/' + blogId)
                 .expect(HTTP_STATUSES.OK_200);
-            const updatedBlog: BlogViewModel = getUpdatedVideoResponse.body;
+            const updatedBlog: BlogViewModel = getUpdatedBlogResponse.body;
 
             expect(updatedBlog).toEqual({
                 id: blogBeforeUpdate.id,
