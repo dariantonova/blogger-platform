@@ -5,7 +5,7 @@ import {SETTINGS} from "../settings";
 export const getValidAuthValue = () => {
     const credentials = `${SETTINGS.CREDENTIALS.LOGIN}:${SETTINGS.CREDENTIALS.PASSWORD}`;
     const encodedCredentials = encodeToBase64(credentials);
-    return `Base ${encodedCredentials}`;
+    return `Basic ${encodedCredentials}`;
 }
 
 export const authorizationMiddleware = (req: Request, res: Response, next: NextFunction) => {

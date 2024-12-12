@@ -5,12 +5,13 @@ import {encodeToBase64, HTTP_STATUSES} from "../../src/utils";
 import * as datasets from "../datasets";
 import {mapPostToViewModel} from "../../src/features/posts/posts.controller";
 import {PostDBType} from "../../src/types";
-import {getValidAuthValue} from "../../src/middlewares/authorization-middleware";
 import {CreatePostInputModel} from "../../src/features/posts/models/CreatePostInputModel";
 import {postTestManager} from "../test-managers/post-test-manager";
 import {PostViewModel} from "../../src/features/posts/models/PostViewModel";
 
 describe('tests for /posts', () => {
+    const validAuth = 'Basic YWRtaW46cXdlcnR5';
+
     beforeAll(async () => {
         await req
             .delete(SETTINGS.PATH.TESTING + '/all-data');
@@ -22,6 +23,7 @@ describe('tests for /posts', () => {
     });
 
     describe('get posts', () => {
+        
         afterAll(async () => {
             await req
                 .delete(SETTINGS.PATH.TESTING + '/all-data');
@@ -136,7 +138,7 @@ describe('tests for /posts', () => {
         it('should return 404 when deleting non-existing post', async () => {
             await req
                 .delete(SETTINGS.PATH.POSTS + '/-100')
-                .set('Authorization', getValidAuthValue())
+                .set('Authorization', validAuth)
                 .expect(HTTP_STATUSES.NOT_FOUND_404);
         });
 
@@ -145,7 +147,7 @@ describe('tests for /posts', () => {
 
             await req
                 .delete(SETTINGS.PATH.POSTS + '/' + postToDelete.id)
-                .set('Authorization', getValidAuthValue())
+                .set('Authorization', validAuth)
                 .expect(HTTP_STATUSES.NO_CONTENT_204);
 
             await req
@@ -162,7 +164,7 @@ describe('tests for /posts', () => {
 
             await req
                 .delete(SETTINGS.PATH.POSTS + '/' + postToDelete.id)
-                .set('Authorization', getValidAuthValue())
+                .set('Authorization', validAuth)
                 .expect(HTTP_STATUSES.NO_CONTENT_204);
 
             await req
@@ -177,7 +179,7 @@ describe('tests for /posts', () => {
         it('should return 404 when deleting deleted post', async () => {
             await req
                 .delete(SETTINGS.PATH.POSTS + '/' + posts[0].id)
-                .set('Authorization', getValidAuthValue())
+                .set('Authorization', validAuth)
                 .expect(HTTP_STATUSES.NOT_FOUND_404);
         });
     });
@@ -237,7 +239,7 @@ describe('tests for /posts', () => {
             };
 
             const response1 = await postTestManager.createPost(data1,
-                HTTP_STATUSES.BAD_REQUEST_400, getValidAuthValue());
+                HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response1.body).toEqual({
                 errorsMessages: [
                     {
@@ -254,7 +256,7 @@ describe('tests for /posts', () => {
             };
 
             const response2 = await postTestManager.createPost(data2,
-                HTTP_STATUSES.BAD_REQUEST_400, getValidAuthValue());
+                HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response2.body).toEqual({
                 errorsMessages: [
                     {
@@ -271,7 +273,7 @@ describe('tests for /posts', () => {
             };
 
             const response3 = await postTestManager.createPost(data3,
-                HTTP_STATUSES.BAD_REQUEST_400, getValidAuthValue());
+                HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response3.body).toEqual({
                 errorsMessages: [
                     {
@@ -288,7 +290,7 @@ describe('tests for /posts', () => {
             };
 
             const response4 = await postTestManager.createPost(data4,
-                HTTP_STATUSES.BAD_REQUEST_400, getValidAuthValue());
+                HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response4.body).toEqual({
                 errorsMessages: [
                     {
@@ -312,7 +314,7 @@ describe('tests for /posts', () => {
             };
 
             const response1 = await postTestManager.createPost(data1,
-                HTTP_STATUSES.BAD_REQUEST_400, getValidAuthValue());
+                HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response1.body).toEqual({
                 errorsMessages: [
                     {
@@ -330,7 +332,7 @@ describe('tests for /posts', () => {
             };
 
             const response2 = await postTestManager.createPost(data2,
-                HTTP_STATUSES.BAD_REQUEST_400, getValidAuthValue());
+                HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response2.body).toEqual({
                 errorsMessages: [
                     {
@@ -348,7 +350,7 @@ describe('tests for /posts', () => {
             };
 
             const response3 = await postTestManager.createPost(data3,
-                HTTP_STATUSES.BAD_REQUEST_400, getValidAuthValue());
+                HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response3.body).toEqual({
                 errorsMessages: [
                     {
@@ -366,7 +368,7 @@ describe('tests for /posts', () => {
             };
 
             const response4 = await postTestManager.createPost(data4,
-                HTTP_STATUSES.BAD_REQUEST_400, getValidAuthValue());
+                HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response4.body).toEqual({
                 errorsMessages: [
                     {
@@ -390,7 +392,7 @@ describe('tests for /posts', () => {
             };
 
             const response1 = await postTestManager.createPost(data1,
-                HTTP_STATUSES.BAD_REQUEST_400, getValidAuthValue());
+                HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response1.body).toEqual({
                 errorsMessages: [
                     {
@@ -408,7 +410,7 @@ describe('tests for /posts', () => {
             };
 
             const response2 = await postTestManager.createPost(data2,
-                HTTP_STATUSES.BAD_REQUEST_400, getValidAuthValue());
+                HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response2.body).toEqual({
                 errorsMessages: [
                     {
@@ -426,7 +428,7 @@ describe('tests for /posts', () => {
             };
 
             const response3 = await postTestManager.createPost(data3,
-                HTTP_STATUSES.BAD_REQUEST_400, getValidAuthValue());
+                HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response3.body).toEqual({
                 errorsMessages: [
                     {
@@ -444,7 +446,7 @@ describe('tests for /posts', () => {
             };
 
             const response4 = await postTestManager.createPost(data4,
-                HTTP_STATUSES.BAD_REQUEST_400, getValidAuthValue());
+                HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response4.body).toEqual({
                 errorsMessages: [
                     {
@@ -468,7 +470,7 @@ describe('tests for /posts', () => {
             };
 
             const response1 = await postTestManager.createPost(data1,
-                HTTP_STATUSES.BAD_REQUEST_400, getValidAuthValue());
+                HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response1.body).toEqual({
                 errorsMessages: [
                     {
@@ -486,7 +488,7 @@ describe('tests for /posts', () => {
             };
 
             const response2 = await postTestManager.createPost(data2,
-                HTTP_STATUSES.BAD_REQUEST_400, getValidAuthValue());
+                HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response2.body).toEqual({
                 errorsMessages: [
                     {
@@ -504,7 +506,7 @@ describe('tests for /posts', () => {
             };
 
             const response3 = await postTestManager.createPost(data3,
-                HTTP_STATUSES.BAD_REQUEST_400, getValidAuthValue());
+                HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response3.body).toEqual({
                 errorsMessages: [
                     {
@@ -522,7 +524,7 @@ describe('tests for /posts', () => {
             };
 
             const response4 = await postTestManager.createPost(data4,
-                HTTP_STATUSES.BAD_REQUEST_400, getValidAuthValue());
+                HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response4.body).toEqual({
                 errorsMessages: [
                     {
@@ -546,7 +548,7 @@ describe('tests for /posts', () => {
             };
 
             const response1 = await postTestManager.createPost(data1,
-                HTTP_STATUSES.BAD_REQUEST_400, getValidAuthValue());
+                HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response1.body).toEqual({
                 errorsMessages: [
                     {
@@ -564,7 +566,7 @@ describe('tests for /posts', () => {
             };
 
             const response2 = await postTestManager.createPost(data2,
-                HTTP_STATUSES.BAD_REQUEST_400, getValidAuthValue());
+                HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response2.body).toEqual({
                 errorsMessages: [
                     {
@@ -582,7 +584,7 @@ describe('tests for /posts', () => {
             };
 
             const response3 = await postTestManager.createPost(data3,
-                HTTP_STATUSES.BAD_REQUEST_400, getValidAuthValue());
+                HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response3.body).toEqual({
                 errorsMessages: [
                     {
@@ -600,7 +602,7 @@ describe('tests for /posts', () => {
             };
 
             const response4 = await postTestManager.createPost(data4,
-                HTTP_STATUSES.BAD_REQUEST_400, getValidAuthValue());
+                HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response4.body).toEqual({
                 errorsMessages: [
                     {
@@ -623,7 +625,7 @@ describe('tests for /posts', () => {
             };
 
             const response = await postTestManager.createPost(data,
-                HTTP_STATUSES.BAD_REQUEST_400, getValidAuthValue());
+                HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response.body).toEqual({
                 errorsMessages: expect.arrayContaining([
                     { field: 'title', message: 'Title length must be between 1 and 30 symbols' },
@@ -649,7 +651,7 @@ describe('tests for /posts', () => {
             };
 
             const createResponse = await postTestManager.createPost(data,
-                HTTP_STATUSES.CREATED_201, getValidAuthValue());
+                HTTP_STATUSES.CREATED_201, validAuth);
 
             const createdPost: PostViewModel = createResponse.body;
             await req
@@ -669,7 +671,7 @@ describe('tests for /posts', () => {
             };
 
             const createResponse = await postTestManager.createPost(data,
-                HTTP_STATUSES.CREATED_201, getValidAuthValue());
+                HTTP_STATUSES.CREATED_201, validAuth);
 
             const createdPost: PostViewModel = createResponse.body;
             await req
@@ -734,7 +736,7 @@ describe('tests for /posts', () => {
             };
 
             const response1 = await postTestManager.updatePost(postId, data1,
-                HTTP_STATUSES.BAD_REQUEST_400, getValidAuthValue());
+                HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response1.body).toEqual({
                 errorsMessages: [
                     {
@@ -751,7 +753,7 @@ describe('tests for /posts', () => {
             };
 
             const response2 = await postTestManager.updatePost(postId, data2,
-                HTTP_STATUSES.BAD_REQUEST_400, getValidAuthValue());
+                HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response2.body).toEqual({
                 errorsMessages: [
                     {
@@ -768,7 +770,7 @@ describe('tests for /posts', () => {
             };
 
             const response3 = await postTestManager.updatePost(postId, data3,
-                HTTP_STATUSES.BAD_REQUEST_400, getValidAuthValue());
+                HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response3.body).toEqual({
                 errorsMessages: [
                     {
@@ -785,7 +787,7 @@ describe('tests for /posts', () => {
             };
 
             const response4 = await postTestManager.updatePost(postId, data4,
-                HTTP_STATUSES.BAD_REQUEST_400, getValidAuthValue());
+                HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response4.body).toEqual({
                 errorsMessages: [
                     {
@@ -811,7 +813,7 @@ describe('tests for /posts', () => {
             };
 
             const response1 = await postTestManager.updatePost(postId, data1,
-                HTTP_STATUSES.BAD_REQUEST_400, getValidAuthValue());
+                HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response1.body).toEqual({
                 errorsMessages: [
                     {
@@ -829,7 +831,7 @@ describe('tests for /posts', () => {
             };
 
             const response2 = await postTestManager.updatePost(postId, data2,
-                HTTP_STATUSES.BAD_REQUEST_400, getValidAuthValue());
+                HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response2.body).toEqual({
                 errorsMessages: [
                     {
@@ -847,7 +849,7 @@ describe('tests for /posts', () => {
             };
 
             const response3 = await postTestManager.updatePost(postId, data3,
-                HTTP_STATUSES.BAD_REQUEST_400, getValidAuthValue());
+                HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response3.body).toEqual({
                 errorsMessages: [
                     {
@@ -865,7 +867,7 @@ describe('tests for /posts', () => {
             };
 
             const response4 = await postTestManager.updatePost(postId, data4,
-                HTTP_STATUSES.BAD_REQUEST_400, getValidAuthValue());
+                HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response4.body).toEqual({
                 errorsMessages: [
                     {
@@ -891,7 +893,7 @@ describe('tests for /posts', () => {
             };
 
             const response1 = await postTestManager.updatePost(postId, data1,
-                HTTP_STATUSES.BAD_REQUEST_400, getValidAuthValue());
+                HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response1.body).toEqual({
                 errorsMessages: [
                     {
@@ -909,7 +911,7 @@ describe('tests for /posts', () => {
             };
 
             const response2 = await postTestManager.updatePost(postId, data2,
-                HTTP_STATUSES.BAD_REQUEST_400, getValidAuthValue());
+                HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response2.body).toEqual({
                 errorsMessages: [
                     {
@@ -927,7 +929,7 @@ describe('tests for /posts', () => {
             };
 
             const response3 = await postTestManager.updatePost(postId, data3,
-                HTTP_STATUSES.BAD_REQUEST_400, getValidAuthValue());
+                HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response3.body).toEqual({
                 errorsMessages: [
                     {
@@ -945,7 +947,7 @@ describe('tests for /posts', () => {
             };
 
             const response4 = await postTestManager.updatePost(postId, data4,
-                HTTP_STATUSES.BAD_REQUEST_400, getValidAuthValue());
+                HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response4.body).toEqual({
                 errorsMessages: [
                     {
@@ -971,7 +973,7 @@ describe('tests for /posts', () => {
             };
 
             const response1 = await postTestManager.updatePost(postId, data1,
-                HTTP_STATUSES.BAD_REQUEST_400, getValidAuthValue());
+                HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response1.body).toEqual({
                 errorsMessages: [
                     {
@@ -989,7 +991,7 @@ describe('tests for /posts', () => {
             };
 
             const response2 = await postTestManager.updatePost(postId, data2,
-                HTTP_STATUSES.BAD_REQUEST_400, getValidAuthValue());
+                HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response2.body).toEqual({
                 errorsMessages: [
                     {
@@ -1007,7 +1009,7 @@ describe('tests for /posts', () => {
             };
 
             const response3 = await postTestManager.updatePost(postId, data3,
-                HTTP_STATUSES.BAD_REQUEST_400, getValidAuthValue());
+                HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response3.body).toEqual({
                 errorsMessages: [
                     {
@@ -1025,7 +1027,7 @@ describe('tests for /posts', () => {
             };
 
             const response4 = await postTestManager.updatePost(postId, data4,
-                HTTP_STATUSES.BAD_REQUEST_400, getValidAuthValue());
+                HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response4.body).toEqual({
                 errorsMessages: [
                     {
@@ -1051,7 +1053,7 @@ describe('tests for /posts', () => {
             };
 
             const response1 = await postTestManager.updatePost(postId, data1,
-                HTTP_STATUSES.BAD_REQUEST_400, getValidAuthValue());
+                HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response1.body).toEqual({
                 errorsMessages: [
                     {
@@ -1069,7 +1071,7 @@ describe('tests for /posts', () => {
             };
 
             const response2 = await postTestManager.updatePost(postId, data2,
-                HTTP_STATUSES.BAD_REQUEST_400, getValidAuthValue());
+                HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response2.body).toEqual({
                 errorsMessages: [
                     {
@@ -1087,7 +1089,7 @@ describe('tests for /posts', () => {
             };
 
             const response3 = await postTestManager.updatePost(postId, data3,
-                HTTP_STATUSES.BAD_REQUEST_400, getValidAuthValue());
+                HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response3.body).toEqual({
                 errorsMessages: [
                     {
@@ -1105,7 +1107,7 @@ describe('tests for /posts', () => {
             };
 
             const response4 = await postTestManager.updatePost(postId, data4,
-                HTTP_STATUSES.BAD_REQUEST_400, getValidAuthValue());
+                HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response4.body).toEqual({
                 errorsMessages: [
                     {
@@ -1130,7 +1132,7 @@ describe('tests for /posts', () => {
             };
 
             const response = await postTestManager.updatePost(postId, data,
-                HTTP_STATUSES.BAD_REQUEST_400, getValidAuthValue());
+                HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response.body).toEqual({
                 errorsMessages: expect.arrayContaining([
                     { field: 'title', message: 'Title length must be between 1 and 30 symbols' },
@@ -1148,7 +1150,7 @@ describe('tests for /posts', () => {
         // non-existing post
         it('should return 404 when updating non-existing post', async () => {
             await postTestManager.updatePost('-100', datasets.postsDataForUpdate[0],
-                HTTP_STATUSES.NOT_FOUND_404, getValidAuthValue());
+                HTTP_STATUSES.NOT_FOUND_404, validAuth);
         });
 
         // correct input
@@ -1157,7 +1159,7 @@ describe('tests for /posts', () => {
             const postId = createdPosts[0].id;
 
             await postTestManager.updatePost(postId, data,
-                HTTP_STATUSES.NO_CONTENT_204, getValidAuthValue());
+                HTTP_STATUSES.NO_CONTENT_204, validAuth);
 
             await req
                 .get(SETTINGS.PATH.POSTS + '/' + createdPosts[1].id)
@@ -1173,7 +1175,7 @@ describe('tests for /posts', () => {
             const postId = posts[1].id;
 
             await postTestManager.updatePost(postId, data,
-                HTTP_STATUSES.NOT_FOUND_404, getValidAuthValue());
+                HTTP_STATUSES.NOT_FOUND_404, validAuth);
         });
     });
 });
