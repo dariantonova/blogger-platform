@@ -18,6 +18,7 @@ export const mapPostToViewModel = (dbPost: PostDBType): PostViewModel => {
         content: dbPost.content,
         blogId: dbPost.blogId,
         blogName,
+        createdAt: dbPost.createdAt,
     };
 };
 

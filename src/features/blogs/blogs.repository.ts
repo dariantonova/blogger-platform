@@ -35,6 +35,8 @@ export const blogsRepository = {
             description,
             websiteUrl,
             isDeleted: false,
+            createdAt: new Date().toISOString(),
+            isMembership: false,
         };
 
         db.blogs.push(createdBlog);

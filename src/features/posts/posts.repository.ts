@@ -27,6 +27,7 @@ export const postsRepository = {
             content,
             blogId,
             isDeleted: false,
+            createdAt: new Date().toISOString(),
         };
 
         db.posts.push(createdPost);

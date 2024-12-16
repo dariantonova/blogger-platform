@@ -18,7 +18,11 @@ export const blogTestManager = {
                 name: data.name,
                 description: data.description,
                 websiteUrl: data.websiteUrl,
+                createdAt: expect.any(String),
+                isMembership: false,
             });
+
+            expect(isNaN(new Date(createdBlog.createdAt).getTime())).toBe(false);
 
             await req
                 .get(SETTINGS.PATH.BLOGS + '/' + createdBlog.id)
@@ -50,6 +54,8 @@ export const blogTestManager = {
                 name: data.name,
                 description: data.description,
                 websiteUrl: data.websiteUrl,
+                createdAt: blogBeforeUpdate.createdAt,
+                isMembership: blogBeforeUpdate.isMembership,
             });
         }
 

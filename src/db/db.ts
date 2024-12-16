@@ -23,6 +23,8 @@ const blogs: BlogDBType[] = [
         description: 'superblog 1',
         websiteUrl: 'https://superblog.com/1',
         isDeleted: false,
+        createdAt: '2024-12-15T05:32:26.882Z',
+        isMembership: false,
     },
     {
         id: '2',
@@ -30,6 +32,8 @@ const blogs: BlogDBType[] = [
         description: 'superblog 2',
         websiteUrl: 'https://superblog.com/2',
         isDeleted: false,
+        createdAt: '2024-12-16T05:32:26.882Z',
+        isMembership: false,
     },
 ];
 
@@ -41,6 +45,7 @@ const posts: PostDBType[] = [
         content: 'content of superpost 1',
         blogId: '2',
         isDeleted: false,
+        createdAt: '2024-12-15T05:32:26.882Z',
     },
     {
         id: '2',
@@ -49,6 +54,7 @@ const posts: PostDBType[] = [
         content: 'content of superpost 2',
         blogId: '1',
         isDeleted: false,
+        createdAt: '2024-12-16T05:32:26.882Z',
     },
 ];
 

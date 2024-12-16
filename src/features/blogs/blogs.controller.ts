@@ -13,6 +13,8 @@ export const mapBlogToViewModel = (dbBlog: BlogDBType): BlogViewModel => {
         name: dbBlog.name,
         description: dbBlog.description,
         websiteUrl: dbBlog.websiteUrl,
+        createdAt: dbBlog.createdAt,
+        isMembership: dbBlog.isMembership,
     };
 };
 

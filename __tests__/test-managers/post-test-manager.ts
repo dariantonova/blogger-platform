@@ -21,7 +21,10 @@ export const postTestManager = {
                 content: data.content,
                 blogId: data.blogId,
                 blogName: blogsRepository.findBlogById(data.blogId)?.name || '',
+                createdAt: expect.any(String),
             });
+
+            expect(isNaN(new Date(createdPost.createdAt).getTime())).toBe(false);
 
             await req
                 .get(SETTINGS.PATH.POSTS + '/' + createdPost.id)
@@ -55,6 +58,7 @@ export const postTestManager = {
                 content: data.content,
                 blogId: data.blogId,
                 blogName: blogsRepository.findBlogById(data.blogId)?.name || '',
+                createdAt: postBeforeUpdate.createdAt,
             });
         }
 
