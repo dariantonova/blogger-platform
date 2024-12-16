@@ -1,7 +1,7 @@
 import {BlogDBType, RequestWithBody, RequestWithParams, RequestWithParamsAndBody} from "../../types";
 import {BlogViewModel} from "./models/BlogViewModel";
 import {Request, Response} from "express";
-import {blogsRepository} from "./blogs.in-memory.repository";
+import {blogsRepository} from "./blogs.db.repository";
 import {URIParamsBlogIdModel} from "./models/URIParamsBlogIdModel";
 import {HTTP_STATUSES} from "../../utils";
 import {CreateBlogInputModel} from "./models/CreateBlogInputModel";

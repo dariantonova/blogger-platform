@@ -2,25 +2,31 @@ import {req} from "../test-helpers";
 import {SETTINGS} from "../../src/settings";
 import {encodeToBase64, HTTP_STATUSES} from "../../src/utils";
 import {BlogDBType} from "../../src/types";
-import {db, setDB} from "../../src/db/db";
 import * as datasets from '../datasets';
 import {mapBlogToViewModel} from "../../src/features/blogs/blogs.controller";
 import {CreateBlogInputModel} from "../../src/features/blogs/models/CreateBlogInputModel";
 import {blogTestManager} from "../test-managers/blog-test-manager";
 import {WEBSITE_URL_PATTERN} from "../../src/validation/field-validators/blogs-field-validators";
 import {BlogViewModel} from "../../src/features/blogs/models/BlogViewModel";
+import {blogsCollection, client, postsCollection, runDb, setDb} from "../../src/db/db";
 
 describe('tests for /blogs', () => {
     const validAuth = 'Basic YWRtaW46cXdlcnR5';
 
     beforeAll(async () => {
+        await runDb();
+
         await req
             .delete(SETTINGS.PATH.TESTING + '/all-data');
     });
 
+    afterAll(async () => {
+        await client.close();
+    });
+
     it('database should be cleared', async () => {
-        expect(db.blogs.length).toBe(0);
-        expect(db.posts.length).toBe(0);
+        expect(await blogsCollection.find({}).toArray()).toEqual([]);
+        expect(await postsCollection.find({}).toArray()).toEqual([]);
     });
 
     describe('get blogs', () => {
@@ -39,7 +45,7 @@ describe('tests for /blogs', () => {
 
         it('should return array with all blogs', async () => {
             blogs = datasets.blogs;
-            setDB({ blogs });
+            await setDb({ blogs } );
 
             await req
                 .get(SETTINGS.PATH.BLOGS)
@@ -48,7 +54,7 @@ describe('tests for /blogs', () => {
 
         it(`shouldn't return deleted blogs`, async () => {
             const blogs = datasets.blogsWithDeleted;
-            setDB({ blogs });
+            await setDb({ blogs } );
 
             await req
                 .get(SETTINGS.PATH.BLOGS)
@@ -59,9 +65,9 @@ describe('tests for /blogs', () => {
     describe('get blog', () => {
         let blogs: BlogDBType[];
 
-        beforeAll(() => {
+        beforeAll(async () => {
             blogs = datasets.blogs;
-            setDB({ blogs });
+            await setDb({ blogs } );
         });
 
         afterAll(async () => {
@@ -83,7 +89,7 @@ describe('tests for /blogs', () => {
 
         it('should return 404 for deleted blog', async () => {
             const blogs = datasets.blogsWithDeleted;
-            setDB({ blogs });
+            await setDb({ blogs } );
 
             await req
                 .get(SETTINGS.PATH.BLOGS + '/' + blogs[0].id)
@@ -94,9 +100,9 @@ describe('tests for /blogs', () => {
     describe('delete blog', () => {
         let blogs: BlogDBType[];
 
-        beforeAll(() => {
+        beforeAll(async () => {
             blogs = datasets.blogs;
-            setDB({ blogs });
+            await setDb({ blogs } );
         });
 
         afterAll(async () => {
@@ -174,7 +180,7 @@ describe('tests for /blogs', () => {
 
         it('should return 404 when deleting deleted blog', async () => {
             const blogs = datasets.blogsWithDeleted;
-            setDB({ blogs });
+            await setDb({ blogs } );
 
             await req
                 .delete(SETTINGS.PATH.BLOGS + '/' + blogs[0])
@@ -185,7 +191,7 @@ describe('tests for /blogs', () => {
         it('should delete related posts when deleting blog', async () => {
             const blogs = datasets.blogs;
             const posts = datasets.posts;
-            setDB({ blogs, posts });
+            await setDb({ blogs, posts } );
 
             await req
                 .delete(SETTINGS.PATH.BLOGS + '/' + blogs[0].id)
@@ -646,7 +652,7 @@ describe('tests for /blogs', () => {
         let createdBlogs: BlogViewModel[] = [];
 
         beforeAll(async () => {
-            setDB({ blogs: datasets.blogs })
+            await setDb({ blogs: datasets.blogs } )
             createdBlogs = datasets.blogs.map(mapBlogToViewModel);
         });
 
@@ -1091,7 +1097,7 @@ describe('tests for /blogs', () => {
         // deleted blog
         it(`should return 404 when updating deleted blog`, async () => {
             const blogs = datasets.blogsWithDeleted;
-            setDB({ blogs });
+            await setDb({ blogs } );
 
             await blogTestManager.updateBlog(blogs[0].id, datasets.blogsDataForUpdate[0],
                 HTTP_STATUSES.NOT_FOUND_404, validAuth);

@@ -1,8 +1,8 @@
 import {BlogDBType, DBType, PostDBType} from "../types";
-import {MongoClient} from "mongodb";
+import {Db, MongoClient} from "mongodb";
 import {SETTINGS} from "../settings";
 
-const client = new MongoClient(SETTINGS.MONGO_URI);
+export const client = new MongoClient(SETTINGS.MONGO_URI);
 const db = client.db('blogger-platform');
 export const blogsCollection = db.collection<BlogDBType>('blogs');
 export const postsCollection = db.collection<PostDBType>('posts');
@@ -19,21 +19,29 @@ export const runDb = async () => {
     }
 };
 
-export const setDb = async (dataset?: Partial<DBType>) => {
+export const setDb = async (dataset?: Partial<DBType>, db?: Db) => {
+    let blogsCol = blogsCollection;
+    let postsCol = postsCollection;
+
+    if (db) {
+        blogsCol = db.collection<BlogDBType>('blogs');
+        postsCol = db.collection<PostDBType>('posts');
+    }
+
     if (!dataset) {
-        await blogsCollection.deleteMany({});
-        await postsCollection.deleteMany({});
+        await blogsCol.drop();
+        await postsCol.drop();
         return;
     }
 
     if (dataset.blogs) {
-        await blogsCollection.deleteMany({});
-        await blogsCollection.insertMany(dataset.blogs);
+        await blogsCol.drop();
+        await blogsCol.insertMany(dataset.blogs);
     }
 
     if (dataset.posts) {
-        await postsCollection.deleteMany({});
-        await postsCollection.insertMany(dataset.posts);
+        await postsCol.drop();
+        await postsCol.insertMany(dataset.posts);
     }
 };
 

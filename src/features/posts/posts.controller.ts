@@ -1,8 +1,8 @@
 import {Request, Response} from 'express';
 import {PostViewModel} from "./models/PostViewModel";
-import {postsRepository} from "./posts.in-memory.repository";
+import {postsRepository} from "./posts.db.repository";
 import {PostDBType, RequestWithBody, RequestWithParams, RequestWithParamsAndBody} from "../../types";
-import {blogsRepository} from "../blogs/blogs.in-memory.repository";
+import {blogsRepository} from "../blogs/blogs.db.repository";
 import {URIParamsPostIdModel} from "./models/URIParamsPostIdModel";
 import {HTTP_STATUSES} from "../../utils";
 import {CreatePostInputModel} from "./models/CreatePostInputModel";

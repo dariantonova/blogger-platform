@@ -1,6 +1,6 @@
 import {req} from "../test-helpers";
 import {SETTINGS} from "../../src/settings";
-import {db, setDB} from "../../src/db/db";
+import {blogsCollection, client, postsCollection, runDb,  setDb} from "../../src/db/db";
 import {encodeToBase64, HTTP_STATUSES} from "../../src/utils";
 import * as datasets from "../datasets";
 import {mapPostToViewModel} from "../../src/features/posts/posts.controller";
@@ -13,13 +13,19 @@ describe('tests for /posts', () => {
     const validAuth = 'Basic YWRtaW46cXdlcnR5';
 
     beforeAll(async () => {
+        await runDb();
+
         await req
             .delete(SETTINGS.PATH.TESTING + '/all-data');
     });
 
+    afterAll(async () => {
+        await client.close();
+    });
+
     it('database should be cleared', async () => {
-        expect(db.blogs.length).toBe(0);
-        expect(db.posts.length).toBe(0);
+        expect(await blogsCollection.find({}).toArray()).toEqual([]);
+        expect(await postsCollection.find({}).toArray()).toEqual([]);
     });
 
     describe('get posts', () => {
@@ -37,7 +43,7 @@ describe('tests for /posts', () => {
 
         it('should return array with all posts', async () => {
             const posts = datasets.posts;
-            setDB({ posts, blogs: datasets.blogs });
+            await setDb({ posts, blogs: datasets.blogs });
 
             await req
                 .get(SETTINGS.PATH.POSTS)
@@ -46,7 +52,7 @@ describe('tests for /posts', () => {
 
         it(`shouldn't return deleted posts`, async () => {
             const posts = datasets.postsWithDeleted;
-            setDB( { posts, blogs: datasets.blogs });
+            await setDb( { posts, blogs: datasets.blogs });
 
             await req
                 .get(SETTINGS.PATH.POSTS)
@@ -57,9 +63,9 @@ describe('tests for /posts', () => {
     describe('get post', () => {
         let posts: PostDBType[];
 
-        beforeAll(() => {
+        beforeAll(async () => {
             posts = datasets.posts;
-            setDB({ posts, blogs: datasets.blogs });
+            await setDb({ posts, blogs: datasets.blogs });
         });
 
         afterAll(async () => {
@@ -81,7 +87,7 @@ describe('tests for /posts', () => {
 
         it(`shouldn't return deleted post`, async () => {
             const posts = datasets.postsWithDeleted;
-            setDB( { posts, blogs: datasets.blogs });
+            await setDb( { posts, blogs: datasets.blogs });
 
             await req
                 .get(SETTINGS.PATH.POSTS + '/' + posts[1].id)
@@ -92,9 +98,9 @@ describe('tests for /posts', () => {
     describe('delete post', () => {
         let posts: PostDBType[];
 
-        beforeAll(() => {
+        beforeAll(async () => {
             posts = datasets.posts;
-            setDB({ posts, blogs: datasets.blogs });
+            await setDb({ posts, blogs: datasets.blogs });
         });
 
         afterAll(async () => {
@@ -187,8 +193,8 @@ describe('tests for /posts', () => {
     describe('create post', () => {
         let createdPosts: PostViewModel[] = [];
 
-        beforeAll(() => {
-            setDB({ blogs: datasets.blogs });
+        beforeAll(async () => {
+            await setDb({ blogs: datasets.blogs });
         });
 
         afterAll(async () => {
@@ -687,7 +693,7 @@ describe('tests for /posts', () => {
 
         beforeAll(async () => {
             const posts = datasets.posts;
-            setDB({ posts, blogs: datasets.blogs });
+            await setDb({ posts, blogs: datasets.blogs });
             createdPosts = posts.map(mapPostToViewModel);
         });
 
@@ -1169,7 +1175,7 @@ describe('tests for /posts', () => {
         // cannot update deleted post
         it('should return 404 when updating deleted post', async () => {
             const posts = datasets.postsWithDeleted;
-            setDB( { posts, blogs: datasets.blogs });
+            await setDb( { posts, blogs: datasets.blogs });
 
             const data = datasets.postsDataForUpdate[0];
             const postId = posts[1].id;
