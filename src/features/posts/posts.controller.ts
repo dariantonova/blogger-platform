@@ -1,15 +1,16 @@
 import {Request, Response} from 'express';
 import {PostViewModel} from "./models/PostViewModel";
-import {postsRepository} from "./posts.repository";
+import {postsRepository} from "./posts.in-memory.repository";
 import {PostDBType, RequestWithBody, RequestWithParams, RequestWithParamsAndBody} from "../../types";
-import {blogsRepository} from "../blogs/blogs.repository";
+import {blogsRepository} from "../blogs/blogs.in-memory.repository";
 import {URIParamsPostIdModel} from "./models/URIParamsPostIdModel";
 import {HTTP_STATUSES} from "../../utils";
 import {CreatePostInputModel} from "./models/CreatePostInputModel";
 import {UpdatePostInputModel} from "./models/UpdatePostInputModel";
 
-export const mapPostToViewModel = (dbPost: PostDBType): PostViewModel => {
-    const blogName = blogsRepository.findBlogById(dbPost.blogId)?.name || '';
+export const mapPostToViewModel = async (dbPost: PostDBType): Promise<PostViewModel> => {
+    const blog = await blogsRepository.findBlogById(dbPost.blogId);
+    const blogName = blog?.name || '';
 
     return {
         id: dbPost.id,
@@ -23,22 +24,24 @@ export const mapPostToViewModel = (dbPost: PostDBType): PostViewModel => {
 };
 
 export const postsController = {
-    getPosts: (req: Request, res: Response<PostViewModel[]>) => {
-        const foundPosts = postsRepository.findPosts();
+    getPosts: async (req: Request, res: Response<PostViewModel[]>) => {
+        const foundPosts = await postsRepository.findPosts();
 
-        res.json(foundPosts.map(mapPostToViewModel));
+        const postsToSend = await Promise.all(foundPosts.map(mapPostToViewModel));
+        res.json(postsToSend);
     },
-    getPost: (req: RequestWithParams<URIParamsPostIdModel>, res: Response<PostViewModel>) => {
-        const foundPost = postsRepository.findPostById(req.params.id);
+    getPost: async (req: RequestWithParams<URIParamsPostIdModel>, res: Response<PostViewModel>) => {
+        const foundPost = await postsRepository.findPostById(req.params.id);
         if (!foundPost) {
             res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
             return;
         }
 
-        res.json(mapPostToViewModel(foundPost));
+        const postToSend = await mapPostToViewModel(foundPost);
+        res.json(postToSend);
     },
-    deletePost: (req: RequestWithParams<URIParamsPostIdModel>, res: Response) => {
-        const isDeleted = postsRepository.deletePost(req.params.id);
+    deletePost: async (req: RequestWithParams<URIParamsPostIdModel>, res: Response) => {
+        const isDeleted = await postsRepository.deletePost(req.params.id);
         if (!isDeleted) {
             res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
             return;
@@ -46,19 +49,20 @@ export const postsController = {
 
         res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
     },
-    createPost: (req: RequestWithBody<CreatePostInputModel>,
+    createPost: async (req: RequestWithBody<CreatePostInputModel>,
                  res: Response<PostViewModel>) => {
-        const createdPost = postsRepository.createPost(
+        const createdPost = await postsRepository.createPost(
             req.body.title, req.body.shortDescription, req.body.content, req.body.blogId
         );
 
+        const postToSend = await mapPostToViewModel(createdPost);
         res
             .status(HTTP_STATUSES.CREATED_201)
-            .json(mapPostToViewModel(createdPost));
+            .json(postToSend);
     },
-    updatePost: (req: RequestWithParamsAndBody<URIParamsPostIdModel, UpdatePostInputModel>,
+    updatePost: async (req: RequestWithParamsAndBody<URIParamsPostIdModel, UpdatePostInputModel>,
                  res: Response) => {
-        const isUpdated = postsRepository.updatePost(
+        const isUpdated = await postsRepository.updatePost(
             req.params.id, req.body.title, req.body.shortDescription, req.body.content, req.body.blogId
         );
 

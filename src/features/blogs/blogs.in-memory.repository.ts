@@ -1,23 +1,24 @@
-import {db} from "../../db/db";
 import {BlogDBType} from "../../types";
-import {postsRepository} from "../posts/posts.repository";
+import {postsRepository} from "../posts/posts.in-memory.repository";
+import {initialDb as db} from "../../db/db";
 
 export const blogsRepository = {
-    findBlogs(): BlogDBType[] {
+    async findBlogs(): Promise<BlogDBType[]> {
         return db.blogs.filter(b => !b.isDeleted);
     },
-    findBlogById(id: string): BlogDBType | undefined {
-        return blogsRepository.findBlogs()
-            .find(b => b.id === id);
+    async findBlogById(id: string): Promise<BlogDBType | null> {
+        const blogs = await blogsRepository.findBlogs();
+        return blogs.find(b => b.id === id) || null;
     },
-    deleteBlog(id: string): boolean {
-        const blogs = blogsRepository.findBlogs();
+    async deleteBlog(id: string): Promise<boolean> {
+        const blogs = await blogsRepository.findBlogs();
         for (let i = 0; i < blogs.length; i++) {
             if (blogs[i].id === id) {
                 blogs[i].isDeleted = true;
 
                 // delete all related posts
-                postsRepository.findPosts().forEach(p => {
+                const posts = await postsRepository.findPosts();
+                posts.forEach(p => {
                     if (p.blogId === id) {
                         p.isDeleted = true;
                     }
@@ -28,7 +29,7 @@ export const blogsRepository = {
         }
         return false;
     },
-    createBlog(name: string, description: string, websiteUrl: string): BlogDBType {
+    async createBlog(name: string, description: string, websiteUrl: string): Promise<BlogDBType> {
         const createdBlog: BlogDBType = {
             id: String(+new Date()),
             name,
@@ -43,9 +44,8 @@ export const blogsRepository = {
 
         return createdBlog;
     },
-    updateBlog(id: string, name: string, description: string, websiteUrl: string): boolean {
-        const blog = blogsRepository.findBlogs()
-            .find(b => b.id === id);
+    async updateBlog(id: string, name: string, description: string, websiteUrl: string): Promise<boolean> {
+        const blog = await blogsRepository.findBlogById(id);
         if (!blog) {
             return false;
         }
@@ -56,7 +56,7 @@ export const blogsRepository = {
 
         return true;
     },
-    deleteAllBlogs() {
+    async deleteAllBlogs() {
         db.blogs = [];
     },
 };

@@ -1,16 +1,16 @@
-import {db} from "../../db/db";
+import {initialDb as db} from "../../db/db";
 import {PostDBType} from "../../types";
 
 export const postsRepository = {
-    findPosts(): PostDBType[] {
+    async findPosts(): Promise<PostDBType[]> {
         return db.posts.filter(p => !p.isDeleted);
     },
-    findPostById(id: string): PostDBType | undefined {
-        return postsRepository.findPosts()
-            .find(p => p.id === id);
+    async findPostById(id: string): Promise<PostDBType | null> {
+        const posts = await postsRepository.findPosts();
+        return posts.find(p => p.id === id) || null;
     },
-    deletePost(id: string): boolean {
-        const posts = postsRepository.findPosts();
+    async deletePost(id: string): Promise<boolean> {
+        const posts = await postsRepository.findPosts();
         for (let i = 0; i < posts.length; i++) {
             if (posts[i].id === id) {
                 posts[i].isDeleted = true;
@@ -19,7 +19,7 @@ export const postsRepository = {
         }
         return false;
     },
-    createPost(title: string, shortDescription: string, content: string, blogId: string): PostDBType {
+    async createPost(title: string, shortDescription: string, content: string, blogId: string): Promise<PostDBType> {
         const createdPost: PostDBType = {
             id: String(+new Date()),
             title,
@@ -34,8 +34,9 @@ export const postsRepository = {
 
         return createdPost;
     },
-    updatePost(id: string, title: string, shortDescription: string, content: string, blogId: string): boolean {
-        const post = postsRepository.findPostById(id);
+    async updatePost(id: string, title: string, shortDescription: string,
+                     content: string, blogId: string): Promise<boolean> {
+        const post = await postsRepository.findPostById(id);
         if (!post) {
             return false;
         }
@@ -47,7 +48,7 @@ export const postsRepository = {
 
         return true;
     },
-    deleteAllPosts() {
+    async deleteAllPosts() {
         db.posts = [];
     },
 };

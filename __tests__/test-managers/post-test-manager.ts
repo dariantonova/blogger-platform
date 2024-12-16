@@ -2,7 +2,7 @@ import {req} from "../test-helpers";
 import {SETTINGS} from "../../src/settings";
 import {HTTP_STATUSES} from "../../src/utils";
 import {PostViewModel} from "../../src/features/posts/models/PostViewModel";
-import {blogsRepository} from "../../src/features/blogs/blogs.repository";
+import {blogsRepository} from "../../src/features/blogs/blogs.in-memory.repository";
 
 export const postTestManager = {
     async createPost(data: any, expectedStatusCode: number, auth: string) {

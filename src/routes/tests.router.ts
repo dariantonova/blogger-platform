@@ -1,6 +1,6 @@
 import {Router, Request, Response} from 'express';
-import {blogsRepository} from "../features/blogs/blogs.repository";
-import {postsRepository} from "../features/posts/posts.repository";
+import {blogsRepository} from "../features/blogs/blogs.in-memory.repository";
+import {postsRepository} from "../features/posts/posts.in-memory.repository";
 import {HTTP_STATUSES} from "../utils";
 
 const router = Router();

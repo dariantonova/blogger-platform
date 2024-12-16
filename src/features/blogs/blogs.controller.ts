@@ -1,7 +1,7 @@
 import {BlogDBType, RequestWithBody, RequestWithParams, RequestWithParamsAndBody} from "../../types";
 import {BlogViewModel} from "./models/BlogViewModel";
 import {Request, Response} from "express";
-import {blogsRepository} from "./blogs.repository";
+import {blogsRepository} from "./blogs.in-memory.repository";
 import {URIParamsBlogIdModel} from "./models/URIParamsBlogIdModel";
 import {HTTP_STATUSES} from "../../utils";
 import {CreateBlogInputModel} from "./models/CreateBlogInputModel";
@@ -19,14 +19,14 @@ export const mapBlogToViewModel = (dbBlog: BlogDBType): BlogViewModel => {
 };
 
 export const blogsController = {
-    getBlogs: (req: Request, res: Response<BlogViewModel[]>) => {
-        const foundBlogs = blogsRepository.findBlogs();
+    getBlogs: async (req: Request, res: Response<BlogViewModel[]>) => {
+        const foundBlogs =  await blogsRepository.findBlogs();
 
         res.json(foundBlogs.map(mapBlogToViewModel));
     },
-    getBlog: (req: RequestWithParams<URIParamsBlogIdModel>,
+    getBlog: async (req: RequestWithParams<URIParamsBlogIdModel>,
               res: Response<BlogViewModel>) => {
-        const foundBlog = blogsRepository.findBlogById(req.params.id);
+        const foundBlog = await blogsRepository.findBlogById(req.params.id);
         if (!foundBlog) {
             res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
             return;
@@ -34,8 +34,8 @@ export const blogsController = {
 
         res.json(mapBlogToViewModel(foundBlog));
     },
-    deleteBlog: (req: RequestWithParams<URIParamsBlogIdModel>, res: Response) => {
-        const isDeleted = blogsRepository.deleteBlog(req.params.id);
+    deleteBlog: async (req: RequestWithParams<URIParamsBlogIdModel>, res: Response) => {
+        const isDeleted = await blogsRepository.deleteBlog(req.params.id);
         if (!isDeleted) {
             res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
             return;
@@ -43,9 +43,9 @@ export const blogsController = {
 
         res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
     },
-    createBlog: (req: RequestWithBody<CreateBlogInputModel>,
+    createBlog: async (req: RequestWithBody<CreateBlogInputModel>,
                  res: Response<BlogViewModel>) => {
-        const createdBlog = blogsRepository.createBlog(
+        const createdBlog = await blogsRepository.createBlog(
             req.body.name, req.body.description, req.body.websiteUrl
         );
 
@@ -53,9 +53,9 @@ export const blogsController = {
             .status(HTTP_STATUSES.CREATED_201)
             .json(mapBlogToViewModel(createdBlog));
     },
-    updateBlog: (req: RequestWithParamsAndBody<URIParamsBlogIdModel, UpdateBlogInputModel>,
+    updateBlog: async (req: RequestWithParamsAndBody<URIParamsBlogIdModel, UpdateBlogInputModel>,
                  res: Response) => {
-        const isUpdated = blogsRepository.updateBlog(
+        const isUpdated = await blogsRepository.updateBlog(
             req.params.id, req.body.name, req.body.description, req.body.websiteUrl
         );
 

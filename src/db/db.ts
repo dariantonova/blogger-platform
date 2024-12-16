@@ -1,19 +1,40 @@
 import {BlogDBType, DBType, PostDBType} from "../types";
+import {MongoClient} from "mongodb";
+import {SETTINGS} from "../settings";
 
-export const db: DBType = {
-    blogs: [],
-    posts: [],
+const client = new MongoClient(SETTINGS.MONGO_URI);
+const db = client.db('blogger-platform');
+export const blogsCollection = db.collection<BlogDBType>('blogs');
+export const postsCollection = db.collection<PostDBType>('posts');
+
+export const runDb = async () => {
+    try {
+        await client.connect();
+        await db.command({ ping: 1 });
+        console.log('Successfully connected to mongo server');
+    }
+    catch {
+        console.log('Cannot connect to mongo server');
+        await client.close();
+    }
 };
 
-export const setDB = (dataset?: Partial<DBType>) => {
+export const setDb = async (dataset?: Partial<DBType>) => {
     if (!dataset) {
-        db.blogs = [];
-        db.posts = [];
+        await blogsCollection.deleteMany({});
+        await postsCollection.deleteMany({});
         return;
     }
 
-    db.blogs = dataset.blogs ? structuredClone(dataset.blogs) : db.blogs;
-    db.posts = dataset.posts ? structuredClone(dataset.posts) : db.posts;
+    if (dataset.blogs) {
+        await blogsCollection.deleteMany({});
+        await blogsCollection.insertMany(dataset.blogs);
+    }
+
+    if (dataset.posts) {
+        await postsCollection.deleteMany({});
+        await postsCollection.insertMany(dataset.posts);
+    }
 };
 
 const blogs: BlogDBType[] = [
@@ -58,7 +79,7 @@ const posts: PostDBType[] = [
     },
 ];
 
-setDB({
+export const initialDb: DBType = {
     blogs,
-    posts
-});
+    posts,
+};
