@@ -3,10 +3,11 @@ import {blogsCollection, postsCollection} from "../../db/db";
 
 export const blogsRepository = {
     async findBlogs(): Promise<BlogDBType[]> {
-        return blogsCollection.find({ isDeleted: false }).toArray();
+        return await blogsCollection.find({ isDeleted: false }, { projection: { _id: 0 } })
+            .toArray() as BlogDBType[];
     },
     async findBlogById(id: string): Promise<BlogDBType | null> {
-        return blogsCollection.findOne({ isDeleted: false, id: id });
+        return blogsCollection.findOne({ isDeleted: false, id: id }, { projection: { _id: 0 } });
     },
     async deleteBlog(id: string): Promise<boolean> {
         const updateBlogInfo = await blogsCollection.updateOne(

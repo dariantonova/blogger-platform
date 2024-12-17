@@ -1,12 +1,12 @@
-import {initialDb as db, postsCollection} from "../../db/db";
+import {postsCollection} from "../../db/db";
 import {PostDBType} from "../../types";
 
 export const postsRepository = {
     async findPosts(): Promise<PostDBType[]> {
-        return postsCollection.find({ isDeleted: false }).toArray();
+        return postsCollection.find({ isDeleted: false }, { projection: { _id: 0 } }).toArray();
     },
     async findPostById(id: string): Promise<PostDBType | null> {
-        return postsCollection.findOne({ isDeleted: false, id: id });
+        return postsCollection.findOne({ isDeleted: false, id: id }, { projection: { _id: 0 } });
     },
     async deletePost(id: string): Promise<boolean> {
         const updatePostInfo = await postsCollection.updateOne(
