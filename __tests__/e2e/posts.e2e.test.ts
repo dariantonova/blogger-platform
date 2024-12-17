@@ -8,12 +8,17 @@ import {PostDBType} from "../../src/types";
 import {CreatePostInputModel} from "../../src/features/posts/models/CreatePostInputModel";
 import {postTestManager} from "../test-managers/post-test-manager";
 import {PostViewModel} from "../../src/features/posts/models/PostViewModel";
+import {MongoMemoryServer} from "mongodb-memory-server";
 
 describe('tests for /posts', () => {
+    let server: MongoMemoryServer;
     const validAuth = 'Basic YWRtaW46cXdlcnR5';
 
     beforeAll(async () => {
-        const res = await runDb(SETTINGS.MONGO_URL);
+        server = await MongoMemoryServer.create();
+        const uri = server.getUri();
+
+        const res = await runDb(uri);
         expect(res).toBe(true);
 
         await req
@@ -22,6 +27,7 @@ describe('tests for /posts', () => {
 
     afterAll(async () => {
         await client.close();
+        await server.stop();
     });
 
     it('database should be cleared', async () => {

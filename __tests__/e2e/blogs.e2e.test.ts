@@ -9,12 +9,17 @@ import {blogTestManager} from "../test-managers/blog-test-manager";
 import {WEBSITE_URL_PATTERN} from "../../src/validation/field-validators/blogs-field-validators";
 import {BlogViewModel} from "../../src/features/blogs/models/BlogViewModel";
 import {blogsCollection, client, postsCollection, runDb, setDb} from "../../src/db/db";
+import {MongoMemoryServer} from "mongodb-memory-server";
 
 describe('tests for /blogs', () => {
+    let server: MongoMemoryServer;
     const validAuth = 'Basic YWRtaW46cXdlcnR5';
 
     beforeAll(async () => {
-        const res = await runDb(SETTINGS.MONGO_URL);
+        server = await MongoMemoryServer.create();
+        const uri = server.getUri();
+
+        const res = await runDb(uri);
         expect(res).toBe(true);
 
         await req
@@ -23,6 +28,7 @@ describe('tests for /blogs', () => {
 
     afterAll(async () => {
         await client.close();
+        await server.stop();
     });
 
     it('database should be cleared', async () => {
