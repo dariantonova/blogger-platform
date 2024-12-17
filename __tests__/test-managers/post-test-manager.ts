@@ -20,7 +20,7 @@ export const postTestManager = {
                 shortDescription: data.shortDescription,
                 content: data.content,
                 blogId: data.blogId,
-                blogName: blogsRepository.findBlogById(data.blogId)?.name || '',
+                blogName: (await blogsRepository.findBlogById(data.blogId))?.name || '',
                 createdAt: expect.any(String),
             });
 
@@ -57,7 +57,7 @@ export const postTestManager = {
                 shortDescription: data.shortDescription,
                 content: data.content,
                 blogId: data.blogId,
-                blogName: blogsRepository.findBlogById(data.blogId)?.name || '',
+                blogName: (await blogsRepository.findBlogById(data.blogId))?.name || '',
                 createdAt: postBeforeUpdate.createdAt,
             });
         }

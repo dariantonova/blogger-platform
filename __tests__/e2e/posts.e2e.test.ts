@@ -45,18 +45,22 @@ describe('tests for /posts', () => {
             const posts = datasets.posts;
             await setDb({ posts, blogs: datasets.blogs });
 
+            const expectedData = await Promise.all(posts.map(mapPostToViewModel));
+
             await req
                 .get(SETTINGS.PATH.POSTS)
-                .expect(HTTP_STATUSES.OK_200, posts.map(mapPostToViewModel));
+                .expect(HTTP_STATUSES.OK_200, expectedData);
         });
 
         it(`shouldn't return deleted posts`, async () => {
             const posts = datasets.postsWithDeleted;
             await setDb( { posts, blogs: datasets.blogs });
 
+            const expectedData = await Promise.all(posts.slice(0, 1).map(mapPostToViewModel));
+
             await req
                 .get(SETTINGS.PATH.POSTS)
-                .expect(HTTP_STATUSES.OK_200, posts.slice(0, 1).map(mapPostToViewModel));
+                .expect(HTTP_STATUSES.OK_200, expectedData);
         });
     });
 
@@ -80,9 +84,11 @@ describe('tests for /posts', () => {
         });
 
         it('should return the second post', async () => {
+            const expectedData = await mapPostToViewModel(posts[1]);
+
             await req
                 .get(SETTINGS.PATH.POSTS + '/2')
-                .expect(HTTP_STATUSES.OK_200, mapPostToViewModel(posts[1]));
+                .expect(HTTP_STATUSES.OK_200, expectedData);
         });
 
         it(`shouldn't return deleted post`, async () => {
@@ -136,9 +142,11 @@ describe('tests for /posts', () => {
                 .set('Authorization', encodeToBase64(credentials))
                 .expect(HTTP_STATUSES.UNAUTHORIZED_401);
 
+            const expectedData = await mapPostToViewModel(postToDelete);
+
             await req
                 .get(SETTINGS.PATH.POSTS + '/' + postToDelete.id)
-                .expect(HTTP_STATUSES.OK_200, mapPostToViewModel(postToDelete));
+                .expect(HTTP_STATUSES.OK_200, expectedData);
         });
 
         it('should return 404 when deleting non-existing post', async () => {
@@ -160,9 +168,11 @@ describe('tests for /posts', () => {
                 .get(SETTINGS.PATH.POSTS + '/' + postToDelete.id)
                 .expect(HTTP_STATUSES.NOT_FOUND_404);
 
-            await req
+            const expectedData = await mapPostToViewModel(posts[1]);
+
+                await req
                 .get(SETTINGS.PATH.POSTS + '/' + posts[1].id)
-                .expect(HTTP_STATUSES.OK_200, mapPostToViewModel(posts[1]));
+                .expect(HTTP_STATUSES.OK_200, expectedData);
         });
 
         it('should delete the second post', async () => {
@@ -694,7 +704,7 @@ describe('tests for /posts', () => {
         beforeAll(async () => {
             const posts = datasets.posts;
             await setDb({ posts, blogs: datasets.blogs });
-            createdPosts = posts.map(mapPostToViewModel);
+            createdPosts = await Promise.all(posts.map(mapPostToViewModel));
         });
 
         afterAll(async () => {

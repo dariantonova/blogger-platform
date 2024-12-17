@@ -23,6 +23,7 @@ export const blogIdFieldValidator = body('blogId')
     .exists().withMessage('Blog id is required')
     .isString().withMessage('Blog id must be a string')
     .trim().notEmpty().withMessage('Blog id must not be empty')
-    .custom((value) => {
-        return !!blogsRepository.findBlogById(value);
+    .custom(async (value) => {
+        const blog = await blogsRepository.findBlogById(value)
+        return blog ? Promise.resolve() : Promise.reject();
     }).withMessage('Blog id does not exist');
