@@ -1,6 +1,6 @@
 import {req} from "../test-helpers";
 import {SETTINGS} from "../../src/settings";
-import {blogsCollection, client, postsCollection, runDb,  setDb} from "../../src/db/db";
+import {blogsCollection, client, postsCollection, runDb, setDb} from "../../src/db/db";
 import {encodeToBase64, HTTP_STATUSES} from "../../src/utils";
 import * as datasets from "../datasets";
 import {mapPostToViewModel} from "../../src/features/posts/posts.controller";
@@ -9,6 +9,7 @@ import {CreatePostInputModel} from "../../src/features/posts/models/CreatePostIn
 import {postTestManager} from "../test-managers/post-test-manager";
 import {PostViewModel} from "../../src/features/posts/models/PostViewModel";
 import {MongoMemoryServer} from "mongodb-memory-server";
+import {blogTestManager} from "../test-managers/blog-test-manager";
 
 describe('tests for /posts', () => {
     let server: MongoMemoryServer;
@@ -665,12 +666,16 @@ describe('tests for /posts', () => {
 
         // correct input
         it('should create post if input data is correct', async () => {
+            const createBlogResponse = await blogTestManager.createBlog(datasets.blogs[0],
+                HTTP_STATUSES.CREATED_201, validAuth);
+            const createdBlogId = createBlogResponse.body.id;
+
             const datasetPost = datasets.posts[0];
             const data: CreatePostInputModel = {
                 title: datasetPost.title,
                 shortDescription: datasetPost.shortDescription,
                 content: datasetPost.content,
-                blogId: datasetPost.blogId,
+                blogId: createdBlogId,
             };
 
             const createResponse = await postTestManager.createPost(data,
