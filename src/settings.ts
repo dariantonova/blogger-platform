@@ -13,5 +13,6 @@ export const SETTINGS = {
         LOGIN: 'admin',
         PASSWORD: 'qwerty',
     },
-    MONGO_URI: process.env.mongoURI || 'mongodb://0.0.0.0:27017',
+    MONGO_URL: process.env.MONGO_URL || 'mongodb://0.0.0.0:27017',
+    DB_NAME: process.env.DB_NAME || 'test',
 }

@@ -1,21 +1,28 @@
 import {BlogDBType, DBType, PostDBType} from "../types";
-import {Db, MongoClient} from "mongodb";
+import {Collection, Db, MongoClient} from "mongodb";
 import {SETTINGS} from "../settings";
 
-export const client = new MongoClient(SETTINGS.MONGO_URI);
-const db = client.db('blogger-platform');
-export const blogsCollection = db.collection<BlogDBType>('blogs');
-export const postsCollection = db.collection<PostDBType>('posts');
+export let client: MongoClient;
+export let blogsCollection: Collection<BlogDBType>;
+export let postsCollection: Collection<PostDBType>;
 
-export const runDb = async () => {
+export const runDb = async (url: string): Promise<boolean> => {
     try {
+        client = new MongoClient(url);
+        const db = client.db(SETTINGS.DB_NAME);
+
+        blogsCollection = db.collection<BlogDBType>('blogs');
+        postsCollection = db.collection<PostDBType>('posts');
+
         await client.connect();
         await db.command({ ping: 1 });
         console.log('Successfully connected to mongo server');
+        return true;
     }
     catch {
         console.log('Cannot connect to mongo server');
         await client.close();
+        return false;
     }
 };
 

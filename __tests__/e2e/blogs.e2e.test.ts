@@ -14,7 +14,8 @@ describe('tests for /blogs', () => {
     const validAuth = 'Basic YWRtaW46cXdlcnR5';
 
     beforeAll(async () => {
-        await runDb();
+        const res = await runDb(SETTINGS.MONGO_URL);
+        expect(res).toBe(true);
 
         await req
             .delete(SETTINGS.PATH.TESTING + '/all-data');
