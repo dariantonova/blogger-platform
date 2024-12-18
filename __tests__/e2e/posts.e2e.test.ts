@@ -32,6 +32,10 @@ describe('tests for /posts', () => {
     });
 
     describe('get posts', () => {
+
+        beforeAll(async () => {
+            await setDb();
+        });
         
         afterAll(async () => {
             await req

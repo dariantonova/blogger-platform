@@ -34,7 +34,9 @@ describe('tests for /blogs', () => {
     describe('get blogs', () => {
         let blogs: BlogDBType[];
 
-        // add setDb to clear db, so that this suite is not dependent on the one above
+        beforeAll(async () => {
+            await setDb();
+        });
 
         afterAll(async () => {
             await req
@@ -210,6 +212,10 @@ describe('tests for /blogs', () => {
 
     describe('create blog', () => {
         let createdBlogs: BlogViewModel[] = [];
+
+        beforeAll(async () => {
+            await setDb();
+        });
 
         afterAll(async () => {
             await req
