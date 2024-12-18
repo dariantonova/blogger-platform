@@ -6,7 +6,6 @@ import {mapBlogToViewModel} from "../../src/features/blogs/blogs.controller";
 import {CreateBlogInputModel} from "../../src/features/blogs/models/CreateBlogInputModel";
 import {blogTestManager} from "../test-managers/blog-test-manager";
 import {WEBSITE_URL_PATTERN} from "../../src/validation/field-validators/blogs-field-validators";
-import {BlogViewModel} from "../../src/features/blogs/models/BlogViewModel";
 import {blogsCollection, client, postsCollection, runDb, setDb} from "../../src/db/db";
 import {MongoMemoryServer} from "mongodb-memory-server";
 import {UpdateBlogInputModel} from "../../src/features/blogs/models/UpdateBlogInputModel";
@@ -294,8 +293,6 @@ describe('tests for /blogs', () => {
     });
 
     describe('create blog', () => {
-        let createdBlogs: BlogViewModel[] = [];
-
         beforeAll(async () => {
             await setDb();
         });
@@ -677,13 +674,11 @@ describe('tests for /blogs', () => {
                 websiteUrl: 'https://superblog.com/1',
             };
 
-            const createResponse = await blogTestManager
+            await blogTestManager
                 .createBlog(data, HTTP_STATUSES.CREATED_201, validAuth);
-            createdBlogs.push(createResponse.body);
 
-            await req
-                .get(SETTINGS.PATH.BLOGS)
-                .expect(HTTP_STATUSES.OK_200, createdBlogs);
+            const dbBlogs = await blogsCollection.find({}).toArray();
+            expect(dbBlogs.length).toBe(1);
         });
 
         it('should create one more blog', async () => {
@@ -693,13 +688,11 @@ describe('tests for /blogs', () => {
                 websiteUrl: 'https://superblog.com/2',
             };
 
-            const createResponse = await blogTestManager
+            await blogTestManager
                 .createBlog(data, HTTP_STATUSES.CREATED_201, validAuth);
-            createdBlogs.push(createResponse.body);
 
-            await req
-                .get(SETTINGS.PATH.BLOGS)
-                .expect(HTTP_STATUSES.OK_200, createdBlogs);
+            const dbBlogs = await blogsCollection.find({}).toArray();
+            expect(dbBlogs.length).toBe(2);
         });
     });
 
