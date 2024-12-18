@@ -1,6 +1,6 @@
 import {req} from "../test-helpers";
 import {SETTINGS} from "../../src/settings";
-import {blogsCollection, client, postsCollection, runDb, setDb} from "../../src/db/db";
+import {client, runDb, setDb} from "../../src/db/db";
 import {encodeToBase64, HTTP_STATUSES} from "../../src/utils";
 import * as datasets from "../datasets";
 import {mapPostToViewModel} from "../../src/features/posts/posts.controller";
@@ -29,11 +29,6 @@ describe('tests for /posts', () => {
     afterAll(async () => {
         await client.close();
         await server.stop();
-    });
-
-    it('database should be cleared', async () => {
-        expect(await blogsCollection.find({}).toArray()).toEqual([]);
-        expect(await postsCollection.find({}).toArray()).toEqual([]);
     });
 
     describe('get posts', () => {

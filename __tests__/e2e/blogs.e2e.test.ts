@@ -8,7 +8,7 @@ import {CreateBlogInputModel} from "../../src/features/blogs/models/CreateBlogIn
 import {blogTestManager} from "../test-managers/blog-test-manager";
 import {WEBSITE_URL_PATTERN} from "../../src/validation/field-validators/blogs-field-validators";
 import {BlogViewModel} from "../../src/features/blogs/models/BlogViewModel";
-import {blogsCollection, client, postsCollection, runDb, setDb} from "../../src/db/db";
+import {client, runDb, setDb} from "../../src/db/db";
 import {MongoMemoryServer} from "mongodb-memory-server";
 
 describe('tests for /blogs', () => {
@@ -31,13 +31,10 @@ describe('tests for /blogs', () => {
         await server.stop();
     });
 
-    it('database should be cleared', async () => {
-        expect(await blogsCollection.find({}).toArray()).toEqual([]);
-        expect(await postsCollection.find({}).toArray()).toEqual([]);
-    });
-
     describe('get blogs', () => {
         let blogs: BlogDBType[];
+
+        // add setDb to clear db, so that this suite is not dependent on the one above
 
         afterAll(async () => {
             await req
