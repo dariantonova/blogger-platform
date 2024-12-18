@@ -1,19 +1,20 @@
 import {req} from "../test-helpers";
 import {SETTINGS} from "../../src/settings";
 import {encodeToBase64, HTTP_STATUSES} from "../../src/utils";
-import {BlogDBType} from "../../src/types";
+import {BlogDBType, PostDBType} from "../../src/types";
 import * as datasets from '../datasets';
 import {mapBlogToViewModel} from "../../src/features/blogs/blogs.controller";
 import {CreateBlogInputModel} from "../../src/features/blogs/models/CreateBlogInputModel";
 import {blogTestManager} from "../test-managers/blog-test-manager";
 import {WEBSITE_URL_PATTERN} from "../../src/validation/field-validators/blogs-field-validators";
 import {BlogViewModel} from "../../src/features/blogs/models/BlogViewModel";
-import {client, runDb, setDb} from "../../src/db/db";
+import {blogsCollection, client, postsCollection, runDb, setDb} from "../../src/db/db";
 import {MongoMemoryServer} from "mongodb-memory-server";
 
 describe('tests for /blogs', () => {
     let server: MongoMemoryServer;
     const validAuth = 'Basic YWRtaW46cXdlcnR5';
+    const credentials = SETTINGS.CREDENTIALS.LOGIN + ':' + SETTINGS.CREDENTIALS.PASSWORD;
 
     beforeAll(async () => {
         server = await MongoMemoryServer.create();
@@ -48,7 +49,7 @@ describe('tests for /blogs', () => {
         });
 
         it('should return array with all blogs', async () => {
-            const blogsInDb: BlogDBType[] = [
+            const initialDbBlogs: BlogDBType[] = [
                 {
                     id: '1',
                     name: 'blog 1',
@@ -77,20 +78,20 @@ describe('tests for /blogs', () => {
                     isMembership: false,
                 },
             ];
-            await setDb({ blogs: blogsInDb } );
+            await setDb({ blogs: initialDbBlogs } );
 
             await req
                 .get(SETTINGS.PATH.BLOGS)
                 .expect(HTTP_STATUSES.OK_200,
-                    blogsInDb.filter(b => !b.isDeleted).map(mapBlogToViewModel));
+                    initialDbBlogs.filter(b => !b.isDeleted).map(mapBlogToViewModel));
         });
     });
 
     describe('get blog', () => {
-        let blogsInDb: BlogDBType[];
+        let initialDbBlogs: BlogDBType[];
 
         beforeAll(async () => {
-            blogsInDb = [
+            initialDbBlogs = [
                 {
                     id: '1',
                     name: 'blog 1',
@@ -119,7 +120,7 @@ describe('tests for /blogs', () => {
                     isMembership: false,
                 },
             ];
-            await setDb({ blogs: blogsInDb } );
+            await setDb({ blogs: initialDbBlogs } );
         });
 
         afterAll(async () => {
@@ -134,12 +135,12 @@ describe('tests for /blogs', () => {
 
             // deleted
             await req
-                .get(SETTINGS.PATH.BLOGS + '/' + blogsInDb[0].id)
+                .get(SETTINGS.PATH.BLOGS + '/' + initialDbBlogs[0].id)
                 .expect(HTTP_STATUSES.NOT_FOUND_404);
         });
 
         it('should return the second blog', async () => {
-            const blogToGet = blogsInDb[1];
+            const blogToGet = initialDbBlogs[1];
 
             await req
                 .get(SETTINGS.PATH.BLOGS + '/' + blogToGet.id)
@@ -148,11 +149,80 @@ describe('tests for /blogs', () => {
     });
 
     describe('delete blog', () => {
-        let blogs: BlogDBType[];
+        let initialDbBlogs: BlogDBType[];
+        let initialDbPosts: PostDBType[];
 
         beforeAll(async () => {
-            blogs = datasets.blogs;
-            await setDb({ blogs } );
+            initialDbBlogs = [
+                {
+                    id: '1',
+                    name: 'blog 1',
+                    description: 'superblog 1',
+                    websiteUrl: 'https://superblog.com/1',
+                    isDeleted: false,
+                    createdAt: '2024-12-15T05:32:26.882Z',
+                    isMembership: false,
+                },
+                {
+                    id: '2',
+                    name: 'blog 2',
+                    description: 'superblog 2',
+                    websiteUrl: 'https://superblog.com/2',
+                    isDeleted: false,
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                    isMembership: false,
+                },
+                {
+                    id: '3',
+                    name: 'blog 3',
+                    description: 'superblog 3',
+                    websiteUrl: 'https://superblog.com/3',
+                    isDeleted: true,
+                    createdAt: '2024-12-17T05:32:26.882Z',
+                    isMembership: false,
+                },
+            ];
+
+            initialDbPosts = [
+                {
+                    id: '1',
+                    title: 'post 1',
+                    shortDescription: 'superpost 1',
+                    content: 'content of superpost 1',
+                    blogId: '2',
+                    isDeleted: false,
+                    createdAt: '2024-12-15T05:32:26.882Z',
+                },
+                {
+                    id: '2',
+                    title: 'post 2',
+                    shortDescription: 'superpost 2',
+                    content: 'content of superpost 2',
+                    blogId: '1',
+                    isDeleted: false,
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                },
+                {
+                    id: '3',
+                    title: 'post 3',
+                    shortDescription: 'superpost 3',
+                    content: 'content of superpost 3',
+                    blogId: '1',
+                    isDeleted: true,
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                },
+                {
+                    id: '4',
+                    title: 'post 4',
+                    shortDescription: 'superpost 4',
+                    content: 'content of superpost 4',
+                    blogId: '1',
+                    isDeleted: false,
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                },
+            ];
+
+            await setDb({ blogs: initialDbBlogs, posts: initialDbPosts } );
         });
 
         afterAll(async () => {
@@ -161,34 +231,36 @@ describe('tests for /blogs', () => {
         });
 
         it('should forbid deleting blogs for non-admin users', async () => {
+            const blogToDelete = initialDbBlogs[0];
+
+            // no auth
             await req
-                .delete(SETTINGS.PATH.BLOGS + '/1')
+                .delete(SETTINGS.PATH.BLOGS + '/' + blogToDelete.id)
                 .expect(HTTP_STATUSES.UNAUTHORIZED_401);
 
-            await req
-                .delete(SETTINGS.PATH.BLOGS + '/1')
-                .set('Authorization', 'Basic somethingWeird')
-                .expect(HTTP_STATUSES.UNAUTHORIZED_401);
+            const invalidAuthValues: string[] = [
+                '',
+                'Basic somethingWeird',
+                'Basic ',
+                `Bearer ${encodeToBase64(credentials)}`,
+                encodeToBase64(credentials),
+            ];
 
-            await req
-                .delete(SETTINGS.PATH.BLOGS + '/1')
-                .set('Authorization', 'Basic ')
-                .expect(HTTP_STATUSES.UNAUTHORIZED_401);
+            for (const invalidAuthValue of invalidAuthValues) {
+                await req
+                    .delete(SETTINGS.PATH.BLOGS + '/' + blogToDelete.id)
+                    .set('Authorization', invalidAuthValue)
+                    .expect(HTTP_STATUSES.UNAUTHORIZED_401);
+            }
 
-            const credentials = SETTINGS.CREDENTIALS.LOGIN + ':' + SETTINGS.CREDENTIALS.PASSWORD;
-            await req
-                .delete(SETTINGS.PATH.BLOGS + '/1')
-                .set('Authorization', `Bearer ${encodeToBase64(credentials)}`)
-                .expect(HTTP_STATUSES.UNAUTHORIZED_401);
+            const dbBlogToDelete = await blogsCollection
+                .findOne({ id: blogToDelete.id }, { projection: {_id: 0} }) as BlogDBType;
+            expect(dbBlogToDelete).toEqual(blogToDelete);
 
-            await req
-                .delete(SETTINGS.PATH.BLOGS + '/1')
-                .set('Authorization', encodeToBase64(credentials))
-                .expect(HTTP_STATUSES.UNAUTHORIZED_401);
-
-            await req
-                .get(SETTINGS.PATH.BLOGS + '/1')
-                .expect(HTTP_STATUSES.OK_200, mapBlogToViewModel(blogs[0]));
+            const dbPosts = await postsCollection
+                .find({ blogId: blogToDelete.id }, { projection: {_id: 0} }).toArray() as PostDBType[];
+            const expectedPosts = initialDbPosts.filter(p => p.blogId === blogToDelete.id);
+            expect(dbPosts).toEqual(expectedPosts);
         });
 
         it('should return 404 when deleting non-existing blog', async () => {
@@ -196,61 +268,28 @@ describe('tests for /blogs', () => {
                 .delete(SETTINGS.PATH.BLOGS + '/-100')
                 .set('Authorization', validAuth)
                 .expect(HTTP_STATUSES.NOT_FOUND_404);
+
+            // deleted
+            const blogToDelete = initialDbBlogs[2];
+            await req
+                .delete(SETTINGS.PATH.BLOGS + '/' + blogToDelete.id)
+                .set('Authorization', validAuth)
+                .expect(HTTP_STATUSES.NOT_FOUND_404);
         });
 
-        it('should delete the first blog', async () => {
+        it('should delete the first blog and all related posts', async () => {
+            const blogToDelete = initialDbBlogs[0];
+
             await req
-                .delete(SETTINGS.PATH.BLOGS + '/1')
+                .delete(SETTINGS.PATH.BLOGS + '/' + blogToDelete.id)
                 .set('Authorization', validAuth)
                 .expect(HTTP_STATUSES.NO_CONTENT_204);
 
-            await req
-                .get(SETTINGS.PATH.BLOGS + '/1')
-                .expect(HTTP_STATUSES.NOT_FOUND_404);
+            expect(await blogsCollection
+                .findOne({ id: blogToDelete.id, isDeleted: false })).toEqual(null);
 
-            await req
-                .get(SETTINGS.PATH.BLOGS + '/2')
-                .expect(HTTP_STATUSES.OK_200, mapBlogToViewModel(blogs[1]));
-        });
-
-        it('should delete the second blog', async () => {
-            await req
-                .delete(SETTINGS.PATH.BLOGS + '/2')
-                .set('Authorization', validAuth)
-                .expect(HTTP_STATUSES.NO_CONTENT_204);
-
-            await req
-                .get(SETTINGS.PATH.BLOGS + '/2')
-                .expect(HTTP_STATUSES.NOT_FOUND_404);
-
-            await req
-                .get(SETTINGS.PATH.BLOGS)
-                .expect(HTTP_STATUSES.OK_200, []);
-        });
-
-        it('should return 404 when deleting deleted blog', async () => {
-            const blogs = datasets.blogsWithDeleted;
-            await setDb({ blogs } );
-
-            await req
-                .delete(SETTINGS.PATH.BLOGS + '/' + blogs[0])
-                .set('Authorization', validAuth)
-                .expect(HTTP_STATUSES.NOT_FOUND_404);
-        });
-
-        it('should delete related posts when deleting blog', async () => {
-            const blogs = datasets.blogs;
-            const posts = datasets.posts;
-            await setDb({ blogs, posts } );
-
-            await req
-                .delete(SETTINGS.PATH.BLOGS + '/' + blogs[0].id)
-                .set('Authorization', validAuth)
-                .expect(HTTP_STATUSES.NO_CONTENT_204);
-
-            await req
-                .get(SETTINGS.PATH.POSTS + '/' + posts[1].id)
-                .expect(HTTP_STATUSES.NOT_FOUND_404);
+            expect(await postsCollection
+                .find({ blogId: blogToDelete.id, isDeleted: false }).toArray()).toEqual([]);
         });
     });
 

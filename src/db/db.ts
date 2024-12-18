@@ -43,12 +43,12 @@ export const setDb = async (dataset?: Partial<DBType>, db?: Db) => {
 
     if (dataset.blogs) {
         await blogsCol.drop();
-        await blogsCol.insertMany(dataset.blogs);
+        await blogsCol.insertMany(structuredClone(dataset.blogs));
     }
 
     if (dataset.posts) {
         await postsCol.drop();
-        await postsCol.insertMany(dataset.posts);
+        await postsCol.insertMany(structuredClone(dataset.posts));
     }
 };
 
