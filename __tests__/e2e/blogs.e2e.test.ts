@@ -32,8 +32,6 @@ describe('tests for /blogs', () => {
     });
 
     describe('get blogs', () => {
-        let blogs: BlogDBType[];
-
         beforeAll(async () => {
             await setDb();
         });
@@ -50,21 +48,41 @@ describe('tests for /blogs', () => {
         });
 
         it('should return array with all blogs', async () => {
-            blogs = datasets.blogs;
-            await setDb({ blogs } );
+            const blogsInDb: BlogDBType[] = [
+                {
+                    id: '1',
+                    name: 'blog 1',
+                    description: 'superblog 1',
+                    websiteUrl: 'https://superblog.com/1',
+                    isDeleted: true,
+                    createdAt: '2024-12-15T05:32:26.882Z',
+                    isMembership: false,
+                },
+                {
+                    id: '2',
+                    name: 'blog 2',
+                    description: 'superblog 2',
+                    websiteUrl: 'https://superblog.com/2',
+                    isDeleted: false,
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                    isMembership: false,
+                },
+                {
+                    id: '3',
+                    name: 'blog 3',
+                    description: 'superblog 3',
+                    websiteUrl: 'https://superblog.com/3',
+                    isDeleted: true,
+                    createdAt: '2024-12-17T05:32:26.882Z',
+                    isMembership: false,
+                },
+            ];
+            await setDb({ blogs: blogsInDb } );
 
             await req
                 .get(SETTINGS.PATH.BLOGS)
-                .expect(HTTP_STATUSES.OK_200, blogs.map(mapBlogToViewModel));
-        });
-
-        it(`shouldn't return deleted blogs`, async () => {
-            const blogs = datasets.blogsWithDeleted;
-            await setDb({ blogs } );
-
-            await req
-                .get(SETTINGS.PATH.BLOGS)
-                .expect(HTTP_STATUSES.OK_200, [blogs[1]].map(mapBlogToViewModel));
+                .expect(HTTP_STATUSES.OK_200,
+                    blogsInDb.filter(b => !b.isDeleted).map(mapBlogToViewModel));
         });
     });
 
