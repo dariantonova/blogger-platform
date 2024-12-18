@@ -2,6 +2,7 @@ import {req} from "../test-helpers";
 import {SETTINGS} from "../../src/settings";
 import {HTTP_STATUSES} from "../../src/utils";
 import {BlogViewModel} from "../../src/features/blogs/models/BlogViewModel";
+import {blogsCollection} from "../../src/db/db";
 
 export const blogTestManager = {
     async createBlog(data: any, expectedStatusCode: number, auth: string) {
@@ -22,11 +23,12 @@ export const blogTestManager = {
                 isMembership: false,
             });
 
-            expect(isNaN(new Date(createdBlog.createdAt).getTime())).toBe(false);
-
-            await req
-                .get(SETTINGS.PATH.BLOGS + '/' + createdBlog.id)
-                .expect(HTTP_STATUSES.OK_200, createdBlog);
+            const dbCreatedBlog = await blogsCollection
+                .findOne({ id: createdBlog.id }, { projection: { _id: 0 } });
+            expect(dbCreatedBlog).toEqual({
+                ...createdBlog,
+                isDeleted: false,
+            });
         }
 
         return response;

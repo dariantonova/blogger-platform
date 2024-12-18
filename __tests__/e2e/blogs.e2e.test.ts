@@ -254,7 +254,7 @@ describe('tests for /blogs', () => {
             }
 
             const dbBlogToDelete = await blogsCollection
-                .findOne({ id: blogToDelete.id }, { projection: {_id: 0} }) as BlogDBType;
+                .findOne({ id: blogToDelete.id }, { projection: {_id: 0} });
             expect(dbBlogToDelete).toEqual(blogToDelete);
 
             const dbPosts = await postsCollection
@@ -307,31 +307,32 @@ describe('tests for /blogs', () => {
 
         // authorization
         it('should forbid creating blogs for non-admin users', async () => {
-            const {name, description, websiteUrl} = datasets.blogs[0];
-            const data: CreateBlogInputModel = {name, description, websiteUrl};
+            const data: CreateBlogInputModel = {
+                name: 'blog 1',
+                description: 'superblog 1',
+                websiteUrl: 'https://superblog.com/1',
+            }
 
+            // no auth
             await req
                 .post(SETTINGS.PATH.BLOGS)
                 .send(data)
                 .expect(HTTP_STATUSES.UNAUTHORIZED_401);
 
-            await blogTestManager.createBlog(data, HTTP_STATUSES.UNAUTHORIZED_401,
-                'Basic somethingWeird');
+            const invalidAuthValues: string[] = [
+                '',
+                'Basic somethingWeird',
+                'Basic ',
+                `Bearer ${encodeToBase64(credentials)}`,
+                encodeToBase64(credentials),
+            ];
 
-            await blogTestManager.createBlog(data, HTTP_STATUSES.UNAUTHORIZED_401,
-                'Basic ');
+            for (const invalidAuthValue of invalidAuthValues) {
+                await blogTestManager.createBlog(data, HTTP_STATUSES.UNAUTHORIZED_401,
+                    invalidAuthValue);
+            }
 
-            const credentials = SETTINGS.CREDENTIALS.LOGIN + ':' + SETTINGS.CREDENTIALS.PASSWORD;
-
-            await blogTestManager.createBlog(data, HTTP_STATUSES.UNAUTHORIZED_401,
-                `Bearer ${encodeToBase64(credentials)}`);
-
-            await blogTestManager.createBlog(data, HTTP_STATUSES.UNAUTHORIZED_401,
-                encodeToBase64(credentials));
-
-            await req
-                .get(SETTINGS.PATH.BLOGS)
-                .expect(HTTP_STATUSES.OK_200, []);
+            expect(await blogsCollection.find({}).toArray()).toEqual([]);
         });
 
         // validation
@@ -384,9 +385,7 @@ describe('tests for /blogs', () => {
                 ],
             });
 
-            await req
-                .get(SETTINGS.PATH.BLOGS)
-                .expect(HTTP_STATUSES.OK_200, []);
+            expect(await blogsCollection.find({}).toArray()).toEqual([]);
         });
 
         it(`shouldn't create blog if name is invalid`, async () => {
@@ -462,9 +461,7 @@ describe('tests for /blogs', () => {
                 ],
             });
 
-            await req
-                .get(SETTINGS.PATH.BLOGS)
-                .expect(HTTP_STATUSES.OK_200, []);
+            expect(await blogsCollection.find({}).toArray()).toEqual([]);
         });
 
         it(`shouldn't create blog if description is invalid`, async () => {
@@ -540,9 +537,7 @@ describe('tests for /blogs', () => {
                 ],
             });
 
-            await req
-                .get(SETTINGS.PATH.BLOGS)
-                .expect(HTTP_STATUSES.OK_200, []);
+            expect(await blogsCollection.find({}).toArray()).toEqual([]);
         });
 
         it(`shouldn't create blog if website url is invalid`, async () => {
@@ -619,56 +614,25 @@ describe('tests for /blogs', () => {
             });
 
             // invalid url
+            const invalidUrls = [
+                'http://superblog.com',
+                'https:superblog.com',
+                'superblog.com',
+                'https://superblog',
+                'https://superblog.',
+                'https://.com',
+                'https://superblog!.com',
+            ];
+
             const invalidUrlData = [];
-
-            const invalidUrlData1 = {
-                name: 'name',
-                description: 'description',
-                websiteUrl: 'http://superblog.com',
-            };
-            invalidUrlData.push(invalidUrlData1);
-
-            const invalidUrlData2 = {
-                name: 'name',
-                description: 'description',
-                websiteUrl: 'https:superblog.com',
-            };
-            invalidUrlData.push(invalidUrlData2);
-
-            const invalidUrlData3 = {
-                name: 'name',
-                description: 'description',
-                websiteUrl: 'superblog.com',
-            };
-            invalidUrlData.push(invalidUrlData3);
-
-            const invalidUrlData4 = {
-                name: 'name',
-                description: 'description',
-                websiteUrl: 'https://superblog',
-            };
-            invalidUrlData.push(invalidUrlData4);
-
-            const invalidUrlData5 = {
-                name: 'name',
-                description: 'description',
-                websiteUrl: 'https://superblog.',
-            };
-            invalidUrlData.push(invalidUrlData5);
-
-            const invalidUrlData6 = {
-                name: 'name',
-                description: 'description',
-                websiteUrl: 'https://.com',
-            };
-            invalidUrlData.push(invalidUrlData6);
-
-            const invalidUrlData7 = {
-                name: 'name',
-                description: 'description',
-                websiteUrl: 'https://superblog!.com',
-            };
-            invalidUrlData.push(invalidUrlData7);
+            for (const invalidUrl of invalidUrls) {
+                const dataItem = {
+                    name: 'name',
+                    description: 'description',
+                    websiteUrl: invalidUrl,
+                }
+                invalidUrlData.push(dataItem);
+            }
 
             for (const dataItem of invalidUrlData) {
                 const response = await blogTestManager.createBlog(dataItem,
@@ -683,9 +647,7 @@ describe('tests for /blogs', () => {
                 });
             }
 
-            await req
-                .get(SETTINGS.PATH.BLOGS)
-                .expect(HTTP_STATUSES.OK_200, []);
+            expect(await blogsCollection.find({}).toArray()).toEqual([]);
         });
 
         it(`shouldn't create blog if multiple fields are invalid`, async () => {
@@ -704,40 +666,40 @@ describe('tests for /blogs', () => {
                 ]),
             });
 
-            await req
-                .get(SETTINGS.PATH.BLOGS)
-                .expect(HTTP_STATUSES.OK_200, []);
+            expect(await blogsCollection.find({}).toArray()).toEqual([]);
         });
 
         // correct input
         it('should create blog if input data is correct', async () => {
-            const {name, description, websiteUrl} = datasets.blogs[0];
-            const data: CreateBlogInputModel = {name, description, websiteUrl};
+            const data: CreateBlogInputModel = {
+                name: 'blog 1',
+                description: 'superblog 1',
+                websiteUrl: 'https://superblog.com/1',
+            };
 
             const createResponse = await blogTestManager
                 .createBlog(data, HTTP_STATUSES.CREATED_201, validAuth);
+            createdBlogs.push(createResponse.body);
 
-            const createdBlog = createResponse.body;
             await req
                 .get(SETTINGS.PATH.BLOGS)
-                .expect(HTTP_STATUSES.OK_200, [createdBlog]);
-
-            createdBlogs.push(createdBlog);
+                .expect(HTTP_STATUSES.OK_200, createdBlogs);
         });
 
         it('should create one more blog', async () => {
-            const {name, description, websiteUrl} = datasets.blogs[1];
-            const data: CreateBlogInputModel = {name, description, websiteUrl};
+            const data: CreateBlogInputModel = {
+                name: 'blog 2',
+                description: 'superblog 2',
+                websiteUrl: 'https://superblog.com/2',
+            };
 
             const createResponse = await blogTestManager
                 .createBlog(data, HTTP_STATUSES.CREATED_201, validAuth);
+            createdBlogs.push(createResponse.body);
 
-            const createdBlog = createResponse.body;
             await req
                 .get(SETTINGS.PATH.BLOGS)
-                .expect(HTTP_STATUSES.OK_200, [...createdBlogs, createdBlog]);
-
-            createdBlogs.push(createdBlog);
+                .expect(HTTP_STATUSES.OK_200, createdBlogs);
         });
     });
 
