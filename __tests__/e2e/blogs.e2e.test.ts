@@ -87,11 +87,39 @@ describe('tests for /blogs', () => {
     });
 
     describe('get blog', () => {
-        let blogs: BlogDBType[];
+        let blogsInDb: BlogDBType[];
 
         beforeAll(async () => {
-            blogs = datasets.blogs;
-            await setDb({ blogs } );
+            blogsInDb = [
+                {
+                    id: '1',
+                    name: 'blog 1',
+                    description: 'superblog 1',
+                    websiteUrl: 'https://superblog.com/1',
+                    isDeleted: true,
+                    createdAt: '2024-12-15T05:32:26.882Z',
+                    isMembership: false,
+                },
+                {
+                    id: '2',
+                    name: 'blog 2',
+                    description: 'superblog 2',
+                    websiteUrl: 'https://superblog.com/2',
+                    isDeleted: false,
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                    isMembership: false,
+                },
+                {
+                    id: '3',
+                    name: 'blog 3',
+                    description: 'superblog 3',
+                    websiteUrl: 'https://superblog.com/3',
+                    isDeleted: true,
+                    createdAt: '2024-12-17T05:32:26.882Z',
+                    isMembership: false,
+                },
+            ];
+            await setDb({ blogs: blogsInDb } );
         });
 
         afterAll(async () => {
@@ -103,21 +131,19 @@ describe('tests for /blogs', () => {
             await req
                 .get(SETTINGS.PATH.BLOGS + '/-100')
                 .expect(HTTP_STATUSES.NOT_FOUND_404);
+
+            // deleted
+            await req
+                .get(SETTINGS.PATH.BLOGS + '/' + blogsInDb[0].id)
+                .expect(HTTP_STATUSES.NOT_FOUND_404);
         });
 
         it('should return the second blog', async () => {
-            await req
-                .get(SETTINGS.PATH.BLOGS + '/2')
-                .expect(HTTP_STATUSES.OK_200, mapBlogToViewModel(blogs[1]));
-        });
-
-        it('should return 404 for deleted blog', async () => {
-            const blogs = datasets.blogsWithDeleted;
-            await setDb({ blogs } );
+            const blogToGet = blogsInDb[1];
 
             await req
-                .get(SETTINGS.PATH.BLOGS + '/' + blogs[0].id)
-                .expect(HTTP_STATUSES.NOT_FOUND_404);
+                .get(SETTINGS.PATH.BLOGS + '/' + blogToGet.id)
+                .expect(HTTP_STATUSES.OK_200, mapBlogToViewModel(blogToGet));
         });
     });
 
