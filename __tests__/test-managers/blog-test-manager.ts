@@ -34,8 +34,8 @@ export const blogTestManager = {
         return response;
     },
     async updateBlog(blogId: string, data: any, expectedStatusCode: number, auth: string) {
-        const getBlogResponse = await req
-            .get(SETTINGS.PATH.BLOGS + '/' + blogId);
+        const dbBlogBeforeUpdate = await blogsCollection
+            .findOne({ id: blogId }, { projection: { _id: 0 } });
 
         const response = await req
             .put(SETTINGS.PATH.BLOGS + '/' + blogId)
@@ -44,20 +44,12 @@ export const blogTestManager = {
             .expect(expectedStatusCode);
 
         if (expectedStatusCode === HTTP_STATUSES.NO_CONTENT_204) {
-            const blogBeforeUpdate: BlogViewModel = getBlogResponse.body;
+            const dbUpdatedBlog = await blogsCollection
+                .findOne({ id: blogId }, { projection: { _id: 0 } });
 
-            const getUpdatedBlogResponse = await req
-                .get(SETTINGS.PATH.BLOGS + '/' + blogId)
-                .expect(HTTP_STATUSES.OK_200);
-            const updatedBlog: BlogViewModel = getUpdatedBlogResponse.body;
-
-            expect(updatedBlog).toEqual({
-                id: blogBeforeUpdate.id,
-                name: data.name,
-                description: data.description,
-                websiteUrl: data.websiteUrl,
-                createdAt: blogBeforeUpdate.createdAt,
-                isMembership: blogBeforeUpdate.isMembership,
+            expect(dbUpdatedBlog).toEqual({
+                ...dbBlogBeforeUpdate,
+                ...data,
             });
         }
 

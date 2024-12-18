@@ -29,7 +29,7 @@ export const blogsWithDeleted: BlogDBType[] = [
         name: 'blog 1',
         description: 'superblog 1',
         websiteUrl: 'https://superblog.com/1',
-        isDeleted: true,
+        isDeleted: false,
         createdAt: '2024-12-15T05:32:26.882Z',
         isMembership: false,
     },

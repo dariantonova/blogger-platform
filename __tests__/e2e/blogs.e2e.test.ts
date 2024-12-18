@@ -2,7 +2,6 @@ import {req} from "../test-helpers";
 import {SETTINGS} from "../../src/settings";
 import {encodeToBase64, HTTP_STATUSES} from "../../src/utils";
 import {BlogDBType, PostDBType} from "../../src/types";
-import * as datasets from '../datasets';
 import {mapBlogToViewModel} from "../../src/features/blogs/blogs.controller";
 import {CreateBlogInputModel} from "../../src/features/blogs/models/CreateBlogInputModel";
 import {blogTestManager} from "../test-managers/blog-test-manager";
@@ -10,6 +9,7 @@ import {WEBSITE_URL_PATTERN} from "../../src/validation/field-validators/blogs-f
 import {BlogViewModel} from "../../src/features/blogs/models/BlogViewModel";
 import {blogsCollection, client, postsCollection, runDb, setDb} from "../../src/db/db";
 import {MongoMemoryServer} from "mongodb-memory-server";
+import {UpdateBlogInputModel} from "../../src/features/blogs/models/UpdateBlogInputModel";
 
 describe('tests for /blogs', () => {
     let server: MongoMemoryServer;
@@ -704,11 +704,41 @@ describe('tests for /blogs', () => {
     });
 
     describe('update blog', () => {
-        let createdBlogs: BlogViewModel[] = [];
+        let initialDbBlogs: BlogDBType[];
+        // let createdBlogs: BlogViewModel[] = [];
 
         beforeAll(async () => {
-            await setDb({ blogs: datasets.blogs } )
-            createdBlogs = datasets.blogs.map(mapBlogToViewModel);
+            initialDbBlogs = [
+                {
+                    id: '1',
+                    name: 'blog 1',
+                    description: 'superblog 1',
+                    websiteUrl: 'https://superblog.com/1',
+                    isDeleted: false,
+                    createdAt: '2024-12-15T05:32:26.882Z',
+                    isMembership: false,
+                },
+                {
+                    id: '2',
+                    name: 'blog 2',
+                    description: 'superblog 2',
+                    websiteUrl: 'https://superblog.com/2',
+                    isDeleted: false,
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                    isMembership: false,
+                },
+                {
+                    id: '3',
+                    name: 'blog 3',
+                    description: 'superblog 3',
+                    websiteUrl: 'https://superblog.com/3',
+                    isDeleted: true,
+                    createdAt: '2024-12-17T05:32:26.882Z',
+                    isMembership: false,
+                },
+            ];
+
+            await setDb({ blogs: initialDbBlogs } );
         });
 
         afterAll(async () => {
@@ -718,43 +748,47 @@ describe('tests for /blogs', () => {
 
         // authorization
         it('should forbid updating blogs for non-admin users', async () => {
-            const data = datasets.blogsDataForUpdate[0];
-            const blogId = createdBlogs[0].id;
+            const data: UpdateBlogInputModel = {
+                name: 'blog 51',
+                description: 'superblog 51',
+                websiteUrl: 'https://superblog.com/51',
+            };
+            const blogToUpdate = initialDbBlogs[0];
 
+            // no auth
             await req
-                .put(SETTINGS.PATH.BLOGS + '/' + blogId)
+                .put(SETTINGS.PATH.BLOGS + '/' + blogToUpdate.id)
                 .send(data)
                 .expect(HTTP_STATUSES.UNAUTHORIZED_401);
 
-            await blogTestManager.updateBlog(blogId, data, HTTP_STATUSES.UNAUTHORIZED_401,
-                'Basic somethingWeird');
+            const invalidAuthValues: string[] = [
+                '',
+                'Basic somethingWeird',
+                'Basic ',
+                `Bearer ${encodeToBase64(credentials)}`,
+                encodeToBase64(credentials),
+            ];
 
-            await blogTestManager.updateBlog(blogId, data, HTTP_STATUSES.UNAUTHORIZED_401,
-                'Basic ');
+            for (const invalidAuthValue of invalidAuthValues) {
+                await blogTestManager.updateBlog(blogToUpdate.id, data,
+                    HTTP_STATUSES.UNAUTHORIZED_401, invalidAuthValue);
+            }
 
-            const credentials = SETTINGS.CREDENTIALS.LOGIN + ':' + SETTINGS.CREDENTIALS.PASSWORD;
-
-            await blogTestManager.updateBlog(blogId, data, HTTP_STATUSES.UNAUTHORIZED_401,
-                `Bearer ${encodeToBase64(credentials)}`);
-
-            await blogTestManager.updateBlog(blogId, data, HTTP_STATUSES.UNAUTHORIZED_401,
-                encodeToBase64(credentials));
-
-            await req
-                .get(SETTINGS.PATH.BLOGS)
-                .expect(HTTP_STATUSES.OK_200, createdBlogs);
+            const dbBlogToUpdate = await blogsCollection
+                .findOne({ id: blogToUpdate.id }, { projection: { _id: 0 } });
+            expect(dbBlogToUpdate).toEqual(blogToUpdate);
         });
 
         // validation
         it(`shouldn't update blog if required fields are missing`, async () => {
-            const blogId = createdBlogs[0].id;
+            const blogToUpdate = initialDbBlogs[0];
 
             const data1 = {
                 description: 'description',
                 websiteUrl: 'https://superblog.com',
             };
 
-            const response1 = await blogTestManager.updateBlog(blogId, data1,
+            const response1 = await blogTestManager.updateBlog(blogToUpdate.id, data1,
                 HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response1.body).toEqual({
                 errorsMessages: [
@@ -770,7 +804,7 @@ describe('tests for /blogs', () => {
                 websiteUrl: 'https://superblog.com',
             };
 
-            const response2 = await blogTestManager.updateBlog(blogId, data2,
+            const response2 = await blogTestManager.updateBlog(blogToUpdate.id, data2,
                 HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response2.body).toEqual({
                 errorsMessages: [
@@ -786,7 +820,7 @@ describe('tests for /blogs', () => {
                 description: 'description',
             };
 
-            const response3 = await blogTestManager.updateBlog(blogId, data3,
+            const response3 = await blogTestManager.updateBlog(blogToUpdate.id, data3,
                 HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response3.body).toEqual({
                 errorsMessages: [
@@ -797,13 +831,13 @@ describe('tests for /blogs', () => {
                 ],
             });
 
-            await req
-                .get(SETTINGS.PATH.BLOGS)
-                .expect(HTTP_STATUSES.OK_200, createdBlogs);
+            const dbBlogToUpdate = await blogsCollection
+                .findOne({ id: blogToUpdate.id }, { projection: { _id: 0 } });
+            expect(dbBlogToUpdate).toEqual(blogToUpdate);
         });
 
         it(`shouldn't update blog if name is invalid`, async () => {
-            const blogId = createdBlogs[0].id;
+            const blogToUpdate = initialDbBlogs[0];
 
             // not string
             const data1 = {
@@ -812,7 +846,7 @@ describe('tests for /blogs', () => {
                 websiteUrl: 'https://superblog.com',
             };
 
-            const response1 = await blogTestManager.updateBlog(blogId, data1,
+            const response1 = await blogTestManager.updateBlog(blogToUpdate.id, data1,
                 HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response1.body).toEqual({
                 errorsMessages: [
@@ -830,7 +864,7 @@ describe('tests for /blogs', () => {
                 websiteUrl: 'https://superblog.com',
             };
 
-            const response2 = await blogTestManager.updateBlog(blogId, data2,
+            const response2 = await blogTestManager.updateBlog(blogToUpdate.id, data2,
                 HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response2.body).toEqual({
                 errorsMessages: [
@@ -848,7 +882,7 @@ describe('tests for /blogs', () => {
                 websiteUrl: 'https://superblog.com',
             };
 
-            const response3 = await blogTestManager.updateBlog(blogId, data3,
+            const response3 = await blogTestManager.updateBlog(blogToUpdate.id, data3,
                 HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response3.body).toEqual({
                 errorsMessages: [
@@ -866,7 +900,7 @@ describe('tests for /blogs', () => {
                 websiteUrl: 'https://superblog.com',
             };
 
-            const response4 = await blogTestManager.updateBlog(blogId, data4,
+            const response4 = await blogTestManager.updateBlog(blogToUpdate.id, data4,
                 HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response4.body).toEqual({
                 errorsMessages: [
@@ -877,13 +911,13 @@ describe('tests for /blogs', () => {
                 ],
             });
 
-            await req
-                .get(SETTINGS.PATH.BLOGS)
-                .expect(HTTP_STATUSES.OK_200, createdBlogs);
+            const dbBlogToUpdate = await blogsCollection
+                .findOne({ id: blogToUpdate.id }, { projection: { _id: 0 } });
+            expect(dbBlogToUpdate).toEqual(blogToUpdate);
         });
 
         it(`shouldn't update blog if description is invalid`, async () => {
-            const blogId = createdBlogs[0].id;
+            const blogToUpdate = initialDbBlogs[0];
 
             // not string
             const data1 = {
@@ -892,7 +926,7 @@ describe('tests for /blogs', () => {
                 websiteUrl: 'https://superblog.com',
             };
 
-            const response1 = await blogTestManager.updateBlog(blogId, data1,
+            const response1 = await blogTestManager.updateBlog(blogToUpdate.id, data1,
                 HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response1.body).toEqual({
                 errorsMessages: [
@@ -910,7 +944,7 @@ describe('tests for /blogs', () => {
                 websiteUrl: 'https://superblog.com',
             };
 
-            const response2 = await blogTestManager.updateBlog(blogId, data2,
+            const response2 = await blogTestManager.updateBlog(blogToUpdate.id, data2,
                 HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response2.body).toEqual({
                 errorsMessages: [
@@ -928,7 +962,7 @@ describe('tests for /blogs', () => {
                 websiteUrl: 'https://superblog.com',
             };
 
-            const response3 = await blogTestManager.updateBlog(blogId, data3,
+            const response3 = await blogTestManager.updateBlog(blogToUpdate.id, data3,
                 HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response3.body).toEqual({
                 errorsMessages: [
@@ -946,7 +980,7 @@ describe('tests for /blogs', () => {
                 websiteUrl: 'https://superblog.com',
             };
 
-            const response4 = await blogTestManager.updateBlog(blogId, data4,
+            const response4 = await blogTestManager.updateBlog(blogToUpdate.id, data4,
                 HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response4.body).toEqual({
                 errorsMessages: [
@@ -957,13 +991,13 @@ describe('tests for /blogs', () => {
                 ],
             });
 
-            await req
-                .get(SETTINGS.PATH.BLOGS)
-                .expect(HTTP_STATUSES.OK_200, createdBlogs);
+            const dbBlogToUpdate = await blogsCollection
+                .findOne({ id: blogToUpdate.id }, { projection: { _id: 0 } });
+            expect(dbBlogToUpdate).toEqual(blogToUpdate);
         });
 
         it(`shouldn't update blog if website url is invalid`, async () => {
-            const blogId = createdBlogs[0].id;
+            const blogToUpdate = initialDbBlogs[0];
 
             // not string
             const data1 = {
@@ -972,7 +1006,7 @@ describe('tests for /blogs', () => {
                 websiteUrl: 24,
             };
 
-            const response1 = await blogTestManager.updateBlog(blogId, data1,
+            const response1 = await blogTestManager.updateBlog(blogToUpdate.id, data1,
                 HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response1.body).toEqual({
                 errorsMessages: [
@@ -990,7 +1024,7 @@ describe('tests for /blogs', () => {
                 websiteUrl: '',
             };
 
-            const response2 = await blogTestManager.updateBlog(blogId, data2,
+            const response2 = await blogTestManager.updateBlog(blogToUpdate.id, data2,
                 HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response2.body).toEqual({
                 errorsMessages: [
@@ -1008,7 +1042,7 @@ describe('tests for /blogs', () => {
                 websiteUrl: '  ',
             };
 
-            const response3 = await blogTestManager.updateBlog(blogId, data3,
+            const response3 = await blogTestManager.updateBlog(blogToUpdate.id, data3,
                 HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response3.body).toEqual({
                 errorsMessages: [
@@ -1026,7 +1060,7 @@ describe('tests for /blogs', () => {
                 websiteUrl: 'a'.repeat(101),
             };
 
-            const response4 = await blogTestManager.updateBlog(blogId, data4,
+            const response4 = await blogTestManager.updateBlog(blogToUpdate.id, data4,
                 HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response4.body).toEqual({
                 errorsMessages: [
@@ -1038,59 +1072,28 @@ describe('tests for /blogs', () => {
             });
 
             // invalid url
+            const invalidUrls = [
+                'http://superblog.com',
+                'https:superblog.com',
+                'superblog.com',
+                'https://superblog',
+                'https://superblog.',
+                'https://.com',
+                'https://superblog!.com',
+            ];
+
             const invalidUrlData = [];
-
-            const invalidUrlData1 = {
-                name: 'name',
-                description: 'description',
-                websiteUrl: 'http://superblog.com',
-            };
-            invalidUrlData.push(invalidUrlData1);
-
-            const invalidUrlData2 = {
-                name: 'name',
-                description: 'description',
-                websiteUrl: 'https:superblog.com',
-            };
-            invalidUrlData.push(invalidUrlData2);
-
-            const invalidUrlData3 = {
-                name: 'name',
-                description: 'description',
-                websiteUrl: 'superblog.com',
-            };
-            invalidUrlData.push(invalidUrlData3);
-
-            const invalidUrlData4 = {
-                name: 'name',
-                description: 'description',
-                websiteUrl: 'https://superblog',
-            };
-            invalidUrlData.push(invalidUrlData4);
-
-            const invalidUrlData5 = {
-                name: 'name',
-                description: 'description',
-                websiteUrl: 'https://superblog.',
-            };
-            invalidUrlData.push(invalidUrlData5);
-
-            const invalidUrlData6 = {
-                name: 'name',
-                description: 'description',
-                websiteUrl: 'https://.com',
-            };
-            invalidUrlData.push(invalidUrlData6);
-
-            const invalidUrlData7 = {
-                name: 'name',
-                description: 'description',
-                websiteUrl: 'https://superblog!.com',
-            };
-            invalidUrlData.push(invalidUrlData7);
+            for (const invalidUrl of invalidUrls) {
+                const dataItem = {
+                    name: 'name',
+                    description: 'description',
+                    websiteUrl: invalidUrl,
+                }
+                invalidUrlData.push(dataItem);
+            }
 
             for (const dataItem of invalidUrlData) {
-                const response = await blogTestManager.updateBlog(blogId, dataItem,
+                const response = await blogTestManager.updateBlog(blogToUpdate.id, dataItem,
                     HTTP_STATUSES.BAD_REQUEST_400, validAuth);
                 expect(response.body).toEqual({
                     errorsMessages: [
@@ -1102,20 +1105,20 @@ describe('tests for /blogs', () => {
                 });
             }
 
-            await req
-                .get(SETTINGS.PATH.BLOGS)
-                .expect(HTTP_STATUSES.OK_200, createdBlogs);
+            const dbBlogToUpdate = await blogsCollection
+                .findOne({ id: blogToUpdate.id }, { projection: { _id: 0 } });
+            expect(dbBlogToUpdate).toEqual(blogToUpdate);
         });
 
         it(`shouldn't update blog if multiple fields are invalid`, async () => {
-            const blogId = createdBlogs[0].id;
+            const blogToUpdate = initialDbBlogs[0];
 
             const data = {
                 name: 'a'.repeat(20),
                 description: '  ',
             };
 
-            const createResponse = await blogTestManager.updateBlog(blogId, data,
+            const createResponse = await blogTestManager.updateBlog(blogToUpdate.id, data,
                 HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(createResponse.body).toEqual({
                 errorsMessages: expect.arrayContaining([
@@ -1125,37 +1128,45 @@ describe('tests for /blogs', () => {
                 ]),
             });
 
-            await req
-                .get(SETTINGS.PATH.BLOGS)
-                .expect(HTTP_STATUSES.OK_200, createdBlogs);
+            const dbBlogToUpdate = await blogsCollection
+                .findOne({ id: blogToUpdate.id }, { projection: { _id: 0 } });
+            expect(dbBlogToUpdate).toEqual(blogToUpdate);
         });
 
         // non-existing blog
         it('should return 404 when updating non-existing blog', async () => {
-            await blogTestManager.updateBlog('-100', datasets.blogsDataForUpdate[0],
-                HTTP_STATUSES.NOT_FOUND_404, validAuth);
+            const data: UpdateBlogInputModel = {
+                name: 'blog 51',
+                description: 'superblog 51',
+                websiteUrl: 'https://superblog.com/51',
+            };
+
+            await blogTestManager.updateBlog('-100', data, HTTP_STATUSES.NOT_FOUND_404, validAuth);
+
+            // deleted
+            const blogToUpdate = initialDbBlogs[2];
+            await blogTestManager.updateBlog(blogToUpdate.id, data, HTTP_STATUSES.NOT_FOUND_404, validAuth);
         });
 
         // correct input
         it('should update blog if input data is correct', async () => {
-            const data = datasets.blogsDataForUpdate[0];
-            const blogId = createdBlogs[0].id;
+            const data: UpdateBlogInputModel = {
+                name: 'blog 51',
+                description: 'superblog 51',
+                websiteUrl: 'https://superblog.com/51',
+            };
+            const blogToUpdate = initialDbBlogs[0];
 
-            await blogTestManager.updateBlog(blogId, data,
+            await blogTestManager.updateBlog(blogToUpdate.id, data,
                 HTTP_STATUSES.NO_CONTENT_204, validAuth);
 
-            await req
-                .get(SETTINGS.PATH.BLOGS + '/' + createdBlogs[1].id)
-                .expect(HTTP_STATUSES.OK_200, createdBlogs[1]);
-        });
-
-        // deleted blog
-        it(`should return 404 when updating deleted blog`, async () => {
-            const blogs = datasets.blogsWithDeleted;
-            await setDb({ blogs } );
-
-            await blogTestManager.updateBlog(blogs[0].id, datasets.blogsDataForUpdate[0],
-                HTTP_STATUSES.NOT_FOUND_404, validAuth);
+            // check other blogs aren't modified
+            const otherBlogs = initialDbBlogs.filter(b => b.id !== blogToUpdate.id);
+            for (const otherBlog of otherBlogs) {
+                const dbOtherBlog = await blogsCollection
+                    .findOne({ id: otherBlog.id }, { projection: { _id: 0 } });
+                expect(dbOtherBlog).toEqual(otherBlog);
+            }
         });
     });
 });
