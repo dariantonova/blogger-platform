@@ -10,6 +10,7 @@ import {blogsCollection, client, postsCollection, runDb, setDb} from "../../src/
 import {MongoMemoryServer} from "mongodb-memory-server";
 import {UpdateBlogInputModel} from "../../src/features/blogs/models/UpdateBlogInputModel";
 import {invalidAuthValues} from "../datasets/authorization-data";
+import {invalidUrls} from "../datasets/validation/blogs-validation-data";
 
 describe('tests for /blogs', () => {
     let server: MongoMemoryServer;
@@ -588,16 +589,6 @@ describe('tests for /blogs', () => {
             });
 
             // invalid url
-            const invalidUrls = [
-                'http://superblog.com',
-                'https:superblog.com',
-                'superblog.com',
-                'https://superblog',
-                'https://superblog.',
-                'https://.com',
-                'https://superblog!.com',
-            ];
-
             const invalidUrlData = [];
             for (const invalidUrl of invalidUrls) {
                 const dataItem = {
@@ -1033,16 +1024,6 @@ describe('tests for /blogs', () => {
             });
 
             // invalid url
-            const invalidUrls = [
-                'http://superblog.com',
-                'https:superblog.com',
-                'superblog.com',
-                'https://superblog',
-                'https://superblog.',
-                'https://.com',
-                'https://superblog!.com',
-            ];
-
             const invalidUrlData = [];
             for (const invalidUrl of invalidUrls) {
                 const dataItem = {
