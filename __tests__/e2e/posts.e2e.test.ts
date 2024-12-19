@@ -10,6 +10,7 @@ import {postTestManager} from "../test-managers/post-test-manager";
 import {PostViewModel} from "../../src/features/posts/models/PostViewModel";
 import {MongoMemoryServer} from "mongodb-memory-server";
 import {blogTestManager} from "../test-managers/blog-test-manager";
+import {CreateBlogInputModel} from "../../src/features/blogs/models/CreateBlogInputModel";
 
 describe('tests for /posts', () => {
     let server: MongoMemoryServer;
@@ -370,10 +371,40 @@ describe('tests for /posts', () => {
     });
 
     describe('create post', () => {
-        let createdPosts: PostViewModel[] = [];
+        let initialDbBlogs: BlogDBType[];
 
         beforeAll(async () => {
-            await setDb({ blogs: datasets.blogs });
+            initialDbBlogs =  [
+                {
+                    id: '1',
+                    name: 'blog 1',
+                    description: 'superblog 1',
+                    websiteUrl: 'https://superblog.com/1',
+                    isDeleted: false,
+                    createdAt: '2024-12-15T05:32:26.882Z',
+                    isMembership: false,
+                },
+                {
+                    id: '2',
+                    name: 'blog 2',
+                    description: 'superblog 2',
+                    websiteUrl: 'https://superblog.com/2',
+                    isDeleted: false,
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                    isMembership: false,
+                },
+                {
+                    id: '3',
+                    name: 'blog 3',
+                    description: 'superblog 3',
+                    websiteUrl: 'https://superblog.com/3',
+                    isDeleted: true,
+                    createdAt: '2024-12-17T05:32:26.882Z',
+                    isMembership: false,
+                },
+            ];
+
+            await setDb({ blogs: initialDbBlogs });
         });
 
         afterAll(async () => {
@@ -383,36 +414,33 @@ describe('tests for /posts', () => {
 
         // authorization
         it('should forbid creating posts for non-admin users', async () => {
-            const datasetPost = datasets.posts[0];
             const data: CreatePostInputModel = {
-                title: datasetPost.title,
-                shortDescription: datasetPost.shortDescription,
-                content: datasetPost.content,
-                blogId: datasetPost.blogId,
+                title: 'post 1',
+                shortDescription: 'superpost 1',
+                content: 'content of superpost 1',
+                blogId: initialDbBlogs[1].id,
             };
 
+            // no auth
             await req
                 .post(SETTINGS.PATH.POSTS)
                 .send(data)
                 .expect(HTTP_STATUSES.UNAUTHORIZED_401);
 
-            await postTestManager.createPost(data, HTTP_STATUSES.UNAUTHORIZED_401,
-                'Basic somethingWeird');
+            const invalidAuthValues: string[] = [
+                '',
+                'Basic somethingWeird',
+                'Basic ',
+                `Bearer ${encodeToBase64(credentials)}`,
+                encodeToBase64(credentials),
+            ];
 
-            await postTestManager.createPost(data, HTTP_STATUSES.UNAUTHORIZED_401,
-                'Basic ');
+            for (const invalidAuthValue of invalidAuthValues) {
+                await postTestManager.createPost(data, HTTP_STATUSES.UNAUTHORIZED_401,
+                    invalidAuthValue);
+            }
 
-            const credentials = SETTINGS.CREDENTIALS.LOGIN + ':' + SETTINGS.CREDENTIALS.PASSWORD;
-
-            await postTestManager.createPost(data, HTTP_STATUSES.UNAUTHORIZED_401,
-                `Bearer ${encodeToBase64(credentials)}`);
-
-            await postTestManager.createPost(data, HTTP_STATUSES.UNAUTHORIZED_401,
-                encodeToBase64(credentials));
-
-            await req
-                .get(SETTINGS.PATH.POSTS)
-                .expect(HTTP_STATUSES.OK_200, []);
+            expect(await postsCollection.find({}).toArray()).toEqual([]);
         });
 
         // validation
@@ -485,9 +513,7 @@ describe('tests for /posts', () => {
                 ],
             });
 
-            await req
-                .get(SETTINGS.PATH.POSTS)
-                .expect(HTTP_STATUSES.OK_200, []);
+            expect(await postsCollection.find({}).toArray()).toEqual([]);
         });
 
         it(`shouldn't create post if title is invalid`, async () => {
@@ -563,9 +589,7 @@ describe('tests for /posts', () => {
                 ],
             });
 
-            await req
-                .get(SETTINGS.PATH.POSTS)
-                .expect(HTTP_STATUSES.OK_200, []);
+            expect(await postsCollection.find({}).toArray()).toEqual([]);
         });
 
         it(`shouldn't create post if short description is invalid`, async () => {
@@ -641,9 +665,7 @@ describe('tests for /posts', () => {
                 ],
             });
 
-            await req
-                .get(SETTINGS.PATH.POSTS)
-                .expect(HTTP_STATUSES.OK_200, []);
+            expect(await postsCollection.find({}).toArray()).toEqual([]);
         });
 
         it(`shouldn't create post if content is invalid`, async () => {
@@ -719,9 +741,7 @@ describe('tests for /posts', () => {
                 ],
             });
 
-            await req
-                .get(SETTINGS.PATH.POSTS)
-                .expect(HTTP_STATUSES.OK_200, []);
+            expect(await postsCollection.find({}).toArray()).toEqual([]);
         });
 
         it(`shouldn't create post if blog id is invalid`, async () => {
@@ -797,9 +817,7 @@ describe('tests for /posts', () => {
                 ],
             });
 
-            await req
-                .get(SETTINGS.PATH.POSTS)
-                .expect(HTTP_STATUSES.OK_200, []);
+            expect(await postsCollection.find({}).toArray()).toEqual([]);
         });
 
         it(`shouldn't create post if multiple fields are invalid`, async () => {
@@ -820,54 +838,48 @@ describe('tests for /posts', () => {
                 ]),
             });
 
-            await req
-                .get(SETTINGS.PATH.POSTS)
-                .expect(HTTP_STATUSES.OK_200, []);
+            expect(await postsCollection.find({}).toArray()).toEqual([]);
         });
 
         // correct input
         it('should create post if input data is correct', async () => {
-            const createBlogResponse = await blogTestManager.createBlog(datasets.blogs[0],
-                HTTP_STATUSES.CREATED_201, validAuth);
-            const createdBlogId = createBlogResponse.body.id;
+            const createBlogData: CreateBlogInputModel = {
+                name: 'blog 51',
+                description: 'superblog 51',
+                websiteUrl: 'https://superblog.com/51',
+            }
 
-            const datasetPost = datasets.posts[0];
-            const data: CreatePostInputModel = {
-                title: datasetPost.title,
-                shortDescription: datasetPost.shortDescription,
-                content: datasetPost.content,
-                blogId: createdBlogId,
+            const createBlogResponse = await blogTestManager.createBlog(createBlogData,
+                HTTP_STATUSES.CREATED_201, validAuth);
+            const createdBlog = createBlogResponse.body;
+
+            const createPostData: CreatePostInputModel = {
+                title: 'post 1',
+                shortDescription: 'superpost 1',
+                content: 'content of superpost 1',
+                blogId: createdBlog.id,
             };
 
-            const createResponse = await postTestManager.createPost(data,
+            await postTestManager.createPost(createPostData,
                 HTTP_STATUSES.CREATED_201, validAuth);
 
-            const createdPost: PostViewModel = createResponse.body;
-            await req
-                .get(SETTINGS.PATH.POSTS)
-                .expect(HTTP_STATUSES.OK_200, [createdPost]);
-
-            createdPosts.push(createdPost);
+            const dbPosts = await postsCollection.find({}).toArray();
+            expect(dbPosts.length).toBe(1);
         });
 
         it('should create one more post', async () => {
-            const datasetPost = datasets.posts[1];
-            const data: CreatePostInputModel = {
-                title: datasetPost.title,
-                shortDescription: datasetPost.shortDescription,
-                content: datasetPost.content,
-                blogId: datasetPost.blogId,
+            const createPostData: CreatePostInputModel = {
+                title: 'post 2',
+                shortDescription: 'superpost 2',
+                content: 'content of superpost 2',
+                blogId: initialDbBlogs[0].id,
             };
 
-            const createResponse = await postTestManager.createPost(data,
+            await postTestManager.createPost(createPostData,
                 HTTP_STATUSES.CREATED_201, validAuth);
 
-            const createdPost: PostViewModel = createResponse.body;
-            await req
-                .get(SETTINGS.PATH.POSTS)
-                .expect(HTTP_STATUSES.OK_200, [...createdPosts, createdPost]);
-
-            createdPosts.push(createdPost);
+            const dbPosts = await postsCollection.find({}).toArray();
+            expect(dbPosts.length).toBe(2);
         });
     });
 

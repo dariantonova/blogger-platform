@@ -3,6 +3,7 @@ import {SETTINGS} from "../../src/settings";
 import {HTTP_STATUSES} from "../../src/utils";
 import {PostViewModel} from "../../src/features/posts/models/PostViewModel";
 import {blogsRepository} from "../../src/features/blogs/blogs.db.repository";
+import {blogsCollection, postsCollection} from "../../src/db/db";
 
 export const postTestManager = {
     async createPost(data: any, expectedStatusCode: number, auth: string) {
@@ -14,21 +15,32 @@ export const postTestManager = {
 
         if (expectedStatusCode === HTTP_STATUSES.CREATED_201) {
             const createdPost: PostViewModel = response.body;
+            const dbRelatedBlog = await blogsCollection
+                .findOne({ id: createdPost.blogId }, { projection: { _id: 0 } });
+
             expect(createdPost).toEqual({
                 id: expect.any(String),
                 title: data.title,
                 shortDescription: data.shortDescription,
                 content: data.content,
                 blogId: data.blogId,
-                blogName: (await blogsRepository.findBlogById(data.blogId))?.name || '',
+                blogName: dbRelatedBlog?.name || '',
                 createdAt: expect.any(String),
             });
 
             expect(isNaN(new Date(createdPost.createdAt).getTime())).toBe(false);
 
-            await req
-                .get(SETTINGS.PATH.POSTS + '/' + createdPost.id)
-                .expect(HTTP_STATUSES.OK_200, createdPost);
+            const dbCreatedPost = await postsCollection
+                .findOne({ id: createdPost.id }, { projection: { _id: 0 } });
+            expect(dbCreatedPost).toEqual({
+                id: createdPost.id,
+                title: createdPost.title,
+                shortDescription: createdPost.shortDescription,
+                content: createdPost.content,
+                blogId: createdPost.blogId,
+                createdAt: createdPost.createdAt,
+                isDeleted: false,
+            });
         }
 
         return response;
