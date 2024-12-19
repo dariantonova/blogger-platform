@@ -2,15 +2,14 @@ import {req} from "../test-helpers";
 import {SETTINGS} from "../../src/settings";
 import {client, postsCollection, runDb, setDb} from "../../src/db/db";
 import {encodeToBase64, HTTP_STATUSES} from "../../src/utils";
-import * as datasets from "../datasets";
 import {mapPostToViewModel} from "../../src/features/posts/posts.controller";
 import {BlogDBType, PostDBType} from "../../src/types";
 import {CreatePostInputModel} from "../../src/features/posts/models/CreatePostInputModel";
 import {postTestManager} from "../test-managers/post-test-manager";
-import {PostViewModel} from "../../src/features/posts/models/PostViewModel";
 import {MongoMemoryServer} from "mongodb-memory-server";
 import {blogTestManager} from "../test-managers/blog-test-manager";
 import {CreateBlogInputModel} from "../../src/features/blogs/models/CreateBlogInputModel";
+import {UpdatePostInputModel} from "../../src/features/posts/models/UpdatePostInputModel";
 
 describe('tests for /posts', () => {
     let server: MongoMemoryServer;
@@ -884,12 +883,80 @@ describe('tests for /posts', () => {
     });
 
     describe('update post', () => {
-        let createdPosts: PostViewModel[] = [];
+        let initialDbBlogs: BlogDBType[];
+        let initialDbPosts: PostDBType[];
 
         beforeAll(async () => {
-            const posts = datasets.posts;
-            await setDb({ posts, blogs: datasets.blogs });
-            createdPosts = await Promise.all(posts.map(mapPostToViewModel));
+            initialDbBlogs = [
+                {
+                    id: '1',
+                    name: 'blog 1',
+                    description: 'superblog 1',
+                    websiteUrl: 'https://superblog.com/1',
+                    isDeleted: false,
+                    createdAt: '2024-12-15T05:32:26.882Z',
+                    isMembership: false,
+                },
+                {
+                    id: '2',
+                    name: 'blog 2',
+                    description: 'superblog 2',
+                    websiteUrl: 'https://superblog.com/2',
+                    isDeleted: false,
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                    isMembership: false,
+                },
+                {
+                    id: '3',
+                    name: 'blog 3',
+                    description: 'superblog 3',
+                    websiteUrl: 'https://superblog.com/3',
+                    isDeleted: true,
+                    createdAt: '2024-12-17T05:32:26.882Z',
+                    isMembership: false,
+                },
+            ];
+
+            initialDbPosts = [
+                {
+                    id: '1',
+                    title: 'post 1',
+                    shortDescription: 'superpost 1',
+                    content: 'content of superpost 1',
+                    blogId: '2',
+                    isDeleted: false,
+                    createdAt: '2024-12-15T05:32:26.882Z',
+                },
+                {
+                    id: '2',
+                    title: 'post 2',
+                    shortDescription: 'superpost 2',
+                    content: 'content of superpost 2',
+                    blogId: '1',
+                    isDeleted: false,
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                },
+                {
+                    id: '3',
+                    title: 'post 3',
+                    shortDescription: 'superpost 3',
+                    content: 'content of superpost 3',
+                    blogId: '1',
+                    isDeleted: true,
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                },
+                {
+                    id: '4',
+                    title: 'post 4',
+                    shortDescription: 'superpost 4',
+                    content: 'content of superpost 4',
+                    blogId: '1',
+                    isDeleted: false,
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                },
+            ];
+
+            await setDb({ blogs: initialDbBlogs, posts: initialDbPosts });
         });
 
         afterAll(async () => {
@@ -899,44 +966,49 @@ describe('tests for /posts', () => {
 
         // authorization
         it('should forbid updating posts for non-admin users', async () => {
-            const data = datasets.postsDataForUpdate[0];
-            const postId = createdPosts[0].id;
+            const data: UpdatePostInputModel = {
+                title: 'post 51',
+                shortDescription: 'superpost 51',
+                content: 'content of superpost 51',
+                blogId: initialDbBlogs[0].id,
+            };
+            const postToUpdate = initialDbPosts[0];
 
+            // no auth
             await req
-                .put(SETTINGS.PATH.POSTS + '/' + postId)
+                .put(SETTINGS.PATH.POSTS + '/' + postToUpdate.id)
                 .send(data)
                 .expect(HTTP_STATUSES.UNAUTHORIZED_401);
 
-            await postTestManager.updatePost(postId, data, HTTP_STATUSES.UNAUTHORIZED_401,
-                'Basic somethingWeird');
+            const invalidAuthValues: string[] = [
+                '',
+                'Basic somethingWeird',
+                'Basic ',
+                `Bearer ${encodeToBase64(credentials)}`,
+                encodeToBase64(credentials),
+            ];
 
-            await postTestManager.updatePost(postId, data, HTTP_STATUSES.UNAUTHORIZED_401,
-                'Basic ');
+            for (const invalidAuthValue of invalidAuthValues) {
+                await postTestManager.updatePost(postToUpdate.id, data,
+                    HTTP_STATUSES.UNAUTHORIZED_401, invalidAuthValue);
+            }
 
-            const credentials = SETTINGS.CREDENTIALS.LOGIN + ':' + SETTINGS.CREDENTIALS.PASSWORD;
-
-            await postTestManager.updatePost(postId, data, HTTP_STATUSES.UNAUTHORIZED_401,
-                `Bearer ${encodeToBase64(credentials)}`);
-
-            await postTestManager.updatePost(postId, data, HTTP_STATUSES.UNAUTHORIZED_401,
-                encodeToBase64(credentials));
-
-            await req
-                .get(SETTINGS.PATH.POSTS)
-                .expect(HTTP_STATUSES.OK_200, createdPosts);
+            const dbPostToUpdate = await postsCollection
+                .findOne({ id: postToUpdate.id }, { projection: { _id: 0 } });
+            expect(dbPostToUpdate).toEqual(postToUpdate);
         });
 
         // validation
         it(`shouldn't update post if required fields are missing`, async () => {
-            const postId = createdPosts[0].id;
+            const postToUpdate = initialDbPosts[1];
 
             const data1 = {
                 shortDescription: 'shortDescription',
                 content: 'content',
-                blogId: '1',
+                blogId: initialDbBlogs[0].id,
             };
 
-            const response1 = await postTestManager.updatePost(postId, data1,
+            const response1 = await postTestManager.updatePost(postToUpdate.id, data1,
                 HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response1.body).toEqual({
                 errorsMessages: [
@@ -950,10 +1022,10 @@ describe('tests for /posts', () => {
             const data2 = {
                 title: 'title',
                 content: 'content',
-                blogId: '1',
+                blogId: initialDbBlogs[0].id,
             };
 
-            const response2 = await postTestManager.updatePost(postId, data2,
+            const response2 = await postTestManager.updatePost(postToUpdate.id, data2,
                 HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response2.body).toEqual({
                 errorsMessages: [
@@ -967,10 +1039,10 @@ describe('tests for /posts', () => {
             const data3 = {
                 title: 'title',
                 shortDescription: 'shortDescription',
-                blogId: '1',
+                blogId: initialDbBlogs[0].id,
             };
 
-            const response3 = await postTestManager.updatePost(postId, data3,
+            const response3 = await postTestManager.updatePost(postToUpdate.id, data3,
                 HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response3.body).toEqual({
                 errorsMessages: [
@@ -987,7 +1059,7 @@ describe('tests for /posts', () => {
                 content: 'content',
             };
 
-            const response4 = await postTestManager.updatePost(postId, data4,
+            const response4 = await postTestManager.updatePost(postToUpdate.id, data4,
                 HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response4.body).toEqual({
                 errorsMessages: [
@@ -998,22 +1070,22 @@ describe('tests for /posts', () => {
                 ],
             });
 
-            await req
-                .get(SETTINGS.PATH.POSTS)
-                .expect(HTTP_STATUSES.OK_200, createdPosts);
+            const dbPostToUpdate = await postsCollection
+                .findOne({ id: postToUpdate.id }, { projection: { _id: 0 } });
+            expect(dbPostToUpdate).toEqual(postToUpdate);
         });
 
         it(`shouldn't update post if title is invalid`, async () => {
-            const postId = createdPosts[0].id;
+            const postToUpdate = initialDbPosts[1];
 
             const data1 = {
                 title: 24,
                 shortDescription: 'shortDescription',
                 content: 'content',
-                blogId: '1',
+                blogId: initialDbBlogs[0].id,
             };
 
-            const response1 = await postTestManager.updatePost(postId, data1,
+            const response1 = await postTestManager.updatePost(postToUpdate.id, data1,
                 HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response1.body).toEqual({
                 errorsMessages: [
@@ -1028,10 +1100,10 @@ describe('tests for /posts', () => {
                 title: '',
                 shortDescription: 'shortDescription',
                 content: 'content',
-                blogId: '1',
+                blogId: initialDbBlogs[0].id,
             };
 
-            const response2 = await postTestManager.updatePost(postId, data2,
+            const response2 = await postTestManager.updatePost(postToUpdate.id, data2,
                 HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response2.body).toEqual({
                 errorsMessages: [
@@ -1046,10 +1118,10 @@ describe('tests for /posts', () => {
                 title: '  ',
                 shortDescription: 'shortDescription',
                 content: 'content',
-                blogId: '1',
+                blogId: initialDbBlogs[0].id,
             };
 
-            const response3 = await postTestManager.updatePost(postId, data3,
+            const response3 = await postTestManager.updatePost(postToUpdate.id, data3,
                 HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response3.body).toEqual({
                 errorsMessages: [
@@ -1064,10 +1136,10 @@ describe('tests for /posts', () => {
                 title: 'a'.repeat(31),
                 shortDescription: 'shortDescription',
                 content: 'content',
-                blogId: '1',
+                blogId: initialDbBlogs[0].id,
             };
 
-            const response4 = await postTestManager.updatePost(postId, data4,
+            const response4 = await postTestManager.updatePost(postToUpdate.id, data4,
                 HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response4.body).toEqual({
                 errorsMessages: [
@@ -1078,22 +1150,22 @@ describe('tests for /posts', () => {
                 ],
             });
 
-            await req
-                .get(SETTINGS.PATH.POSTS)
-                .expect(HTTP_STATUSES.OK_200, createdPosts);
+            const dbPostToUpdate = await postsCollection
+                .findOne({ id: postToUpdate.id }, { projection: { _id: 0 } });
+            expect(dbPostToUpdate).toEqual(postToUpdate);
         });
 
         it(`shouldn't update post if short description is invalid`, async () => {
-            const postId = createdPosts[0].id;
+            const postToUpdate = initialDbPosts[1];
 
             const data1 = {
                 title: 'title',
                 shortDescription: 24,
                 content: 'content',
-                blogId: '1',
+                blogId: initialDbBlogs[0].id,
             };
 
-            const response1 = await postTestManager.updatePost(postId, data1,
+            const response1 = await postTestManager.updatePost(postToUpdate.id, data1,
                 HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response1.body).toEqual({
                 errorsMessages: [
@@ -1108,10 +1180,10 @@ describe('tests for /posts', () => {
                 title: 'title',
                 shortDescription: '',
                 content: 'content',
-                blogId: '1',
+                blogId: initialDbBlogs[0].id,
             };
 
-            const response2 = await postTestManager.updatePost(postId, data2,
+            const response2 = await postTestManager.updatePost(postToUpdate.id, data2,
                 HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response2.body).toEqual({
                 errorsMessages: [
@@ -1126,10 +1198,10 @@ describe('tests for /posts', () => {
                 title: 'title',
                 shortDescription: '  ',
                 content: 'content',
-                blogId: '1',
+                blogId: initialDbBlogs[0].id,
             };
 
-            const response3 = await postTestManager.updatePost(postId, data3,
+            const response3 = await postTestManager.updatePost(postToUpdate.id, data3,
                 HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response3.body).toEqual({
                 errorsMessages: [
@@ -1144,10 +1216,10 @@ describe('tests for /posts', () => {
                 title: 'title',
                 shortDescription: 'a'.repeat(101),
                 content: 'content',
-                blogId: '1',
+                blogId: initialDbBlogs[0].id,
             };
 
-            const response4 = await postTestManager.updatePost(postId, data4,
+            const response4 = await postTestManager.updatePost(postToUpdate.id, data4,
                 HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response4.body).toEqual({
                 errorsMessages: [
@@ -1158,22 +1230,22 @@ describe('tests for /posts', () => {
                 ],
             });
 
-            await req
-                .get(SETTINGS.PATH.POSTS)
-                .expect(HTTP_STATUSES.OK_200, createdPosts);
+            const dbPostToUpdate = await postsCollection
+                .findOne({ id: postToUpdate.id }, { projection: { _id: 0 } });
+            expect(dbPostToUpdate).toEqual(postToUpdate);
         });
 
         it(`shouldn't update post if content is invalid`, async () => {
-            const postId = createdPosts[0].id;
+            const postToUpdate = initialDbPosts[1];
 
             const data1 = {
                 title: 'title',
                 shortDescription: 'shortDescription',
                 content: 24,
-                blogId: '1',
+                blogId: initialDbBlogs[0].id,
             };
 
-            const response1 = await postTestManager.updatePost(postId, data1,
+            const response1 = await postTestManager.updatePost(postToUpdate.id, data1,
                 HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response1.body).toEqual({
                 errorsMessages: [
@@ -1188,10 +1260,10 @@ describe('tests for /posts', () => {
                 title: 'title',
                 shortDescription: 'shortDescription',
                 content: '',
-                blogId: '1',
+                blogId: initialDbBlogs[0].id,
             };
 
-            const response2 = await postTestManager.updatePost(postId, data2,
+            const response2 = await postTestManager.updatePost(postToUpdate.id, data2,
                 HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response2.body).toEqual({
                 errorsMessages: [
@@ -1206,10 +1278,10 @@ describe('tests for /posts', () => {
                 title: 'title',
                 shortDescription: 'shortDescription',
                 content: '  ',
-                blogId: '1',
+                blogId: initialDbBlogs[0].id,
             };
 
-            const response3 = await postTestManager.updatePost(postId, data3,
+            const response3 = await postTestManager.updatePost(postToUpdate.id, data3,
                 HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response3.body).toEqual({
                 errorsMessages: [
@@ -1224,10 +1296,10 @@ describe('tests for /posts', () => {
                 title: 'title',
                 shortDescription: 'shortDescription',
                 content: 'a'.repeat(1001),
-                blogId: '1',
+                blogId: initialDbBlogs[0].id,
             };
 
-            const response4 = await postTestManager.updatePost(postId, data4,
+            const response4 = await postTestManager.updatePost(postToUpdate.id, data4,
                 HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response4.body).toEqual({
                 errorsMessages: [
@@ -1238,13 +1310,13 @@ describe('tests for /posts', () => {
                 ],
             });
 
-            await req
-                .get(SETTINGS.PATH.POSTS)
-                .expect(HTTP_STATUSES.OK_200, createdPosts);
+            const dbPostToUpdate = await postsCollection
+                .findOne({ id: postToUpdate.id }, { projection: { _id: 0 } });
+            expect(dbPostToUpdate).toEqual(postToUpdate);
         });
 
         it(`shouldn't update post if blog id is invalid`, async () => {
-            const postId = createdPosts[0].id;
+            const postToUpdate = initialDbPosts[1];
 
             const data1 = {
                 title: 'title',
@@ -1253,7 +1325,7 @@ describe('tests for /posts', () => {
                 blogId: 1,
             };
 
-            const response1 = await postTestManager.updatePost(postId, data1,
+            const response1 = await postTestManager.updatePost(postToUpdate.id, data1,
                 HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response1.body).toEqual({
                 errorsMessages: [
@@ -1271,7 +1343,7 @@ describe('tests for /posts', () => {
                 blogId: '',
             };
 
-            const response2 = await postTestManager.updatePost(postId, data2,
+            const response2 = await postTestManager.updatePost(postToUpdate.id, data2,
                 HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response2.body).toEqual({
                 errorsMessages: [
@@ -1289,7 +1361,7 @@ describe('tests for /posts', () => {
                 blogId: '  ',
             };
 
-            const response3 = await postTestManager.updatePost(postId, data3,
+            const response3 = await postTestManager.updatePost(postToUpdate.id, data3,
                 HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response3.body).toEqual({
                 errorsMessages: [
@@ -1307,7 +1379,7 @@ describe('tests for /posts', () => {
                 blogId: '-100',
             };
 
-            const response4 = await postTestManager.updatePost(postId, data4,
+            const response4 = await postTestManager.updatePost(postToUpdate.id, data4,
                 HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response4.body).toEqual({
                 errorsMessages: [
@@ -1318,13 +1390,13 @@ describe('tests for /posts', () => {
                 ],
             });
 
-            await req
-                .get(SETTINGS.PATH.POSTS)
-                .expect(HTTP_STATUSES.OK_200, createdPosts);
+            const dbPostToUpdate = await postsCollection
+                .findOne({ id: postToUpdate.id }, { projection: { _id: 0 } });
+            expect(dbPostToUpdate).toEqual(postToUpdate);
         });
 
         it(`shouldn't update post if multiple fields are invalid`, async () => {
-            const postId = createdPosts[0].id;
+            const postToUpdate = initialDbPosts[1];
 
             const data = {
                 title: 'a'.repeat(31),
@@ -1332,7 +1404,7 @@ describe('tests for /posts', () => {
                 blogId: '-100',
             };
 
-            const response = await postTestManager.updatePost(postId, data,
+            const response = await postTestManager.updatePost(postToUpdate.id, data,
                 HTTP_STATUSES.BAD_REQUEST_400, validAuth);
             expect(response.body).toEqual({
                 errorsMessages: expect.arrayContaining([
@@ -1343,40 +1415,46 @@ describe('tests for /posts', () => {
                 ]),
             });
 
-            await req
-                .get(SETTINGS.PATH.POSTS)
-                .expect(HTTP_STATUSES.OK_200, createdPosts);
+            const dbPostToUpdate = await postsCollection
+                .findOne({ id: postToUpdate.id }, { projection: { _id: 0 } });
+            expect(dbPostToUpdate).toEqual(postToUpdate);
         });
 
         // non-existing post
         it('should return 404 when updating non-existing post', async () => {
-            await postTestManager.updatePost('-100', datasets.postsDataForUpdate[0],
-                HTTP_STATUSES.NOT_FOUND_404, validAuth);
+            const data: UpdatePostInputModel = {
+                title: 'post 51',
+                shortDescription: 'superpost 51',
+                content: 'content of superpost 51',
+                blogId: initialDbBlogs[0].id,
+            }
+
+            await postTestManager.updatePost('-100', data, HTTP_STATUSES.NOT_FOUND_404, validAuth);
+
+            // deleted
+            const postToUpdate = initialDbPosts[2];
+            await postTestManager.updatePost(postToUpdate.id, data, HTTP_STATUSES.NOT_FOUND_404, validAuth);
         });
 
         // correct input
         it('should update post if input data is correct', async () => {
-            const data = datasets.postsDataForUpdate[0];
-            const postId = createdPosts[0].id;
+            const data: UpdatePostInputModel = {
+                title: 'post 51',
+                shortDescription: 'superpost 51',
+                content: 'content of superpost 51',
+                blogId: initialDbBlogs[0].id,
+            };
+            const postToUpdate = initialDbPosts[0];
 
-            await postTestManager.updatePost(postId, data,
-                HTTP_STATUSES.NO_CONTENT_204, validAuth);
+            await postTestManager.updatePost(postToUpdate.id, data, HTTP_STATUSES.NO_CONTENT_204, validAuth);
 
-            await req
-                .get(SETTINGS.PATH.POSTS + '/' + createdPosts[1].id)
-                .expect(HTTP_STATUSES.OK_200, createdPosts[1]);
-        });
-
-        // cannot update deleted post
-        it('should return 404 when updating deleted post', async () => {
-            const posts = datasets.postsWithDeleted;
-            await setDb( { posts, blogs: datasets.blogs });
-
-            const data = datasets.postsDataForUpdate[0];
-            const postId = posts[1].id;
-
-            await postTestManager.updatePost(postId, data,
-                HTTP_STATUSES.NOT_FOUND_404, validAuth);
+            // check other posts aren't modified
+            const otherPosts = initialDbPosts.filter(b => b.id !== postToUpdate.id);
+            for (const otherPost of otherPosts) {
+                const dbOtherPost = await postsCollection
+                    .findOne({ id: otherPost.id }, { projection: { _id: 0 } });
+                expect(dbOtherPost).toEqual(otherPost);
+            }
         });
     });
 });

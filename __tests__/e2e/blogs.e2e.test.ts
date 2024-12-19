@@ -700,7 +700,6 @@ describe('tests for /blogs', () => {
 
     describe('update blog', () => {
         let initialDbBlogs: BlogDBType[];
-        // let createdBlogs: BlogViewModel[] = [];
 
         beforeAll(async () => {
             initialDbBlogs = [
@@ -1152,8 +1151,7 @@ describe('tests for /blogs', () => {
             };
             const blogToUpdate = initialDbBlogs[0];
 
-            await blogTestManager.updateBlog(blogToUpdate.id, data,
-                HTTP_STATUSES.NO_CONTENT_204, validAuth);
+            await blogTestManager.updateBlog(blogToUpdate.id, data, HTTP_STATUSES.NO_CONTENT_204, validAuth);
 
             // check other blogs aren't modified
             const otherBlogs = initialDbBlogs.filter(b => b.id !== blogToUpdate.id);

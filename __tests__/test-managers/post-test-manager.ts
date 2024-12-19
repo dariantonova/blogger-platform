@@ -2,7 +2,6 @@ import {req} from "../test-helpers";
 import {SETTINGS} from "../../src/settings";
 import {HTTP_STATUSES} from "../../src/utils";
 import {PostViewModel} from "../../src/features/posts/models/PostViewModel";
-import {blogsRepository} from "../../src/features/blogs/blogs.db.repository";
 import {blogsCollection, postsCollection} from "../../src/db/db";
 
 export const postTestManager = {
@@ -46,8 +45,8 @@ export const postTestManager = {
         return response;
     },
     async updatePost(postId: string, data: any, expectedStatusCode: number, auth: string) {
-        const getPostResponse = await req
-            .get(SETTINGS.PATH.POSTS + '/' + postId);
+        const dbPostBeforeUpdate = await postsCollection
+            .findOne({ id: postId }, { projection: { _id: 0 } });
 
         const response = await req
             .put(SETTINGS.PATH.POSTS + '/' + postId)
@@ -56,21 +55,12 @@ export const postTestManager = {
             .expect(expectedStatusCode);
 
         if (expectedStatusCode === HTTP_STATUSES.NO_CONTENT_204) {
-            const postBeforeUpdate: PostViewModel = getPostResponse.body;
+            const dbUpdatedPost = await postsCollection
+                .findOne({ id: postId }, { projection: { _id: 0 } });
 
-            const getUpdatedPostResponse = await req
-                .get(SETTINGS.PATH.POSTS + '/' + postId)
-                .expect(HTTP_STATUSES.OK_200);
-            const updatedPost: PostViewModel = getUpdatedPostResponse.body;
-
-            expect(updatedPost).toEqual({
-                id: postBeforeUpdate.id,
-                title: data.title,
-                shortDescription: data.shortDescription,
-                content: data.content,
-                blogId: data.blogId,
-                blogName: (await blogsRepository.findBlogById(data.blogId))?.name || '',
-                createdAt: postBeforeUpdate.createdAt,
+            expect(dbUpdatedPost).toEqual({
+                ...dbPostBeforeUpdate,
+                ...data,
             });
         }
 
