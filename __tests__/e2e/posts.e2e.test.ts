@@ -321,10 +321,8 @@ describe('tests for /posts', () => {
                 .expect(HTTP_STATUSES.UNAUTHORIZED_401);
 
             for (const invalidAuthValue of invalidAuthValues) {
-                await req
-                    .delete(SETTINGS.PATH.POSTS + '/' + postToDelete.id)
-                    .set('Authorization', invalidAuthValue)
-                    .expect(HTTP_STATUSES.UNAUTHORIZED_401);
+                await postTestManager.deletePost(postToDelete.id,
+                    HTTP_STATUSES.UNAUTHORIZED_401, invalidAuthValue);
             }
 
             const dbPostToDelete = await postsCollection
@@ -333,26 +331,20 @@ describe('tests for /posts', () => {
         });
 
         it('should return 404 when deleting non-existing post', async () => {
-            await req
-                .delete(SETTINGS.PATH.POSTS + '/-100')
-                .set('Authorization', VALID_AUTH)
-                .expect(HTTP_STATUSES.NOT_FOUND_404);
+            await postTestManager.deletePost('-100',
+                HTTP_STATUSES.NOT_FOUND_404, VALID_AUTH);
 
             // deleted
             const postToDelete = initialDbPosts[2];
-            await req
-                .delete(SETTINGS.PATH.POSTS + '/' + postToDelete.id)
-                .set('Authorization', VALID_AUTH)
-                .expect(HTTP_STATUSES.NOT_FOUND_404);
+            await postTestManager.deletePost(postToDelete.id,
+                HTTP_STATUSES.NOT_FOUND_404, VALID_AUTH);
         });
 
         it('should delete the first post', async () => {
             const postToDelete = initialDbPosts[0];
 
-            await req
-                .delete(SETTINGS.PATH.POSTS + '/' + postToDelete.id)
-                .set('Authorization', VALID_AUTH)
-                .expect(HTTP_STATUSES.NO_CONTENT_204);
+            await postTestManager.deletePost(postToDelete.id,
+                HTTP_STATUSES.NO_CONTENT_204, VALID_AUTH);
 
             const dbPostToDelete = await postsCollection
                 .findOne({ id: postToDelete.id, isDeleted: false });

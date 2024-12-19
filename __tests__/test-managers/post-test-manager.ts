@@ -5,6 +5,12 @@ import {PostViewModel} from "../../src/features/posts/models/PostViewModel";
 import {blogsCollection, postsCollection} from "../../src/db/db";
 
 export const postTestManager = {
+    async deletePost(postId: string, expectedStatusCode: number, auth: string) {
+        await req
+            .delete(SETTINGS.PATH.POSTS + '/' + postId)
+            .set('Authorization', auth)
+            .expect(expectedStatusCode);
+    },
     async createPost(data: any, expectedStatusCode: number, auth: string) {
         const response = await req
             .post(SETTINGS.PATH.POSTS)

@@ -237,10 +237,8 @@ describe('tests for /blogs', () => {
                 .expect(HTTP_STATUSES.UNAUTHORIZED_401);
 
             for (const invalidAuthValue of invalidAuthValues) {
-                await req
-                    .delete(SETTINGS.PATH.BLOGS + '/' + blogToDelete.id)
-                    .set('Authorization', invalidAuthValue)
-                    .expect(HTTP_STATUSES.UNAUTHORIZED_401);
+                await blogTestManager.deleteBlog(blogToDelete.id,
+                    HTTP_STATUSES.UNAUTHORIZED_401, invalidAuthValue);
             }
 
             const dbBlogToDelete = await blogsCollection
@@ -254,26 +252,20 @@ describe('tests for /blogs', () => {
         });
 
         it('should return 404 when deleting non-existing blog', async () => {
-            await req
-                .delete(SETTINGS.PATH.BLOGS + '/-100')
-                .set('Authorization', VALID_AUTH)
-                .expect(HTTP_STATUSES.NOT_FOUND_404);
+            await blogTestManager.deleteBlog('-100',
+                HTTP_STATUSES.NOT_FOUND_404, VALID_AUTH);
 
             // deleted
             const blogToDelete = initialDbBlogs[2];
-            await req
-                .delete(SETTINGS.PATH.BLOGS + '/' + blogToDelete.id)
-                .set('Authorization', VALID_AUTH)
-                .expect(HTTP_STATUSES.NOT_FOUND_404);
+            await blogTestManager.deleteBlog(blogToDelete.id,
+                HTTP_STATUSES.NOT_FOUND_404, VALID_AUTH);
         });
 
         it('should delete the first blog and all related posts', async () => {
             const blogToDelete = initialDbBlogs[0];
 
-            await req
-                .delete(SETTINGS.PATH.BLOGS + '/' + blogToDelete.id)
-                .set('Authorization', VALID_AUTH)
-                .expect(HTTP_STATUSES.NO_CONTENT_204);
+            await blogTestManager.deleteBlog(blogToDelete.id,
+                HTTP_STATUSES.NO_CONTENT_204, VALID_AUTH);
 
             const dbBlogToDelete = await blogsCollection
                 .findOne({ id: blogToDelete.id, isDeleted: false });

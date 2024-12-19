@@ -5,6 +5,12 @@ import {BlogViewModel} from "../../src/features/blogs/models/BlogViewModel";
 import {blogsCollection} from "../../src/db/db";
 
 export const blogTestManager = {
+    async deleteBlog(blogId: string, expectedStatusCode: number, auth: string) {
+        await req
+            .delete(SETTINGS.PATH.BLOGS + '/' + blogId)
+            .set('Authorization', auth)
+            .expect(expectedStatusCode);
+    },
     async createBlog(data: any, expectedStatusCode: number, auth: string) {
         const response = await req
             .post(SETTINGS.PATH.BLOGS)
