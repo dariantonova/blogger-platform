@@ -1,6 +1,6 @@
 import {req} from "../test-helpers";
 import {SETTINGS} from "../../src/settings";
-import {client, runDb, setDb} from "../../src/db/db";
+import {client, postsCollection, runDb, setDb} from "../../src/db/db";
 import {encodeToBase64, HTTP_STATUSES} from "../../src/utils";
 import * as datasets from "../datasets";
 import {mapPostToViewModel} from "../../src/features/posts/posts.controller";
@@ -14,6 +14,7 @@ import {blogTestManager} from "../test-managers/blog-test-manager";
 describe('tests for /posts', () => {
     let server: MongoMemoryServer;
     const validAuth = 'Basic YWRtaW46cXdlcnR5';
+    const credentials = SETTINGS.CREDENTIALS.LOGIN + ':' + SETTINGS.CREDENTIALS.PASSWORD;
 
     beforeAll(async () => {
         server = await MongoMemoryServer.create();
@@ -232,11 +233,79 @@ describe('tests for /posts', () => {
     });
 
     describe('delete post', () => {
-        let posts: PostDBType[];
+        let initialDbPosts: PostDBType[];
 
         beforeAll(async () => {
-            posts = datasets.posts;
-            await setDb({ posts, blogs: datasets.blogs });
+            const initialDbBlogs: BlogDBType[] =  [
+                {
+                    id: '1',
+                    name: 'blog 1',
+                    description: 'superblog 1',
+                    websiteUrl: 'https://superblog.com/1',
+                    isDeleted: false,
+                    createdAt: '2024-12-15T05:32:26.882Z',
+                    isMembership: false,
+                },
+                {
+                    id: '2',
+                    name: 'blog 2',
+                    description: 'superblog 2',
+                    websiteUrl: 'https://superblog.com/2',
+                    isDeleted: false,
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                    isMembership: false,
+                },
+                {
+                    id: '3',
+                    name: 'blog 3',
+                    description: 'superblog 3',
+                    websiteUrl: 'https://superblog.com/3',
+                    isDeleted: true,
+                    createdAt: '2024-12-17T05:32:26.882Z',
+                    isMembership: false,
+                },
+            ];
+
+            initialDbPosts = [
+                {
+                    id: '1',
+                    title: 'post 1',
+                    shortDescription: 'superpost 1',
+                    content: 'content of superpost 1',
+                    blogId: '2',
+                    isDeleted: false,
+                    createdAt: '2024-12-15T05:32:26.882Z',
+                },
+                {
+                    id: '2',
+                    title: 'post 2',
+                    shortDescription: 'superpost 2',
+                    content: 'content of superpost 2',
+                    blogId: '1',
+                    isDeleted: false,
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                },
+                {
+                    id: '3',
+                    title: 'post 3',
+                    shortDescription: 'superpost 3',
+                    content: 'content of superpost 3',
+                    blogId: '1',
+                    isDeleted: true,
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                },
+                {
+                    id: '4',
+                    title: 'post 4',
+                    shortDescription: 'superpost 4',
+                    content: 'content of superpost 4',
+                    blogId: '1',
+                    isDeleted: false,
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                },
+            ];
+
+            await setDb({ blogs: initialDbBlogs, posts: initialDbPosts });
         });
 
         afterAll(async () => {
@@ -245,38 +314,31 @@ describe('tests for /posts', () => {
         });
 
         it('should forbid deleting posts for non-admin users', async () => {
-            const postToDelete = posts[0];
+            const postToDelete = initialDbPosts[0];
 
+            // no auth
             await req
                 .delete(SETTINGS.PATH.POSTS + '/' + postToDelete.id)
                 .expect(HTTP_STATUSES.UNAUTHORIZED_401);
 
-            await req
-                .delete(SETTINGS.PATH.POSTS + '/' + postToDelete.id)
-                .set('Authorization', 'Basic somethingWeird')
-                .expect(HTTP_STATUSES.UNAUTHORIZED_401);
+            const invalidAuthValues: string[] = [
+                '',
+                'Basic somethingWeird',
+                'Basic ',
+                `Bearer ${encodeToBase64(credentials)}`,
+                encodeToBase64(credentials),
+            ];
 
-            await req
-                .delete(SETTINGS.PATH.POSTS + '/' + postToDelete.id)
-                .set('Authorization', 'Basic ')
-                .expect(HTTP_STATUSES.UNAUTHORIZED_401);
+            for (const invalidAuthValue of invalidAuthValues) {
+                await req
+                    .delete(SETTINGS.PATH.POSTS + '/' + postToDelete.id)
+                    .set('Authorization', invalidAuthValue)
+                    .expect(HTTP_STATUSES.UNAUTHORIZED_401);
+            }
 
-            const credentials = SETTINGS.CREDENTIALS.LOGIN + ':' + SETTINGS.CREDENTIALS.PASSWORD;
-            await req
-                .delete(SETTINGS.PATH.POSTS + '/' + postToDelete.id)
-                .set('Authorization', `Bearer ${encodeToBase64(credentials)}`)
-                .expect(HTTP_STATUSES.UNAUTHORIZED_401);
-
-            await req
-                .delete(SETTINGS.PATH.POSTS + '/' + postToDelete.id)
-                .set('Authorization', encodeToBase64(credentials))
-                .expect(HTTP_STATUSES.UNAUTHORIZED_401);
-
-            const expectedData = await mapPostToViewModel(postToDelete);
-
-            await req
-                .get(SETTINGS.PATH.POSTS + '/' + postToDelete.id)
-                .expect(HTTP_STATUSES.OK_200, expectedData);
+            const dbPostToDelete = await postsCollection
+                .findOne({ id: postToDelete.id }, { projection: { _id: 0 } });
+            expect(dbPostToDelete).toEqual(postToDelete);
         });
 
         it('should return 404 when deleting non-existing post', async () => {
@@ -284,49 +346,26 @@ describe('tests for /posts', () => {
                 .delete(SETTINGS.PATH.POSTS + '/-100')
                 .set('Authorization', validAuth)
                 .expect(HTTP_STATUSES.NOT_FOUND_404);
+
+            // deleted
+            const postToDelete = initialDbPosts[2];
+            await req
+                .delete(SETTINGS.PATH.POSTS + '/' + postToDelete.id)
+                .set('Authorization', validAuth)
+                .expect(HTTP_STATUSES.NOT_FOUND_404);
         });
 
         it('should delete the first post', async () => {
-            const postToDelete = posts[0];
+            const postToDelete = initialDbPosts[0];
 
             await req
                 .delete(SETTINGS.PATH.POSTS + '/' + postToDelete.id)
                 .set('Authorization', validAuth)
                 .expect(HTTP_STATUSES.NO_CONTENT_204);
 
-            await req
-                .get(SETTINGS.PATH.POSTS + '/' + postToDelete.id)
-                .expect(HTTP_STATUSES.NOT_FOUND_404);
-
-            const expectedData = await mapPostToViewModel(posts[1]);
-
-                await req
-                .get(SETTINGS.PATH.POSTS + '/' + posts[1].id)
-                .expect(HTTP_STATUSES.OK_200, expectedData);
-        });
-
-        it('should delete the second post', async () => {
-            const postToDelete = posts[1];
-
-            await req
-                .delete(SETTINGS.PATH.POSTS + '/' + postToDelete.id)
-                .set('Authorization', validAuth)
-                .expect(HTTP_STATUSES.NO_CONTENT_204);
-
-            await req
-                .get(SETTINGS.PATH.POSTS + '/' + postToDelete.id)
-                .expect(HTTP_STATUSES.NOT_FOUND_404);
-
-            await req
-                .get(SETTINGS.PATH.POSTS)
-                .expect(HTTP_STATUSES.OK_200, []);
-        });
-
-        it('should return 404 when deleting deleted post', async () => {
-            await req
-                .delete(SETTINGS.PATH.POSTS + '/' + posts[0].id)
-                .set('Authorization', validAuth)
-                .expect(HTTP_STATUSES.NOT_FOUND_404);
+            const dbPostToDelete = await postsCollection
+                .findOne({ id: postToDelete.id, isDeleted: false });
+            expect(dbPostToDelete).toEqual(null);
         });
     });
 
