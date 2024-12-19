@@ -284,11 +284,13 @@ describe('tests for /blogs', () => {
                 .set('Authorization', validAuth)
                 .expect(HTTP_STATUSES.NO_CONTENT_204);
 
-            expect(await blogsCollection
-                .findOne({ id: blogToDelete.id, isDeleted: false })).toEqual(null);
+            const dbBlogToDelete = await blogsCollection
+                .findOne({ id: blogToDelete.id, isDeleted: false });
+            expect(dbBlogToDelete).toEqual(null);
 
-            expect(await postsCollection
-                .find({ blogId: blogToDelete.id, isDeleted: false }).toArray()).toEqual([]);
+            const dbRelatedPosts = await postsCollection
+                .find({ blogId: blogToDelete.id, isDeleted: false }).toArray() as PostDBType[];
+            expect(dbRelatedPosts).toEqual([]);
         });
     });
 
