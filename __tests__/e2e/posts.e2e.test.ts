@@ -4,7 +4,7 @@ import {client, runDb, setDb} from "../../src/db/db";
 import {encodeToBase64, HTTP_STATUSES} from "../../src/utils";
 import * as datasets from "../datasets";
 import {mapPostToViewModel} from "../../src/features/posts/posts.controller";
-import {PostDBType} from "../../src/types";
+import {BlogDBType, PostDBType} from "../../src/types";
 import {CreatePostInputModel} from "../../src/features/posts/models/CreatePostInputModel";
 import {postTestManager} from "../test-managers/post-test-manager";
 import {PostViewModel} from "../../src/features/posts/models/PostViewModel";
@@ -49,22 +49,79 @@ describe('tests for /posts', () => {
         });
 
         it('should return array with all posts', async () => {
-            const posts = datasets.posts;
-            await setDb({ posts, blogs: datasets.blogs });
+            const initialDbBlogs: BlogDBType[] = [
+                {
+                    id: '1',
+                    name: 'blog 1',
+                    description: 'superblog 1',
+                    websiteUrl: 'https://superblog.com/1',
+                    isDeleted: false,
+                    createdAt: '2024-12-15T05:32:26.882Z',
+                    isMembership: false,
+                },
+                {
+                    id: '2',
+                    name: 'blog 2',
+                    description: 'superblog 2',
+                    websiteUrl: 'https://superblog.com/2',
+                    isDeleted: false,
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                    isMembership: false,
+                },
+                {
+                    id: '3',
+                    name: 'blog 3',
+                    description: 'superblog 3',
+                    websiteUrl: 'https://superblog.com/3',
+                    isDeleted: true,
+                    createdAt: '2024-12-17T05:32:26.882Z',
+                    isMembership: false,
+                },
+            ];
 
-            const expectedData = await Promise.all(posts.map(mapPostToViewModel));
+            const initialDbPosts: PostDBType[] = [
+                {
+                    id: '1',
+                    title: 'post 1',
+                    shortDescription: 'superpost 1',
+                    content: 'content of superpost 1',
+                    blogId: '2',
+                    isDeleted: true,
+                    createdAt: '2024-12-15T05:32:26.882Z',
+                },
+                {
+                    id: '2',
+                    title: 'post 2',
+                    shortDescription: 'superpost 2',
+                    content: 'content of superpost 2',
+                    blogId: '1',
+                    isDeleted: false,
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                },
+                {
+                    id: '3',
+                    title: 'post 3',
+                    shortDescription: 'superpost 3',
+                    content: 'content of superpost 3',
+                    blogId: '1',
+                    isDeleted: true,
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                },
+                {
+                    id: '4',
+                    title: 'post 4',
+                    shortDescription: 'superpost 4',
+                    content: 'content of superpost 4',
+                    blogId: '1',
+                    isDeleted: false,
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                },
+            ];
 
-            await req
-                .get(SETTINGS.PATH.POSTS)
-                .expect(HTTP_STATUSES.OK_200, expectedData);
-        });
+            await setDb({ blogs: initialDbBlogs, posts: initialDbPosts });
 
-        it(`shouldn't return deleted posts`, async () => {
-            const posts = datasets.postsWithDeleted;
-            await setDb( { posts, blogs: datasets.blogs });
-
-            const expectedData = await Promise.all(posts.slice(0, 1).map(mapPostToViewModel));
-
+            const expectedData = await Promise.all(initialDbPosts
+                .filter(p => !p.isDeleted).map(mapPostToViewModel));
             await req
                 .get(SETTINGS.PATH.POSTS)
                 .expect(HTTP_STATUSES.OK_200, expectedData);
@@ -72,11 +129,79 @@ describe('tests for /posts', () => {
     });
 
     describe('get post', () => {
-        let posts: PostDBType[];
+        let initialDbPosts: PostDBType[];
 
         beforeAll(async () => {
-            posts = datasets.posts;
-            await setDb({ posts, blogs: datasets.blogs });
+            const initialDbBlogs: BlogDBType[] = [
+                {
+                    id: '1',
+                    name: 'blog 1',
+                    description: 'superblog 1',
+                    websiteUrl: 'https://superblog.com/1',
+                    isDeleted: false,
+                    createdAt: '2024-12-15T05:32:26.882Z',
+                    isMembership: false,
+                },
+                {
+                    id: '2',
+                    name: 'blog 2',
+                    description: 'superblog 2',
+                    websiteUrl: 'https://superblog.com/2',
+                    isDeleted: false,
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                    isMembership: false,
+                },
+                {
+                    id: '3',
+                    name: 'blog 3',
+                    description: 'superblog 3',
+                    websiteUrl: 'https://superblog.com/3',
+                    isDeleted: true,
+                    createdAt: '2024-12-17T05:32:26.882Z',
+                    isMembership: false,
+                },
+            ];
+
+            initialDbPosts = [
+                {
+                    id: '1',
+                    title: 'post 1',
+                    shortDescription: 'superpost 1',
+                    content: 'content of superpost 1',
+                    blogId: '2',
+                    isDeleted: false,
+                    createdAt: '2024-12-15T05:32:26.882Z',
+                },
+                {
+                    id: '2',
+                    title: 'post 2',
+                    shortDescription: 'superpost 2',
+                    content: 'content of superpost 2',
+                    blogId: '1',
+                    isDeleted: false,
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                },
+                {
+                    id: '3',
+                    title: 'post 3',
+                    shortDescription: 'superpost 3',
+                    content: 'content of superpost 3',
+                    blogId: '1',
+                    isDeleted: true,
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                },
+                {
+                    id: '4',
+                    title: 'post 4',
+                    shortDescription: 'superpost 4',
+                    content: 'content of superpost 4',
+                    blogId: '1',
+                    isDeleted: false,
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                },
+            ];
+
+            await setDb({ blogs: initialDbBlogs, posts: initialDbPosts });
         });
 
         afterAll(async () => {
@@ -88,23 +213,21 @@ describe('tests for /posts', () => {
             await req
                 .get(SETTINGS.PATH.POSTS + '/-100')
                 .expect(HTTP_STATUSES.NOT_FOUND_404);
+
+            // deleted
+            const postToGet = initialDbPosts[2];
+            await req
+                .get(SETTINGS.PATH.POSTS + '/' + postToGet.id)
+                .expect(HTTP_STATUSES.NOT_FOUND_404);
         });
 
         it('should return the second post', async () => {
-            const expectedData = await mapPostToViewModel(posts[1]);
+            const postToGet = initialDbPosts[1];
 
+            const expectedData = await mapPostToViewModel(postToGet);
             await req
-                .get(SETTINGS.PATH.POSTS + '/2')
+                .get(SETTINGS.PATH.POSTS + '/' + postToGet.id)
                 .expect(HTTP_STATUSES.OK_200, expectedData);
-        });
-
-        it(`shouldn't return deleted post`, async () => {
-            const posts = datasets.postsWithDeleted;
-            await setDb( { posts, blogs: datasets.blogs });
-
-            await req
-                .get(SETTINGS.PATH.POSTS + '/' + posts[1].id)
-                .expect(HTTP_STATUSES.NOT_FOUND_404);
         });
     });
 
