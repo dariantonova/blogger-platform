@@ -10,7 +10,7 @@ import {blogsCollection, client, postsCollection, runDb, setDb} from "../../src/
 import {MongoMemoryServer} from "mongodb-memory-server";
 import {UpdateBlogInputModel} from "../../src/features/blogs/models/UpdateBlogInputModel";
 import {invalidAuthValues} from "../datasets/authorization-data";
-import {invalidUrls} from "../datasets/validation/blogs-validation-data";
+import {invalidUrls, validBlogFieldInput} from "../datasets/validation/blogs-validation-data";
 
 describe('tests for /blogs', () => {
     let server: MongoMemoryServer;
@@ -313,8 +313,8 @@ describe('tests for /blogs', () => {
         // validation
         it(`shouldn't create blog if required fields are missing`, async () => {
             const data1 = {
-                description: 'description',
-                websiteUrl: 'https://superblog.com',
+                description: validBlogFieldInput.description,
+                websiteUrl: validBlogFieldInput.websiteUrl,
             };
 
             const response1 = await blogTestManager.createBlog(data1,
@@ -329,8 +329,8 @@ describe('tests for /blogs', () => {
             });
 
             const data2 = {
-                name: 'name',
-                websiteUrl: 'https://superblog.com',
+                name: validBlogFieldInput.name,
+                websiteUrl: validBlogFieldInput.websiteUrl,
             };
 
             const response2 = await blogTestManager.createBlog(data2,
@@ -345,8 +345,8 @@ describe('tests for /blogs', () => {
             });
 
             const data3 = {
-                name: 'name',
-                description: 'description',
+                name: validBlogFieldInput.name,
+                description: validBlogFieldInput.description,
             };
 
             const response3 = await blogTestManager.createBlog(data3,
@@ -367,8 +367,8 @@ describe('tests for /blogs', () => {
             // not string
             const data1 = {
                 name: 24,
-                description: 'description',
-                websiteUrl: 'https://superblog.com',
+                description: validBlogFieldInput.description,
+                websiteUrl: validBlogFieldInput.websiteUrl,
             };
 
             const response1 = await blogTestManager.createBlog(data1,
@@ -385,8 +385,8 @@ describe('tests for /blogs', () => {
             // empty string
             const data2 = {
                 name: '',
-                description: 'description',
-                websiteUrl: 'https://superblog.com',
+                description: validBlogFieldInput.websiteUrl,
+                websiteUrl: validBlogFieldInput.websiteUrl,
             };
 
             const response2 = await blogTestManager.createBlog(data2,
@@ -403,8 +403,8 @@ describe('tests for /blogs', () => {
             // empty string with spaces
             const data3 = {
                 name: '  ',
-                description: 'description',
-                websiteUrl: 'https://superblog.com',
+                description: validBlogFieldInput.description,
+                websiteUrl: validBlogFieldInput.websiteUrl,
             };
 
             const response3 = await blogTestManager.createBlog(data3,
@@ -421,8 +421,8 @@ describe('tests for /blogs', () => {
             // long string
             const data4 = {
                 name: 'a'.repeat(16),
-                description: 'description',
-                websiteUrl: 'https://superblog.com',
+                description: validBlogFieldInput.description,
+                websiteUrl: validBlogFieldInput.websiteUrl,
             };
 
             const response4 = await blogTestManager.createBlog(data4,
@@ -442,9 +442,9 @@ describe('tests for /blogs', () => {
         it(`shouldn't create blog if description is invalid`, async () => {
             // not string
             const data1 = {
-                name: 'name',
+                name: validBlogFieldInput.name,
                 description: 24,
-                websiteUrl: 'https://superblog.com',
+                websiteUrl: validBlogFieldInput.websiteUrl,
             };
 
             const response1 = await blogTestManager.createBlog(data1,
@@ -460,9 +460,9 @@ describe('tests for /blogs', () => {
 
             // empty string
             const data2 = {
-                name: 'name',
+                name: validBlogFieldInput.name,
                 description: '',
-                websiteUrl: 'https://superblog.com',
+                websiteUrl: validBlogFieldInput.websiteUrl,
             };
 
             const response2 = await blogTestManager.createBlog(data2,
@@ -478,9 +478,9 @@ describe('tests for /blogs', () => {
 
             // empty string with spaces
             const data3 = {
-                name: 'name',
+                name: validBlogFieldInput.name,
                 description: '  ',
-                websiteUrl: 'https://superblog.com',
+                websiteUrl: validBlogFieldInput.websiteUrl,
             };
 
             const response3 = await blogTestManager.createBlog(data3,
@@ -496,9 +496,9 @@ describe('tests for /blogs', () => {
 
             // long string
             const data4 = {
-                name: 'name',
+                name: validBlogFieldInput.name,
                 description: 'a'.repeat(501),
-                websiteUrl: 'https://superblog.com',
+                websiteUrl: validBlogFieldInput.websiteUrl,
             };
 
             const response4 = await blogTestManager.createBlog(data4,
@@ -518,8 +518,8 @@ describe('tests for /blogs', () => {
         it(`shouldn't create blog if website url is invalid`, async () => {
             // not string
             const data1 = {
-                name: 'name',
-                description: 'description',
+                name: validBlogFieldInput.name,
+                description: validBlogFieldInput.description,
                 websiteUrl: 24,
             };
 
@@ -536,8 +536,8 @@ describe('tests for /blogs', () => {
 
             // empty string
             const data2 = {
-                name: 'name',
-                description: 'description',
+                name: validBlogFieldInput.name,
+                description: validBlogFieldInput.description,
                 websiteUrl: '',
             };
 
@@ -554,8 +554,8 @@ describe('tests for /blogs', () => {
 
             // empty string with spaces
             const data3 = {
-                name: 'name',
-                description: 'description',
+                name: validBlogFieldInput.name,
+                description: validBlogFieldInput.description,
                 websiteUrl: '  ',
             };
 
@@ -572,8 +572,8 @@ describe('tests for /blogs', () => {
 
             // long string
             const data4 = {
-                name: 'name',
-                description: 'description',
+                name: validBlogFieldInput.name,
+                description: validBlogFieldInput.description,
                 websiteUrl: 'a'.repeat(101),
             };
 
@@ -592,8 +592,8 @@ describe('tests for /blogs', () => {
             const invalidUrlData = [];
             for (const invalidUrl of invalidUrls) {
                 const dataItem = {
-                    name: 'name',
-                    description: 'description',
+                    name: validBlogFieldInput.name,
+                    description: validBlogFieldInput.description,
                     websiteUrl: invalidUrl,
                 }
                 invalidUrlData.push(dataItem);
@@ -736,8 +736,8 @@ describe('tests for /blogs', () => {
             const blogToUpdate = initialDbBlogs[0];
 
             const data1 = {
-                description: 'description',
-                websiteUrl: 'https://superblog.com',
+                description: validBlogFieldInput.description,
+                websiteUrl: validBlogFieldInput.websiteUrl,
             };
 
             const response1 = await blogTestManager.updateBlog(blogToUpdate.id, data1,
@@ -752,8 +752,8 @@ describe('tests for /blogs', () => {
             });
 
             const data2 = {
-                name: 'name',
-                websiteUrl: 'https://superblog.com',
+                name: validBlogFieldInput.name,
+                websiteUrl: validBlogFieldInput.websiteUrl,
             };
 
             const response2 = await blogTestManager.updateBlog(blogToUpdate.id, data2,
@@ -768,8 +768,8 @@ describe('tests for /blogs', () => {
             });
 
             const data3 = {
-                name: 'name',
-                description: 'description',
+                name: validBlogFieldInput.name,
+                description: validBlogFieldInput.description,
             };
 
             const response3 = await blogTestManager.updateBlog(blogToUpdate.id, data3,
@@ -794,8 +794,8 @@ describe('tests for /blogs', () => {
             // not string
             const data1 = {
                 name: 24,
-                description: 'description',
-                websiteUrl: 'https://superblog.com',
+                description: validBlogFieldInput.description,
+                websiteUrl: validBlogFieldInput.websiteUrl,
             };
 
             const response1 = await blogTestManager.updateBlog(blogToUpdate.id, data1,
@@ -812,8 +812,8 @@ describe('tests for /blogs', () => {
             // empty string
             const data2 = {
                 name: '',
-                description: 'description',
-                websiteUrl: 'https://superblog.com',
+                description: validBlogFieldInput.description,
+                websiteUrl: validBlogFieldInput.websiteUrl,
             };
 
             const response2 = await blogTestManager.updateBlog(blogToUpdate.id, data2,
@@ -830,8 +830,8 @@ describe('tests for /blogs', () => {
             // empty string with spaces
             const data3 = {
                 name: '  ',
-                description: 'description',
-                websiteUrl: 'https://superblog.com',
+                description: validBlogFieldInput.description,
+                websiteUrl: validBlogFieldInput.websiteUrl,
             };
 
             const response3 = await blogTestManager.updateBlog(blogToUpdate.id, data3,
@@ -848,8 +848,8 @@ describe('tests for /blogs', () => {
             // long string
             const data4 = {
                 name: 'a'.repeat(16),
-                description: 'description',
-                websiteUrl: 'https://superblog.com',
+                description: validBlogFieldInput.description,
+                websiteUrl: validBlogFieldInput.websiteUrl,
             };
 
             const response4 = await blogTestManager.updateBlog(blogToUpdate.id, data4,
@@ -873,9 +873,9 @@ describe('tests for /blogs', () => {
 
             // not string
             const data1 = {
-                name: 'name',
+                name: validBlogFieldInput.name,
                 description: 24,
-                websiteUrl: 'https://superblog.com',
+                websiteUrl: validBlogFieldInput.websiteUrl,
             };
 
             const response1 = await blogTestManager.updateBlog(blogToUpdate.id, data1,
@@ -891,9 +891,9 @@ describe('tests for /blogs', () => {
 
             // empty string
             const data2 = {
-                name: 'name',
+                name: validBlogFieldInput.name,
                 description: '',
-                websiteUrl: 'https://superblog.com',
+                websiteUrl: validBlogFieldInput.websiteUrl,
             };
 
             const response2 = await blogTestManager.updateBlog(blogToUpdate.id, data2,
@@ -909,9 +909,9 @@ describe('tests for /blogs', () => {
 
             // empty string with spaces
             const data3 = {
-                name: 'name',
+                name: validBlogFieldInput.name,
                 description: '  ',
-                websiteUrl: 'https://superblog.com',
+                websiteUrl: validBlogFieldInput.websiteUrl,
             };
 
             const response3 = await blogTestManager.updateBlog(blogToUpdate.id, data3,
@@ -927,9 +927,9 @@ describe('tests for /blogs', () => {
 
             // long string
             const data4 = {
-                name: 'name',
+                name: validBlogFieldInput.name,
                 description: 'a'.repeat(501),
-                websiteUrl: 'https://superblog.com',
+                websiteUrl: validBlogFieldInput.websiteUrl,
             };
 
             const response4 = await blogTestManager.updateBlog(blogToUpdate.id, data4,
@@ -953,8 +953,8 @@ describe('tests for /blogs', () => {
 
             // not string
             const data1 = {
-                name: 'name',
-                description: 'description',
+                name: validBlogFieldInput.name,
+                description: validBlogFieldInput.description,
                 websiteUrl: 24,
             };
 
@@ -971,8 +971,8 @@ describe('tests for /blogs', () => {
 
             // empty string
             const data2 = {
-                name: 'name',
-                description: 'description',
+                name: validBlogFieldInput.name,
+                description: validBlogFieldInput.description,
                 websiteUrl: '',
             };
 
@@ -989,8 +989,8 @@ describe('tests for /blogs', () => {
 
             // empty string with spaces
             const data3 = {
-                name: 'name',
-                description: 'description',
+                name: validBlogFieldInput.name,
+                description: validBlogFieldInput.description,
                 websiteUrl: '  ',
             };
 
@@ -1007,8 +1007,8 @@ describe('tests for /blogs', () => {
 
             // long string
             const data4 = {
-                name: 'name',
-                description: 'description',
+                name: validBlogFieldInput.name,
+                description: validBlogFieldInput.description,
                 websiteUrl: 'a'.repeat(101),
             };
 
@@ -1027,8 +1027,8 @@ describe('tests for /blogs', () => {
             const invalidUrlData = [];
             for (const invalidUrl of invalidUrls) {
                 const dataItem = {
-                    name: 'name',
-                    description: 'description',
+                    name: validBlogFieldInput.name,
+                    description: validBlogFieldInput.description,
                     websiteUrl: invalidUrl,
                 }
                 invalidUrlData.push(dataItem);

@@ -11,6 +11,7 @@ import {blogTestManager} from "../test-managers/blog-test-manager";
 import {CreateBlogInputModel} from "../../src/features/blogs/models/CreateBlogInputModel";
 import {UpdatePostInputModel} from "../../src/features/posts/models/UpdatePostInputModel";
 import {invalidAuthValues} from "../datasets/authorization-data";
+import {validPostFieldInput} from "../datasets/validation/posts-validation-data";
 
 describe('tests for /posts', () => {
     let server: MongoMemoryServer;
@@ -354,6 +355,7 @@ describe('tests for /posts', () => {
 
     describe('create post', () => {
         let initialDbBlogs: BlogDBType[];
+        let validBlogIdInput: string;
 
         beforeAll(async () => {
             initialDbBlogs =  [
@@ -387,6 +389,8 @@ describe('tests for /posts', () => {
             ];
 
             await setDb({ blogs: initialDbBlogs });
+
+            validBlogIdInput = initialDbBlogs[0].id;
         });
 
         afterAll(async () => {
@@ -420,9 +424,9 @@ describe('tests for /posts', () => {
         // validation
         it(`shouldn't create post if required fields are missing`, async () => {
             const data1 = {
-                shortDescription: 'shortDescription',
-                content: 'content',
-                blogId: '1',
+                shortDescription: validPostFieldInput.shortDescription,
+                content: validPostFieldInput.content,
+                blogId: validBlogIdInput,
             };
 
             const response1 = await postTestManager.createPost(data1,
@@ -437,9 +441,9 @@ describe('tests for /posts', () => {
             });
 
             const data2 = {
-                title: 'title',
-                content: 'content',
-                blogId: '1',
+                title: validPostFieldInput.title,
+                content: validPostFieldInput.content,
+                blogId: validBlogIdInput,
             };
 
             const response2 = await postTestManager.createPost(data2,
@@ -454,9 +458,9 @@ describe('tests for /posts', () => {
             });
 
             const data3 = {
-                title: 'title',
-                shortDescription: 'shortDescription',
-                blogId: '1',
+                title: validPostFieldInput.title,
+                shortDescription: validPostFieldInput.shortDescription,
+                blogId: validBlogIdInput,
             };
 
             const response3 = await postTestManager.createPost(data3,
@@ -471,9 +475,9 @@ describe('tests for /posts', () => {
             });
 
             const data4 = {
-                title: 'title',
-                shortDescription: 'shortDescription',
-                content: 'content',
+                title: validPostFieldInput.title,
+                shortDescription: validPostFieldInput.shortDescription,
+                content: validPostFieldInput.content,
             };
 
             const response4 = await postTestManager.createPost(data4,
@@ -493,9 +497,9 @@ describe('tests for /posts', () => {
         it(`shouldn't create post if title is invalid`, async () => {
             const data1 = {
                 title: 24,
-                shortDescription: 'shortDescription',
-                content: 'content',
-                blogId: '1',
+                shortDescription: validPostFieldInput.shortDescription,
+                content: validPostFieldInput.content,
+                blogId: validBlogIdInput,
             };
 
             const response1 = await postTestManager.createPost(data1,
@@ -511,9 +515,9 @@ describe('tests for /posts', () => {
 
             const data2 = {
                 title: '',
-                shortDescription: 'shortDescription',
-                content: 'content',
-                blogId: '1',
+                shortDescription: validPostFieldInput.shortDescription,
+                content: validPostFieldInput.content,
+                blogId: validBlogIdInput,
             };
 
             const response2 = await postTestManager.createPost(data2,
@@ -529,9 +533,9 @@ describe('tests for /posts', () => {
 
             const data3 = {
                 title: '  ',
-                shortDescription: 'shortDescription',
-                content: 'content',
-                blogId: '1',
+                shortDescription: validPostFieldInput.shortDescription,
+                content: validPostFieldInput.content,
+                blogId: validBlogIdInput,
             };
 
             const response3 = await postTestManager.createPost(data3,
@@ -547,9 +551,9 @@ describe('tests for /posts', () => {
 
             const data4 = {
                 title: 'a'.repeat(31),
-                shortDescription: 'shortDescription',
-                content: 'content',
-                blogId: '1',
+                shortDescription: validPostFieldInput.shortDescription,
+                content: validPostFieldInput.content,
+                blogId: validBlogIdInput,
             };
 
             const response4 = await postTestManager.createPost(data4,
@@ -568,10 +572,10 @@ describe('tests for /posts', () => {
 
         it(`shouldn't create post if short description is invalid`, async () => {
             const data1 = {
-                title: 'title',
+                title: validPostFieldInput.title,
                 shortDescription: 24,
-                content: 'content',
-                blogId: '1',
+                content: validPostFieldInput.content,
+                blogId: validBlogIdInput,
             };
 
             const response1 = await postTestManager.createPost(data1,
@@ -586,10 +590,10 @@ describe('tests for /posts', () => {
             });
 
             const data2 = {
-                title: 'title',
+                title: validPostFieldInput.title,
                 shortDescription: '',
-                content: 'content',
-                blogId: '1',
+                content: validPostFieldInput.content,
+                blogId: validBlogIdInput,
             };
 
             const response2 = await postTestManager.createPost(data2,
@@ -604,10 +608,10 @@ describe('tests for /posts', () => {
             });
 
             const data3 = {
-                title: 'title',
+                title: validPostFieldInput.title,
                 shortDescription: '  ',
-                content: 'content',
-                blogId: '1',
+                content: validPostFieldInput.content,
+                blogId: validBlogIdInput,
             };
 
             const response3 = await postTestManager.createPost(data3,
@@ -622,10 +626,10 @@ describe('tests for /posts', () => {
             });
 
             const data4 = {
-                title: 'title',
+                title: validPostFieldInput.title,
                 shortDescription: 'a'.repeat(101),
-                content: 'content',
-                blogId: '1',
+                content: validPostFieldInput.content,
+                blogId: validBlogIdInput,
             };
 
             const response4 = await postTestManager.createPost(data4,
@@ -644,10 +648,10 @@ describe('tests for /posts', () => {
 
         it(`shouldn't create post if content is invalid`, async () => {
             const data1 = {
-                title: 'title',
-                shortDescription: 'shortDescription',
+                title: validPostFieldInput.title,
+                shortDescription: validPostFieldInput.shortDescription,
                 content: 24,
-                blogId: '1',
+                blogId: validBlogIdInput,
             };
 
             const response1 = await postTestManager.createPost(data1,
@@ -662,10 +666,10 @@ describe('tests for /posts', () => {
             });
 
             const data2 = {
-                title: 'title',
-                shortDescription: 'shortDescription',
+                title: validPostFieldInput.title,
+                shortDescription: validPostFieldInput.shortDescription,
                 content: '',
-                blogId: '1',
+                blogId: validBlogIdInput,
             };
 
             const response2 = await postTestManager.createPost(data2,
@@ -680,10 +684,10 @@ describe('tests for /posts', () => {
             });
 
             const data3 = {
-                title: 'title',
-                shortDescription: 'shortDescription',
+                title: validPostFieldInput.title,
+                shortDescription: validPostFieldInput.shortDescription,
                 content: '  ',
-                blogId: '1',
+                blogId: validBlogIdInput,
             };
 
             const response3 = await postTestManager.createPost(data3,
@@ -698,10 +702,10 @@ describe('tests for /posts', () => {
             });
 
             const data4 = {
-                title: 'title',
-                shortDescription: 'shortDescription',
+                title: validPostFieldInput.title,
+                shortDescription: validPostFieldInput.shortDescription,
                 content: 'a'.repeat(1001),
-                blogId: '1',
+                blogId: validBlogIdInput,
             };
 
             const response4 = await postTestManager.createPost(data4,
@@ -720,9 +724,9 @@ describe('tests for /posts', () => {
 
         it(`shouldn't create post if blog id is invalid`, async () => {
             const data1 = {
-                title: 'title',
-                shortDescription: 'shortDescription',
-                content: 'content',
+                title: validPostFieldInput.title,
+                shortDescription: validPostFieldInput.shortDescription,
+                content: validPostFieldInput.content,
                 blogId: 1,
             };
 
@@ -738,9 +742,9 @@ describe('tests for /posts', () => {
             });
 
             const data2 = {
-                title: 'title',
-                shortDescription: 'shortDescription',
-                content: 'content',
+                title: validPostFieldInput.title,
+                shortDescription: validPostFieldInput.shortDescription,
+                content: validPostFieldInput.content,
                 blogId: '',
             };
 
@@ -756,9 +760,9 @@ describe('tests for /posts', () => {
             });
 
             const data3 = {
-                title: 'title',
-                shortDescription: 'shortDescription',
-                content: 'content',
+                title: validPostFieldInput.title,
+                shortDescription: validPostFieldInput.shortDescription,
+                content: validPostFieldInput.content,
                 blogId: '  ',
             };
 
@@ -774,9 +778,9 @@ describe('tests for /posts', () => {
             });
 
             const data4 = {
-                title: 'title',
-                shortDescription: 'shortDescription',
-                content: 'content',
+                title: validPostFieldInput.title,
+                shortDescription: validPostFieldInput.shortDescription,
+                content: validPostFieldInput.content,
                 blogId: '-100',
             };
 
@@ -860,6 +864,7 @@ describe('tests for /posts', () => {
     describe('update post', () => {
         let initialDbBlogs: BlogDBType[];
         let initialDbPosts: PostDBType[];
+        let validBlogIdInput: string;
 
         beforeAll(async () => {
             initialDbBlogs = [
@@ -932,6 +937,8 @@ describe('tests for /posts', () => {
             ];
 
             await setDb({ blogs: initialDbBlogs, posts: initialDbPosts });
+
+            validBlogIdInput = initialDbBlogs[0].id;
         });
 
         afterAll(async () => {
@@ -970,9 +977,9 @@ describe('tests for /posts', () => {
             const postToUpdate = initialDbPosts[1];
 
             const data1 = {
-                shortDescription: 'shortDescription',
-                content: 'content',
-                blogId: initialDbBlogs[0].id,
+                shortDescription: validPostFieldInput.shortDescription,
+                content: validPostFieldInput.content,
+                blogId: validBlogIdInput,
             };
 
             const response1 = await postTestManager.updatePost(postToUpdate.id, data1,
@@ -987,9 +994,9 @@ describe('tests for /posts', () => {
             });
 
             const data2 = {
-                title: 'title',
-                content: 'content',
-                blogId: initialDbBlogs[0].id,
+                title: validPostFieldInput.title,
+                content: validPostFieldInput.content,
+                blogId: validBlogIdInput,
             };
 
             const response2 = await postTestManager.updatePost(postToUpdate.id, data2,
@@ -1004,9 +1011,9 @@ describe('tests for /posts', () => {
             });
 
             const data3 = {
-                title: 'title',
-                shortDescription: 'shortDescription',
-                blogId: initialDbBlogs[0].id,
+                title: validPostFieldInput.title,
+                shortDescription: validPostFieldInput.shortDescription,
+                blogId: validBlogIdInput,
             };
 
             const response3 = await postTestManager.updatePost(postToUpdate.id, data3,
@@ -1021,9 +1028,9 @@ describe('tests for /posts', () => {
             });
 
             const data4 = {
-                title: 'title',
-                shortDescription: 'shortDescription',
-                content: 'content',
+                title: validPostFieldInput.title,
+                shortDescription: validPostFieldInput.shortDescription,
+                content: validPostFieldInput.content,
             };
 
             const response4 = await postTestManager.updatePost(postToUpdate.id, data4,
@@ -1047,9 +1054,9 @@ describe('tests for /posts', () => {
 
             const data1 = {
                 title: 24,
-                shortDescription: 'shortDescription',
-                content: 'content',
-                blogId: initialDbBlogs[0].id,
+                shortDescription: validPostFieldInput.shortDescription,
+                content: validPostFieldInput.content,
+                blogId: validBlogIdInput,
             };
 
             const response1 = await postTestManager.updatePost(postToUpdate.id, data1,
@@ -1065,9 +1072,9 @@ describe('tests for /posts', () => {
 
             const data2 = {
                 title: '',
-                shortDescription: 'shortDescription',
-                content: 'content',
-                blogId: initialDbBlogs[0].id,
+                shortDescription: validPostFieldInput.shortDescription,
+                content: validPostFieldInput.content,
+                blogId: validBlogIdInput,
             };
 
             const response2 = await postTestManager.updatePost(postToUpdate.id, data2,
@@ -1083,9 +1090,9 @@ describe('tests for /posts', () => {
 
             const data3 = {
                 title: '  ',
-                shortDescription: 'shortDescription',
-                content: 'content',
-                blogId: initialDbBlogs[0].id,
+                shortDescription: validPostFieldInput.shortDescription,
+                content: validPostFieldInput.content,
+                blogId: validBlogIdInput,
             };
 
             const response3 = await postTestManager.updatePost(postToUpdate.id, data3,
@@ -1101,9 +1108,9 @@ describe('tests for /posts', () => {
 
             const data4 = {
                 title: 'a'.repeat(31),
-                shortDescription: 'shortDescription',
-                content: 'content',
-                blogId: initialDbBlogs[0].id,
+                shortDescription: validPostFieldInput.shortDescription,
+                content: validPostFieldInput.content,
+                blogId: validBlogIdInput,
             };
 
             const response4 = await postTestManager.updatePost(postToUpdate.id, data4,
@@ -1126,10 +1133,10 @@ describe('tests for /posts', () => {
             const postToUpdate = initialDbPosts[1];
 
             const data1 = {
-                title: 'title',
+                title: validPostFieldInput.title,
                 shortDescription: 24,
-                content: 'content',
-                blogId: initialDbBlogs[0].id,
+                content: validPostFieldInput.content,
+                blogId: validBlogIdInput,
             };
 
             const response1 = await postTestManager.updatePost(postToUpdate.id, data1,
@@ -1144,10 +1151,10 @@ describe('tests for /posts', () => {
             });
 
             const data2 = {
-                title: 'title',
+                title: validPostFieldInput.title,
                 shortDescription: '',
-                content: 'content',
-                blogId: initialDbBlogs[0].id,
+                content: validPostFieldInput.content,
+                blogId: validBlogIdInput,
             };
 
             const response2 = await postTestManager.updatePost(postToUpdate.id, data2,
@@ -1162,10 +1169,10 @@ describe('tests for /posts', () => {
             });
 
             const data3 = {
-                title: 'title',
+                title: validPostFieldInput.title,
                 shortDescription: '  ',
-                content: 'content',
-                blogId: initialDbBlogs[0].id,
+                content: validPostFieldInput.content,
+                blogId: validBlogIdInput,
             };
 
             const response3 = await postTestManager.updatePost(postToUpdate.id, data3,
@@ -1180,10 +1187,10 @@ describe('tests for /posts', () => {
             });
 
             const data4 = {
-                title: 'title',
+                title: validPostFieldInput.title,
                 shortDescription: 'a'.repeat(101),
-                content: 'content',
-                blogId: initialDbBlogs[0].id,
+                content: validPostFieldInput.content,
+                blogId: validBlogIdInput,
             };
 
             const response4 = await postTestManager.updatePost(postToUpdate.id, data4,
@@ -1206,10 +1213,10 @@ describe('tests for /posts', () => {
             const postToUpdate = initialDbPosts[1];
 
             const data1 = {
-                title: 'title',
-                shortDescription: 'shortDescription',
+                title: validPostFieldInput.title,
+                shortDescription: validPostFieldInput.shortDescription,
                 content: 24,
-                blogId: initialDbBlogs[0].id,
+                blogId: validBlogIdInput,
             };
 
             const response1 = await postTestManager.updatePost(postToUpdate.id, data1,
@@ -1224,10 +1231,10 @@ describe('tests for /posts', () => {
             });
 
             const data2 = {
-                title: 'title',
-                shortDescription: 'shortDescription',
+                title: validPostFieldInput.title,
+                shortDescription: validPostFieldInput.shortDescription,
                 content: '',
-                blogId: initialDbBlogs[0].id,
+                blogId: validBlogIdInput,
             };
 
             const response2 = await postTestManager.updatePost(postToUpdate.id, data2,
@@ -1242,10 +1249,10 @@ describe('tests for /posts', () => {
             });
 
             const data3 = {
-                title: 'title',
-                shortDescription: 'shortDescription',
+                title: validPostFieldInput.title,
+                shortDescription: validPostFieldInput.shortDescription,
                 content: '  ',
-                blogId: initialDbBlogs[0].id,
+                blogId: validBlogIdInput,
             };
 
             const response3 = await postTestManager.updatePost(postToUpdate.id, data3,
@@ -1260,10 +1267,10 @@ describe('tests for /posts', () => {
             });
 
             const data4 = {
-                title: 'title',
-                shortDescription: 'shortDescription',
+                title: validPostFieldInput.title,
+                shortDescription: validPostFieldInput.shortDescription,
                 content: 'a'.repeat(1001),
-                blogId: initialDbBlogs[0].id,
+                blogId: validBlogIdInput,
             };
 
             const response4 = await postTestManager.updatePost(postToUpdate.id, data4,
@@ -1286,9 +1293,9 @@ describe('tests for /posts', () => {
             const postToUpdate = initialDbPosts[1];
 
             const data1 = {
-                title: 'title',
-                shortDescription: 'shortDescription',
-                content: 'content',
+                title: validPostFieldInput.title,
+                shortDescription: validPostFieldInput.shortDescription,
+                content: validPostFieldInput.content,
                 blogId: 1,
             };
 
@@ -1304,9 +1311,9 @@ describe('tests for /posts', () => {
             });
 
             const data2 = {
-                title: 'title',
-                shortDescription: 'shortDescription',
-                content: 'content',
+                title: validPostFieldInput.title,
+                shortDescription: validPostFieldInput.shortDescription,
+                content: validPostFieldInput.content,
                 blogId: '',
             };
 
@@ -1322,9 +1329,9 @@ describe('tests for /posts', () => {
             });
 
             const data3 = {
-                title: 'title',
-                shortDescription: 'shortDescription',
-                content: 'content',
+                title: validPostFieldInput.title,
+                shortDescription: validPostFieldInput.shortDescription,
+                content: validPostFieldInput.content,
                 blogId: '  ',
             };
 
@@ -1340,9 +1347,9 @@ describe('tests for /posts', () => {
             });
 
             const data4 = {
-                title: 'title',
-                shortDescription: 'shortDescription',
-                content: 'content',
+                title: validPostFieldInput.title,
+                shortDescription: validPostFieldInput.shortDescription,
+                content: validPostFieldInput.content,
                 blogId: '-100',
             };
 
