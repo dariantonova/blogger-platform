@@ -9,7 +9,7 @@ import {WEBSITE_URL_PATTERN} from "../../src/validation/field-validators/blogs-f
 import {blogsCollection, client, postsCollection, runDb, setDb} from "../../src/db/db";
 import {MongoMemoryServer} from "mongodb-memory-server";
 import {UpdateBlogInputModel} from "../../src/features/blogs/models/UpdateBlogInputModel";
-import {invalidAuthValues, VALID_AUTH} from "../datasets/authorization-data";
+import {invalidAuthValues} from "../datasets/authorization-data";
 
 describe('tests for /blogs', () => {
     let server: MongoMemoryServer;
@@ -253,19 +253,19 @@ describe('tests for /blogs', () => {
 
         it('should return 404 when deleting non-existing blog', async () => {
             await blogTestManager.deleteBlog('-100',
-                HTTP_STATUSES.NOT_FOUND_404, VALID_AUTH);
+                HTTP_STATUSES.NOT_FOUND_404);
 
             // deleted
             const blogToDelete = initialDbBlogs[2];
             await blogTestManager.deleteBlog(blogToDelete.id,
-                HTTP_STATUSES.NOT_FOUND_404, VALID_AUTH);
+                HTTP_STATUSES.NOT_FOUND_404);
         });
 
         it('should delete the first blog and all related posts', async () => {
             const blogToDelete = initialDbBlogs[0];
 
             await blogTestManager.deleteBlog(blogToDelete.id,
-                HTTP_STATUSES.NO_CONTENT_204, VALID_AUTH);
+                HTTP_STATUSES.NO_CONTENT_204);
 
             const dbBlogToDelete = await blogsCollection
                 .findOne({ id: blogToDelete.id, isDeleted: false });
@@ -317,7 +317,7 @@ describe('tests for /blogs', () => {
             };
 
             const response1 = await blogTestManager.createBlog(data1,
-                HTTP_STATUSES.BAD_REQUEST_400, VALID_AUTH);
+                HTTP_STATUSES.BAD_REQUEST_400);
             expect(response1.body).toEqual({
                 errorsMessages: [
                     {
@@ -333,7 +333,7 @@ describe('tests for /blogs', () => {
             };
 
             const response2 = await blogTestManager.createBlog(data2,
-                HTTP_STATUSES.BAD_REQUEST_400, VALID_AUTH);
+                HTTP_STATUSES.BAD_REQUEST_400);
             expect(response2.body).toEqual({
                 errorsMessages: [
                     {
@@ -349,7 +349,7 @@ describe('tests for /blogs', () => {
             };
 
             const response3 = await blogTestManager.createBlog(data3,
-                HTTP_STATUSES.BAD_REQUEST_400, VALID_AUTH);
+                HTTP_STATUSES.BAD_REQUEST_400);
             expect(response3.body).toEqual({
                 errorsMessages: [
                     {
@@ -371,7 +371,7 @@ describe('tests for /blogs', () => {
             };
 
             const response1 = await blogTestManager.createBlog(data1,
-                HTTP_STATUSES.BAD_REQUEST_400, VALID_AUTH);
+                HTTP_STATUSES.BAD_REQUEST_400);
             expect(response1.body).toEqual({
                 errorsMessages: [
                     {
@@ -389,7 +389,7 @@ describe('tests for /blogs', () => {
             };
 
             const response2 = await blogTestManager.createBlog(data2,
-                HTTP_STATUSES.BAD_REQUEST_400, VALID_AUTH);
+                HTTP_STATUSES.BAD_REQUEST_400);
             expect(response2.body).toEqual({
                 errorsMessages: [
                     {
@@ -407,7 +407,7 @@ describe('tests for /blogs', () => {
             };
 
             const response3 = await blogTestManager.createBlog(data3,
-                HTTP_STATUSES.BAD_REQUEST_400, VALID_AUTH);
+                HTTP_STATUSES.BAD_REQUEST_400);
             expect(response3.body).toEqual({
                 errorsMessages: [
                     {
@@ -425,7 +425,7 @@ describe('tests for /blogs', () => {
             };
 
             const response4 = await blogTestManager.createBlog(data4,
-                HTTP_STATUSES.BAD_REQUEST_400, VALID_AUTH);
+                HTTP_STATUSES.BAD_REQUEST_400);
             expect(response4.body).toEqual({
                 errorsMessages: [
                     {
@@ -447,7 +447,7 @@ describe('tests for /blogs', () => {
             };
 
             const response1 = await blogTestManager.createBlog(data1,
-                HTTP_STATUSES.BAD_REQUEST_400, VALID_AUTH);
+                HTTP_STATUSES.BAD_REQUEST_400);
             expect(response1.body).toEqual({
                 errorsMessages: [
                     {
@@ -465,7 +465,7 @@ describe('tests for /blogs', () => {
             };
 
             const response2 = await blogTestManager.createBlog(data2,
-                HTTP_STATUSES.BAD_REQUEST_400, VALID_AUTH);
+                HTTP_STATUSES.BAD_REQUEST_400);
             expect(response2.body).toEqual({
                 errorsMessages: [
                     {
@@ -483,7 +483,7 @@ describe('tests for /blogs', () => {
             };
 
             const response3 = await blogTestManager.createBlog(data3,
-                HTTP_STATUSES.BAD_REQUEST_400, VALID_AUTH);
+                HTTP_STATUSES.BAD_REQUEST_400);
             expect(response3.body).toEqual({
                 errorsMessages: [
                     {
@@ -501,7 +501,7 @@ describe('tests for /blogs', () => {
             };
 
             const response4 = await blogTestManager.createBlog(data4,
-                HTTP_STATUSES.BAD_REQUEST_400, VALID_AUTH);
+                HTTP_STATUSES.BAD_REQUEST_400);
             expect(response4.body).toEqual({
                 errorsMessages: [
                     {
@@ -523,7 +523,7 @@ describe('tests for /blogs', () => {
             };
 
             const response1 = await blogTestManager.createBlog(data1,
-                HTTP_STATUSES.BAD_REQUEST_400, VALID_AUTH);
+                HTTP_STATUSES.BAD_REQUEST_400);
             expect(response1.body).toEqual({
                 errorsMessages: [
                     {
@@ -541,7 +541,7 @@ describe('tests for /blogs', () => {
             };
 
             const response2 = await blogTestManager.createBlog(data2,
-                HTTP_STATUSES.BAD_REQUEST_400, VALID_AUTH);
+                HTTP_STATUSES.BAD_REQUEST_400);
             expect(response2.body).toEqual({
                 errorsMessages: [
                     {
@@ -559,7 +559,7 @@ describe('tests for /blogs', () => {
             };
 
             const response3 = await blogTestManager.createBlog(data3,
-                HTTP_STATUSES.BAD_REQUEST_400, VALID_AUTH);
+                HTTP_STATUSES.BAD_REQUEST_400);
             expect(response3.body).toEqual({
                 errorsMessages: [
                     {
@@ -577,7 +577,7 @@ describe('tests for /blogs', () => {
             };
 
             const response4 = await blogTestManager.createBlog(data4,
-                HTTP_STATUSES.BAD_REQUEST_400, VALID_AUTH);
+                HTTP_STATUSES.BAD_REQUEST_400);
             expect(response4.body).toEqual({
                 errorsMessages: [
                     {
@@ -610,7 +610,7 @@ describe('tests for /blogs', () => {
 
             for (const dataItem of invalidUrlData) {
                 const response = await blogTestManager.createBlog(dataItem,
-                    HTTP_STATUSES.BAD_REQUEST_400, VALID_AUTH);
+                    HTTP_STATUSES.BAD_REQUEST_400);
                 expect(response.body).toEqual({
                     errorsMessages: [
                         {
@@ -631,7 +631,7 @@ describe('tests for /blogs', () => {
             };
 
             const createResponse = await blogTestManager.createBlog(data,
-                HTTP_STATUSES.BAD_REQUEST_400, VALID_AUTH);
+                HTTP_STATUSES.BAD_REQUEST_400);
             expect(createResponse.body).toEqual({
                 errorsMessages: expect.arrayContaining([
                     { message: expect.any(String), field: 'name' },
@@ -652,7 +652,7 @@ describe('tests for /blogs', () => {
             };
 
             await blogTestManager
-                .createBlog(data, HTTP_STATUSES.CREATED_201, VALID_AUTH);
+                .createBlog(data, HTTP_STATUSES.CREATED_201);
 
             const dbBlogs = await blogsCollection.find({}).toArray();
             expect(dbBlogs.length).toBe(1);
@@ -666,7 +666,7 @@ describe('tests for /blogs', () => {
             };
 
             await blogTestManager
-                .createBlog(data, HTTP_STATUSES.CREATED_201, VALID_AUTH);
+                .createBlog(data, HTTP_STATUSES.CREATED_201);
 
             const dbBlogs = await blogsCollection.find({}).toArray();
             expect(dbBlogs.length).toBe(2);
@@ -750,7 +750,7 @@ describe('tests for /blogs', () => {
             };
 
             const response1 = await blogTestManager.updateBlog(blogToUpdate.id, data1,
-                HTTP_STATUSES.BAD_REQUEST_400, VALID_AUTH);
+                HTTP_STATUSES.BAD_REQUEST_400);
             expect(response1.body).toEqual({
                 errorsMessages: [
                     {
@@ -766,7 +766,7 @@ describe('tests for /blogs', () => {
             };
 
             const response2 = await blogTestManager.updateBlog(blogToUpdate.id, data2,
-                HTTP_STATUSES.BAD_REQUEST_400, VALID_AUTH);
+                HTTP_STATUSES.BAD_REQUEST_400);
             expect(response2.body).toEqual({
                 errorsMessages: [
                     {
@@ -782,7 +782,7 @@ describe('tests for /blogs', () => {
             };
 
             const response3 = await blogTestManager.updateBlog(blogToUpdate.id, data3,
-                HTTP_STATUSES.BAD_REQUEST_400, VALID_AUTH);
+                HTTP_STATUSES.BAD_REQUEST_400);
             expect(response3.body).toEqual({
                 errorsMessages: [
                     {
@@ -808,7 +808,7 @@ describe('tests for /blogs', () => {
             };
 
             const response1 = await blogTestManager.updateBlog(blogToUpdate.id, data1,
-                HTTP_STATUSES.BAD_REQUEST_400, VALID_AUTH);
+                HTTP_STATUSES.BAD_REQUEST_400);
             expect(response1.body).toEqual({
                 errorsMessages: [
                     {
@@ -826,7 +826,7 @@ describe('tests for /blogs', () => {
             };
 
             const response2 = await blogTestManager.updateBlog(blogToUpdate.id, data2,
-                HTTP_STATUSES.BAD_REQUEST_400, VALID_AUTH);
+                HTTP_STATUSES.BAD_REQUEST_400);
             expect(response2.body).toEqual({
                 errorsMessages: [
                     {
@@ -844,7 +844,7 @@ describe('tests for /blogs', () => {
             };
 
             const response3 = await blogTestManager.updateBlog(blogToUpdate.id, data3,
-                HTTP_STATUSES.BAD_REQUEST_400, VALID_AUTH);
+                HTTP_STATUSES.BAD_REQUEST_400);
             expect(response3.body).toEqual({
                 errorsMessages: [
                     {
@@ -862,7 +862,7 @@ describe('tests for /blogs', () => {
             };
 
             const response4 = await blogTestManager.updateBlog(blogToUpdate.id, data4,
-                HTTP_STATUSES.BAD_REQUEST_400, VALID_AUTH);
+                HTTP_STATUSES.BAD_REQUEST_400);
             expect(response4.body).toEqual({
                 errorsMessages: [
                     {
@@ -888,7 +888,7 @@ describe('tests for /blogs', () => {
             };
 
             const response1 = await blogTestManager.updateBlog(blogToUpdate.id, data1,
-                HTTP_STATUSES.BAD_REQUEST_400, VALID_AUTH);
+                HTTP_STATUSES.BAD_REQUEST_400);
             expect(response1.body).toEqual({
                 errorsMessages: [
                     {
@@ -906,7 +906,7 @@ describe('tests for /blogs', () => {
             };
 
             const response2 = await blogTestManager.updateBlog(blogToUpdate.id, data2,
-                HTTP_STATUSES.BAD_REQUEST_400, VALID_AUTH);
+                HTTP_STATUSES.BAD_REQUEST_400);
             expect(response2.body).toEqual({
                 errorsMessages: [
                     {
@@ -924,7 +924,7 @@ describe('tests for /blogs', () => {
             };
 
             const response3 = await blogTestManager.updateBlog(blogToUpdate.id, data3,
-                HTTP_STATUSES.BAD_REQUEST_400, VALID_AUTH);
+                HTTP_STATUSES.BAD_REQUEST_400);
             expect(response3.body).toEqual({
                 errorsMessages: [
                     {
@@ -942,7 +942,7 @@ describe('tests for /blogs', () => {
             };
 
             const response4 = await blogTestManager.updateBlog(blogToUpdate.id, data4,
-                HTTP_STATUSES.BAD_REQUEST_400, VALID_AUTH);
+                HTTP_STATUSES.BAD_REQUEST_400);
             expect(response4.body).toEqual({
                 errorsMessages: [
                     {
@@ -968,7 +968,7 @@ describe('tests for /blogs', () => {
             };
 
             const response1 = await blogTestManager.updateBlog(blogToUpdate.id, data1,
-                HTTP_STATUSES.BAD_REQUEST_400, VALID_AUTH);
+                HTTP_STATUSES.BAD_REQUEST_400);
             expect(response1.body).toEqual({
                 errorsMessages: [
                     {
@@ -986,7 +986,7 @@ describe('tests for /blogs', () => {
             };
 
             const response2 = await blogTestManager.updateBlog(blogToUpdate.id, data2,
-                HTTP_STATUSES.BAD_REQUEST_400, VALID_AUTH);
+                HTTP_STATUSES.BAD_REQUEST_400);
             expect(response2.body).toEqual({
                 errorsMessages: [
                     {
@@ -1004,7 +1004,7 @@ describe('tests for /blogs', () => {
             };
 
             const response3 = await blogTestManager.updateBlog(blogToUpdate.id, data3,
-                HTTP_STATUSES.BAD_REQUEST_400, VALID_AUTH);
+                HTTP_STATUSES.BAD_REQUEST_400);
             expect(response3.body).toEqual({
                 errorsMessages: [
                     {
@@ -1022,7 +1022,7 @@ describe('tests for /blogs', () => {
             };
 
             const response4 = await blogTestManager.updateBlog(blogToUpdate.id, data4,
-                HTTP_STATUSES.BAD_REQUEST_400, VALID_AUTH);
+                HTTP_STATUSES.BAD_REQUEST_400);
             expect(response4.body).toEqual({
                 errorsMessages: [
                     {
@@ -1055,7 +1055,7 @@ describe('tests for /blogs', () => {
 
             for (const dataItem of invalidUrlData) {
                 const response = await blogTestManager.updateBlog(blogToUpdate.id, dataItem,
-                    HTTP_STATUSES.BAD_REQUEST_400, VALID_AUTH);
+                    HTTP_STATUSES.BAD_REQUEST_400);
                 expect(response.body).toEqual({
                     errorsMessages: [
                         {
@@ -1080,7 +1080,7 @@ describe('tests for /blogs', () => {
             };
 
             const createResponse = await blogTestManager.updateBlog(blogToUpdate.id, data,
-                HTTP_STATUSES.BAD_REQUEST_400, VALID_AUTH);
+                HTTP_STATUSES.BAD_REQUEST_400);
             expect(createResponse.body).toEqual({
                 errorsMessages: expect.arrayContaining([
                     { message: expect.any(String), field: 'name' },
@@ -1102,11 +1102,11 @@ describe('tests for /blogs', () => {
                 websiteUrl: 'https://superblog.com/51',
             };
 
-            await blogTestManager.updateBlog('-100', data, HTTP_STATUSES.NOT_FOUND_404, VALID_AUTH);
+            await blogTestManager.updateBlog('-100', data, HTTP_STATUSES.NOT_FOUND_404);
 
             // deleted
             const blogToUpdate = initialDbBlogs[2];
-            await blogTestManager.updateBlog(blogToUpdate.id, data, HTTP_STATUSES.NOT_FOUND_404, VALID_AUTH);
+            await blogTestManager.updateBlog(blogToUpdate.id, data, HTTP_STATUSES.NOT_FOUND_404);
         });
 
         // correct input
@@ -1118,7 +1118,7 @@ describe('tests for /blogs', () => {
             };
             const blogToUpdate = initialDbBlogs[0];
 
-            await blogTestManager.updateBlog(blogToUpdate.id, data, HTTP_STATUSES.NO_CONTENT_204, VALID_AUTH);
+            await blogTestManager.updateBlog(blogToUpdate.id, data, HTTP_STATUSES.NO_CONTENT_204);
 
             // check other blogs aren't modified
             const otherBlogs = initialDbBlogs.filter(b => b.id !== blogToUpdate.id);

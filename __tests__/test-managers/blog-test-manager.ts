@@ -3,15 +3,16 @@ import {SETTINGS} from "../../src/settings";
 import {HTTP_STATUSES} from "../../src/utils";
 import {BlogViewModel} from "../../src/features/blogs/models/BlogViewModel";
 import {blogsCollection} from "../../src/db/db";
+import {VALID_AUTH} from "../datasets/authorization-data";
 
 export const blogTestManager = {
-    async deleteBlog(blogId: string, expectedStatusCode: number, auth: string) {
+    async deleteBlog(blogId: string, expectedStatusCode: number, auth: string = VALID_AUTH) {
         await req
             .delete(SETTINGS.PATH.BLOGS + '/' + blogId)
             .set('Authorization', auth)
             .expect(expectedStatusCode);
     },
-    async createBlog(data: any, expectedStatusCode: number, auth: string) {
+    async createBlog(data: any, expectedStatusCode: number, auth: string = VALID_AUTH) {
         const response = await req
             .post(SETTINGS.PATH.BLOGS)
             .set('Authorization', auth)
@@ -39,7 +40,7 @@ export const blogTestManager = {
 
         return response;
     },
-    async updateBlog(blogId: string, data: any, expectedStatusCode: number, auth: string) {
+    async updateBlog(blogId: string, data: any, expectedStatusCode: number, auth: string = VALID_AUTH) {
         const dbBlogBeforeUpdate = await blogsCollection
             .findOne({ id: blogId }, { projection: { _id: 0 } });
 

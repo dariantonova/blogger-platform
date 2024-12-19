@@ -3,15 +3,16 @@ import {SETTINGS} from "../../src/settings";
 import {HTTP_STATUSES} from "../../src/utils";
 import {PostViewModel} from "../../src/features/posts/models/PostViewModel";
 import {blogsCollection, postsCollection} from "../../src/db/db";
+import {VALID_AUTH} from "../datasets/authorization-data";
 
 export const postTestManager = {
-    async deletePost(postId: string, expectedStatusCode: number, auth: string) {
+    async deletePost(postId: string, expectedStatusCode: number, auth: string = VALID_AUTH) {
         await req
             .delete(SETTINGS.PATH.POSTS + '/' + postId)
             .set('Authorization', auth)
             .expect(expectedStatusCode);
     },
-    async createPost(data: any, expectedStatusCode: number, auth: string) {
+    async createPost(data: any, expectedStatusCode: number, auth: string = VALID_AUTH) {
         const response = await req
             .post(SETTINGS.PATH.POSTS)
             .set('Authorization', auth)
@@ -50,7 +51,7 @@ export const postTestManager = {
 
         return response;
     },
-    async updatePost(postId: string, data: any, expectedStatusCode: number, auth: string) {
+    async updatePost(postId: string, data: any, expectedStatusCode: number, auth: string = VALID_AUTH) {
         const dbPostBeforeUpdate = await postsCollection
             .findOne({ id: postId }, { projection: { _id: 0 } });
 
