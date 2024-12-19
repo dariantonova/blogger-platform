@@ -1,5 +1,5 @@
 import {BlogDBType, DBType, PostDBType} from "../types";
-import {Collection, Db, MongoClient} from "mongodb";
+import {Collection, MongoClient} from "mongodb";
 import {SETTINGS} from "../settings";
 
 export let client: MongoClient;
@@ -26,29 +26,21 @@ export const runDb = async (url: string): Promise<boolean> => {
     }
 };
 
-export const setDb = async (dataset?: Partial<DBType>, db?: Db) => {
-    let blogsCol = blogsCollection;
-    let postsCol = postsCollection;
-
-    if (db) {
-        blogsCol = db.collection<BlogDBType>('blogs');
-        postsCol = db.collection<PostDBType>('posts');
-    }
-
+export const setDb = async (dataset?: Partial<DBType>) => {
     if (!dataset) {
-        await blogsCol.drop();
-        await postsCol.drop();
+        await blogsCollection.drop();
+        await postsCollection.drop();
         return;
     }
 
     if (dataset.blogs) {
-        await blogsCol.drop();
-        await blogsCol.insertMany(structuredClone(dataset.blogs));
+        await blogsCollection.drop();
+        await blogsCollection.insertMany(structuredClone(dataset.blogs));
     }
 
     if (dataset.posts) {
-        await postsCol.drop();
-        await postsCol.insertMany(structuredClone(dataset.posts));
+        await postsCollection.drop();
+        await postsCollection.insertMany(structuredClone(dataset.posts));
     }
 };
 
