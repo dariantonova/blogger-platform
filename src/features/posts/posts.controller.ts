@@ -1,15 +1,15 @@
 import {Request, Response} from 'express';
 import {PostViewModel} from "./models/PostViewModel";
-import {postsRepository} from "./posts.db.repository";
 import {PostDBType, RequestWithBody, RequestWithParams, RequestWithParamsAndBody} from "../../types";
-import {blogsRepository} from "../blogs/blogs.db.repository";
 import {URIParamsPostIdModel} from "./models/URIParamsPostIdModel";
 import {HTTP_STATUSES} from "../../utils";
 import {CreatePostInputModel} from "./models/CreatePostInputModel";
 import {UpdatePostInputModel} from "./models/UpdatePostInputModel";
+import {postsService} from "./posts.service";
+import {blogsService} from "../blogs/blogs.service";
 
 export const mapPostToViewModel = async (dbPost: PostDBType): Promise<PostViewModel> => {
-    const blog = await blogsRepository.findBlogById(dbPost.blogId);
+    const blog = await blogsService.findBlogById(dbPost.blogId);
     const blogName = blog?.name || '';
 
     return {
@@ -25,13 +25,13 @@ export const mapPostToViewModel = async (dbPost: PostDBType): Promise<PostViewMo
 
 export const postsController = {
     getPosts: async (req: Request, res: Response<PostViewModel[]>) => {
-        const foundPosts = await postsRepository.findPosts();
+        const foundPosts = await postsService.findPosts();
 
         const postsToSend = await Promise.all(foundPosts.map(mapPostToViewModel));
         res.json(postsToSend);
     },
     getPost: async (req: RequestWithParams<URIParamsPostIdModel>, res: Response<PostViewModel>) => {
-        const foundPost = await postsRepository.findPostById(req.params.id);
+        const foundPost = await postsService.findPostById(req.params.id);
         if (!foundPost) {
             res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
             return;
@@ -41,7 +41,7 @@ export const postsController = {
         res.json(postToSend);
     },
     deletePost: async (req: RequestWithParams<URIParamsPostIdModel>, res: Response) => {
-        const isDeleted = await postsRepository.deletePost(req.params.id);
+        const isDeleted = await postsService.deletePost(req.params.id);
         if (!isDeleted) {
             res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
             return;
@@ -51,7 +51,7 @@ export const postsController = {
     },
     createPost: async (req: RequestWithBody<CreatePostInputModel>,
                  res: Response<PostViewModel>) => {
-        const createdPost = await postsRepository.createPost(
+        const createdPost = await postsService.createPost(
             req.body.title, req.body.shortDescription, req.body.content, req.body.blogId
         );
 
@@ -62,7 +62,7 @@ export const postsController = {
     },
     updatePost: async (req: RequestWithParamsAndBody<URIParamsPostIdModel, UpdatePostInputModel>,
                  res: Response) => {
-        const isUpdated = await postsRepository.updatePost(
+        const isUpdated = await postsService.updatePost(
             req.params.id, req.body.title, req.body.shortDescription, req.body.content, req.body.blogId
         );
 

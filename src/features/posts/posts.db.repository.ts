@@ -16,17 +16,7 @@ export const postsRepository = {
 
         return updatePostInfo.modifiedCount === 1;
     },
-    async createPost(title: string, shortDescription: string, content: string, blogId: string): Promise<PostDBType> {
-        const createdPost: PostDBType = {
-            id: String(+new Date()),
-            title,
-            shortDescription,
-            content,
-            blogId,
-            isDeleted: false,
-            createdAt: new Date().toISOString(),
-        };
-
+    async createPost(createdPost: PostDBType): Promise<PostDBType> {
         await postsCollection.insertOne(createdPost);
 
         return createdPost;
