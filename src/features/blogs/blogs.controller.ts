@@ -1,4 +1,11 @@
-import {BlogDBType, RequestWithBody, RequestWithParams, RequestWithParamsAndBody, RequestWithQuery} from "../../types";
+import {
+    BlogDBType,
+    RequestWithBody,
+    RequestWithParams,
+    RequestWithParamsAndBody,
+    RequestWithQuery,
+    SortDirections
+} from "../../types";
 import {BlogViewModel} from "./models/BlogViewModel";
 import {Response} from "express";
 import {URIParamsBlogIdModel} from "./models/URIParamsBlogIdModel";
@@ -23,8 +30,11 @@ export const blogsController = {
     getBlogs: async (req: RequestWithQuery<QueryBlogsModel>,
                      res: Response<BlogViewModel[]>) => {
         const searchNameTerm = req.query.searchNameTerm || null;
+        const sortBy = req.query.sortBy || 'createdAt';
+        const sortDirection = Object.values<string>(SortDirections).includes(req.query.sortDirection)
+            ? req.query.sortDirection : SortDirections.DESC;
 
-        const foundBlogs =  await blogsService.findBlogs(searchNameTerm);
+        const foundBlogs =  await blogsService.findBlogs(searchNameTerm, sortBy, sortDirection);
 
         res.json(foundBlogs.map(mapBlogToViewModel));
     },

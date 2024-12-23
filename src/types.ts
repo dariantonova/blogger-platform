@@ -38,3 +38,8 @@ export type DBType = {
     blogs: BlogDBType[],
     posts: PostDBType[],
 };
+
+export enum SortDirections {
+    ASC = 'asc',
+    DESC = 'desc',
+}

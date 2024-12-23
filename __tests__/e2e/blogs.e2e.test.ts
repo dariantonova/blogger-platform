@@ -57,7 +57,45 @@ describe('tests for /blogs', () => {
                     description: 'superblog 1',
                     websiteUrl: 'https://superblog.com/1',
                     isDeleted: true,
-                    createdAt: '2024-12-15T05:32:26.882Z',
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                    isMembership: false,
+                },
+                {
+                    id: '2',
+                    name: 'blog 2',
+                    description: 'superblog 2',
+                    websiteUrl: 'https://superblog.com/2',
+                    isDeleted: false,
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                    isMembership: false,
+                },
+                {
+                    id: '3',
+                    name: 'blog 3',
+                    description: 'superblog 3',
+                    websiteUrl: 'https://superblog.com/3',
+                    isDeleted: true,
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                    isMembership: false,
+                },
+            ];
+            await setDb({ blogs: initialDbBlogs } );
+
+            await req
+                .get(SETTINGS.PATH.BLOGS)
+                .expect(HTTP_STATUSES.OK_200,
+                    initialDbBlogs.filter(b => !b.isDeleted).map(mapBlogToViewModel));
+        });
+
+        it('should return blogs with name containing search name term', async () => {
+            initialDbBlogs = [
+                {
+                    id: '1',
+                    name: 'blog 1',
+                    description: 'superblog 1',
+                    websiteUrl: 'https://superblog.com/1',
+                    isDeleted: true,
+                    createdAt: '2024-12-17T05:32:26.882Z',
                     isMembership: false,
                 },
                 {
@@ -75,7 +113,7 @@ describe('tests for /blogs', () => {
                     description: 'superblog 3',
                     websiteUrl: 'https://superblog.com/3',
                     isDeleted: true,
-                    createdAt: '2024-12-17T05:32:26.882Z',
+                    createdAt: '2024-12-15T05:32:26.882Z',
                     isMembership: false,
                 },
                 {
@@ -84,24 +122,133 @@ describe('tests for /blogs', () => {
                     description: 'superblog 4',
                     websiteUrl: 'https://superblog.com/4',
                     isDeleted: false,
-                    createdAt: '2024-12-17T05:32:26.882Z',
+                    createdAt: '2024-12-15T05:32:26.882Z',
                     isMembership: false,
                 },
             ];
             await setDb({ blogs: initialDbBlogs } );
 
-            await req
-                .get(SETTINGS.PATH.BLOGS)
-                .expect(HTTP_STATUSES.OK_200,
-                    initialDbBlogs.filter(b => !b.isDeleted).map(mapBlogToViewModel));
-        });
-
-        it('should return blogs with name containing search name term', async () => {
             const searchNameTerm = 'neblog';
 
             await req
                 .get(SETTINGS.PATH.BLOGS + '?searchNameTerm=' + searchNameTerm)
                 .expect(HTTP_STATUSES.OK_200, [initialDbBlogs[1], initialDbBlogs[3]].map(mapBlogToViewModel));
+        });
+
+        // sorting
+        // sort desc createdAt
+        it('should return blogs sorted by creation date in desc order', async () => {
+            initialDbBlogs = [
+                {
+                    id: '1',
+                    name: 'a blog 1',
+                    description: 'superblog 1',
+                    websiteUrl: 'https://superblog.com/1',
+                    isDeleted: true,
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                    isMembership: false,
+                },
+                {
+                    id: '2',
+                    name: 'b blog 2',
+                    description: 'superblog 2',
+                    websiteUrl: 'https://superblog.com/2',
+                    isDeleted: false,
+                    createdAt: '2024-12-17T05:32:26.882Z',
+                    isMembership: false,
+                },
+                {
+                    id: '3',
+                    name: 'c neblog 3',
+                    description: 'superblog 3',
+                    websiteUrl: 'https://superblog.com/3',
+                    isDeleted: false,
+                    createdAt: '2024-12-18T05:32:26.882Z',
+                    isMembership: false,
+                },
+                {
+                    id: '4',
+                    name: 'a 4 neBlog',
+                    description: 'superblog 4',
+                    websiteUrl: 'https://superblog.com/4',
+                    isDeleted: false,
+                    createdAt: '2024-12-15T05:32:26.882Z',
+                    isMembership: false,
+                },
+            ];
+
+            await setDb({ blogs: initialDbBlogs });
+
+            const expectedBlogs = [initialDbBlogs[2], initialDbBlogs[1], initialDbBlogs[3]]
+                .map(mapBlogToViewModel);
+
+            await req
+                .get(SETTINGS.PATH.BLOGS + '?sortBy=createdAt&sortDirection=desc')
+                .expect(HTTP_STATUSES.OK_200, expectedBlogs);
+
+            await req
+                .get(SETTINGS.PATH.BLOGS + '?sortBy=createdAt')
+                .expect(HTTP_STATUSES.OK_200, expectedBlogs);
+
+            await req
+                .get(SETTINGS.PATH.BLOGS + '?sortDirection=desc')
+                .expect(HTTP_STATUSES.OK_200, expectedBlogs);
+
+            await req
+                .get(SETTINGS.PATH.BLOGS)
+                .expect(HTTP_STATUSES.OK_200, expectedBlogs);
+        });
+        // sort asc createdAt
+        it('should return blogs sorted by creation date in asc order', async () => {
+            const expectedBlogs = [initialDbBlogs[3], initialDbBlogs[1], initialDbBlogs[2]]
+                .map(mapBlogToViewModel);
+
+            await req
+                .get(SETTINGS.PATH.BLOGS + '?sortBy=createdAt&sortDirection=asc')
+                .expect(HTTP_STATUSES.OK_200, expectedBlogs);
+
+            await req
+                .get(SETTINGS.PATH.BLOGS + '?sortDirection=asc')
+                .expect(HTTP_STATUSES.OK_200, expectedBlogs);
+        });
+        // sort asc name
+        it('should return blogs sorted by name in asc order', async () => {
+            const expectedBlogs = [initialDbBlogs[3], initialDbBlogs[1], initialDbBlogs[2]]
+                .map(mapBlogToViewModel);
+
+            await req
+                .get(SETTINGS.PATH.BLOGS + '?sortBy=name&sortDirection=asc')
+                .expect(HTTP_STATUSES.OK_200, expectedBlogs);
+        });
+        // sort desc name
+        it('should return blogs sorted by name in desc order', async () => {
+            const expectedBlogs = [initialDbBlogs[2], initialDbBlogs[1], initialDbBlogs[3]]
+                .map(mapBlogToViewModel);
+
+            await req
+                .get(SETTINGS.PATH.BLOGS + '?sortBy=name&sortDirection=desc')
+                .expect(HTTP_STATUSES.OK_200, expectedBlogs);
+        });
+        // sort + filter
+        it('should return blogs with name containing search name term sorted by name in asc order',
+            async () => {
+            const searchNameTerm = 'neblog';
+
+            const expectedBlogs = [initialDbBlogs[3], initialDbBlogs[2]]
+                .map(mapBlogToViewModel);
+
+            await req
+                .get(SETTINGS.PATH.BLOGS + '?sortBy=name&sortDirection=asc&searchNameTerm=' + searchNameTerm)
+                .expect(HTTP_STATUSES.OK_200, expectedBlogs);
+        });
+        // bad sort field
+        it(`should return unordered blogs if sort field doesn't exist`, async () => {
+            const expectedBlogs = initialDbBlogs.slice(1)
+                .map(mapBlogToViewModel);
+
+            await req
+                .get(SETTINGS.PATH.BLOGS + '?sortBy=bad')
+                .expect(HTTP_STATUSES.OK_200, expectedBlogs);
         });
     });
 
