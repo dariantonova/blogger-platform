@@ -2,8 +2,8 @@ import {BlogDBType} from "../../types";
 import {blogsRepository} from "./blogs.db.repository";
 
 export const blogsService = {
-    async findBlogs(): Promise<BlogDBType[]> {
-        return blogsRepository.findBlogs();
+    async findBlogs(searchNameTerm: string | null): Promise<BlogDBType[]> {
+        return blogsRepository.findBlogs(searchNameTerm);
     },
     async findBlogById(id: string): Promise<BlogDBType | null> {
         return blogsRepository.findBlogById(id);

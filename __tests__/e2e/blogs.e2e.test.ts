@@ -32,6 +32,8 @@ describe('tests for /blogs', () => {
     });
 
     describe('get blogs', () => {
+        let initialDbBlogs: BlogDBType[] = [];
+
         beforeAll(async () => {
             await setDb();
         });
@@ -48,7 +50,7 @@ describe('tests for /blogs', () => {
         });
 
         it('should return array with all blogs', async () => {
-            const initialDbBlogs: BlogDBType[] = [
+            initialDbBlogs = [
                 {
                     id: '1',
                     name: 'blog 1',
@@ -60,7 +62,7 @@ describe('tests for /blogs', () => {
                 },
                 {
                     id: '2',
-                    name: 'blog 2',
+                    name: 'neblog 2',
                     description: 'superblog 2',
                     websiteUrl: 'https://superblog.com/2',
                     isDeleted: false,
@@ -69,10 +71,19 @@ describe('tests for /blogs', () => {
                 },
                 {
                     id: '3',
-                    name: 'blog 3',
+                    name: '3 neblog',
                     description: 'superblog 3',
                     websiteUrl: 'https://superblog.com/3',
                     isDeleted: true,
+                    createdAt: '2024-12-17T05:32:26.882Z',
+                    isMembership: false,
+                },
+                {
+                    id: '4',
+                    name: '4 neBlog',
+                    description: 'superblog 4',
+                    websiteUrl: 'https://superblog.com/4',
+                    isDeleted: false,
                     createdAt: '2024-12-17T05:32:26.882Z',
                     isMembership: false,
                 },
@@ -83,6 +94,14 @@ describe('tests for /blogs', () => {
                 .get(SETTINGS.PATH.BLOGS)
                 .expect(HTTP_STATUSES.OK_200,
                     initialDbBlogs.filter(b => !b.isDeleted).map(mapBlogToViewModel));
+        });
+
+        it('should return blogs with name containing search name term', async () => {
+            const searchNameTerm = 'neblog';
+
+            await req
+                .get(SETTINGS.PATH.BLOGS + '?searchNameTerm=' + searchNameTerm)
+                .expect(HTTP_STATUSES.OK_200, [initialDbBlogs[1], initialDbBlogs[3]].map(mapBlogToViewModel));
         });
     });
 

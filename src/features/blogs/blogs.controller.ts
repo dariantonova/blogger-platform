@@ -1,11 +1,12 @@
-import {BlogDBType, RequestWithBody, RequestWithParams, RequestWithParamsAndBody} from "../../types";
+import {BlogDBType, RequestWithBody, RequestWithParams, RequestWithParamsAndBody, RequestWithQuery} from "../../types";
 import {BlogViewModel} from "./models/BlogViewModel";
-import {Request, Response} from "express";
+import {Response} from "express";
 import {URIParamsBlogIdModel} from "./models/URIParamsBlogIdModel";
 import {HTTP_STATUSES} from "../../utils";
 import {CreateBlogInputModel} from "./models/CreateBlogInputModel";
 import {UpdateBlogInputModel} from "./models/UpdateBlogInputModel";
 import {blogsService} from "./blogs.service";
+import {QueryBlogsModel} from "./models/QueryBlogsModel";
 
 export const mapBlogToViewModel = (dbBlog: BlogDBType): BlogViewModel => {
     return {
@@ -19,8 +20,11 @@ export const mapBlogToViewModel = (dbBlog: BlogDBType): BlogViewModel => {
 };
 
 export const blogsController = {
-    getBlogs: async (req: Request, res: Response<BlogViewModel[]>) => {
-        const foundBlogs =  await blogsService.findBlogs();
+    getBlogs: async (req: RequestWithQuery<QueryBlogsModel>,
+                     res: Response<BlogViewModel[]>) => {
+        const searchNameTerm = req.query.searchNameTerm || null;
+
+        const foundBlogs =  await blogsService.findBlogs(searchNameTerm);
 
         res.json(foundBlogs.map(mapBlogToViewModel));
     },

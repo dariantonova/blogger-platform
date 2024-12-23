@@ -2,8 +2,14 @@ import {BlogDBType} from "../../types";
 import {blogsCollection, postsCollection} from "../../db/db";
 
 export const blogsRepository = {
-    async findBlogs(): Promise<BlogDBType[]> {
-        return await blogsCollection.find({ isDeleted: false }, { projection: { _id: 0 } })
+    async findBlogs(searchNameTerm: string | null): Promise<BlogDBType[]> {
+        const filterObj: any = { isDeleted: false };
+
+        if (searchNameTerm) {
+            filterObj.name = { $regex: searchNameTerm, $options: 'i' };
+        }
+
+        return await blogsCollection.find(filterObj, { projection: { _id: 0 } })
             .toArray() as BlogDBType[];
     },
     async findBlogById(id: string): Promise<BlogDBType | null> {
