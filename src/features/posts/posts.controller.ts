@@ -34,7 +34,8 @@ export const mapPostToViewModel = async (dbPost: PostDBType): Promise<PostViewMo
 export const postsController = {
     getPosts: async (req: RequestWithQuery<QueryPostsModel>, res: Response<PostViewModel[]>) => {
         const sortBy = req.query.sortBy || 'createdAt';
-        const sortDirection = Object.values<string>(SortDirections).includes(req.query.sortDirection)
+        const sortDirection = req.query.sortDirection
+            && Object.values<string>(SortDirections).includes(req.query.sortDirection)
             ? req.query.sortDirection : SortDirections.DESC;
 
         const foundPosts = await postsService.findPosts(sortBy, sortDirection);

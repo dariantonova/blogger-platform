@@ -31,7 +31,8 @@ export const blogsController = {
                      res: Response<BlogViewModel[]>) => {
         const searchNameTerm = req.query.searchNameTerm || null;
         const sortBy = req.query.sortBy || 'createdAt';
-        const sortDirection = Object.values<string>(SortDirections).includes(req.query.sortDirection)
+        const sortDirection = req.query.sortDirection
+            && Object.values<string>(SortDirections).includes(req.query.sortDirection)
             ? req.query.sortDirection : SortDirections.DESC;
 
         const foundBlogs =  await blogsService.findBlogs(searchNameTerm, sortBy, sortDirection);
