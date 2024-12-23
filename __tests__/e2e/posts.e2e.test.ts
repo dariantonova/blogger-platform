@@ -33,6 +33,8 @@ describe('tests for /posts', () => {
     });
 
     describe('get posts', () => {
+        let initialDbBlogs: BlogDBType[] = [];
+        let initialDbPosts: PostDBType[] = [];
 
         beforeAll(async () => {
             await setDb();
@@ -50,7 +52,7 @@ describe('tests for /posts', () => {
         });
 
         it('should return array with all posts', async () => {
-            const initialDbBlogs: BlogDBType[] = [
+            initialDbBlogs = [
                 {
                     id: '1',
                     name: 'blog 1',
@@ -80,7 +82,7 @@ describe('tests for /posts', () => {
                 },
             ];
 
-            const initialDbPosts: PostDBType[] = [
+            initialDbPosts = [
                 {
                     id: '1',
                     title: 'post 1',
@@ -88,7 +90,7 @@ describe('tests for /posts', () => {
                     content: 'content of superpost 1',
                     blogId: '2',
                     isDeleted: true,
-                    createdAt: '2024-12-15T05:32:26.882Z',
+                    createdAt: '2024-12-16T05:32:26.882Z',
                 },
                 {
                     id: '2',
@@ -126,6 +128,122 @@ describe('tests for /posts', () => {
             await req
                 .get(SETTINGS.PATH.POSTS)
                 .expect(HTTP_STATUSES.OK_200, expectedData);
+        });
+
+        // sorting
+        // createdAt desc
+        it('should return posts sorted by creation date in desc order', async () => {
+            initialDbBlogs = [
+                {
+                    id: '1',
+                    name: 'blog 1',
+                    description: 'superblog 1',
+                    websiteUrl: 'https://superblog.com/1',
+                    isDeleted: false,
+                    createdAt: '2024-12-15T05:32:26.882Z',
+                    isMembership: false,
+                },
+                {
+                    id: '2',
+                    name: 'blog 2',
+                    description: 'superblog 2',
+                    websiteUrl: 'https://superblog.com/2',
+                    isDeleted: false,
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                    isMembership: false,
+                },
+                {
+                    id: '3',
+                    name: 'blog 3',
+                    description: 'superblog 3',
+                    websiteUrl: 'https://superblog.com/3',
+                    isDeleted: true,
+                    createdAt: '2024-12-17T05:32:26.882Z',
+                    isMembership: false,
+                },
+            ];
+
+            initialDbPosts = [
+                {
+                    id: '1',
+                    title: 'post 1',
+                    shortDescription: 'superpost 1',
+                    content: 'content of superpost 1',
+                    blogId: '2',
+                    isDeleted: true,
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                },
+                {
+                    id: '2',
+                    title: 'post 2',
+                    shortDescription: 'superpost 2',
+                    content: 'content of superpost 2',
+                    blogId: '1',
+                    isDeleted: false,
+                    createdAt: '2024-12-17T05:32:26.882Z',
+                },
+                {
+                    id: '3',
+                    title: 'post 3',
+                    shortDescription: 'superpost 3',
+                    content: 'content of superpost 3',
+                    blogId: '1',
+                    isDeleted: false,
+                    createdAt: '2024-12-18T05:32:26.882Z',
+                },
+                {
+                    id: '4',
+                    title: 'post 4',
+                    shortDescription: 'superpost 4',
+                    content: 'content of superpost 4',
+                    blogId: '1',
+                    isDeleted: false,
+                    createdAt: '2024-12-15T05:32:26.882Z',
+                },
+            ];
+
+            await setDb({ blogs: initialDbBlogs, posts: initialDbPosts });
+
+            const expectedPosts = await Promise.all(
+                [initialDbPosts[2], initialDbPosts[1], initialDbPosts[3]]
+                .map(mapPostToViewModel));
+
+            await req
+                .get(SETTINGS.PATH.POSTS + '?sortBy=createdAt&sortDirection=desc')
+                .expect(HTTP_STATUSES.OK_200, expectedPosts);
+
+            await req
+                .get(SETTINGS.PATH.POSTS + '?sortBy=createdAt')
+                .expect(HTTP_STATUSES.OK_200, expectedPosts);
+
+            await req
+                .get(SETTINGS.PATH.POSTS + '?sortDirection=desc')
+                .expect(HTTP_STATUSES.OK_200, expectedPosts);
+
+            await req
+                .get(SETTINGS.PATH.POSTS)
+                .expect(HTTP_STATUSES.OK_200, expectedPosts);
+        });
+        // createdAt asc
+        it('should return posts sorted by creation date in asc order', async () => {
+            const expectedPosts = await Promise.all(
+                [initialDbPosts[3], initialDbPosts[1], initialDbPosts[2]]
+                    .map(mapPostToViewModel));
+
+            await req
+                .get(SETTINGS.PATH.POSTS + '?sortBy=createdAt&sortDirection=asc')
+                .expect(HTTP_STATUSES.OK_200, expectedPosts);
+            await req
+                .get(SETTINGS.PATH.POSTS + '?sortDirection=asc')
+                .expect(HTTP_STATUSES.OK_200, expectedPosts);
+        });
+        // bad sort field
+        it(`should return unordered posts if sort field doesn't exist`, async () => {
+            const expectedPosts = await Promise.all(initialDbPosts.slice(1).map(mapPostToViewModel));
+
+            await req
+                .get(SETTINGS.PATH.POSTS + '?sortBy=bad')
+                .expect(HTTP_STATUSES.OK_200, expectedPosts);
         });
     });
 

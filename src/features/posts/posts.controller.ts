@@ -1,12 +1,20 @@
-import {Request, Response} from 'express';
+import {Response} from 'express';
 import {PostViewModel} from "./models/PostViewModel";
-import {PostDBType, RequestWithBody, RequestWithParams, RequestWithParamsAndBody} from "../../types";
+import {
+    PostDBType,
+    RequestWithBody,
+    RequestWithParams,
+    RequestWithParamsAndBody,
+    RequestWithQuery,
+    SortDirections
+} from "../../types";
 import {URIParamsPostIdModel} from "./models/URIParamsPostIdModel";
 import {HTTP_STATUSES} from "../../utils";
 import {CreatePostInputModel} from "./models/CreatePostInputModel";
 import {UpdatePostInputModel} from "./models/UpdatePostInputModel";
 import {postsService} from "./posts.service";
 import {blogsService} from "../blogs/blogs.service";
+import {QueryPostsModel} from "./models/QueryPostsModel";
 
 export const mapPostToViewModel = async (dbPost: PostDBType): Promise<PostViewModel> => {
     const blog = await blogsService.findBlogById(dbPost.blogId);
@@ -24,8 +32,12 @@ export const mapPostToViewModel = async (dbPost: PostDBType): Promise<PostViewMo
 };
 
 export const postsController = {
-    getPosts: async (req: Request, res: Response<PostViewModel[]>) => {
-        const foundPosts = await postsService.findPosts();
+    getPosts: async (req: RequestWithQuery<QueryPostsModel>, res: Response<PostViewModel[]>) => {
+        const sortBy = req.query.sortBy || 'createdAt';
+        const sortDirection = Object.values<string>(SortDirections).includes(req.query.sortDirection)
+            ? req.query.sortDirection : SortDirections.DESC;
+
+        const foundPosts = await postsService.findPosts(sortBy, sortDirection);
 
         const postsToSend = await Promise.all(foundPosts.map(mapPostToViewModel));
         res.json(postsToSend);

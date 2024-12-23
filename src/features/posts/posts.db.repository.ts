@@ -1,9 +1,14 @@
 import {postsCollection} from "../../db/db";
-import {PostDBType} from "../../types";
+import {PostDBType, SortDirections} from "../../types";
 
 export const postsRepository = {
-    async findPosts(): Promise<PostDBType[]> {
-        return postsCollection.find({ isDeleted: false }, { projection: { _id: 0 } }).toArray();
+    async findPosts(sortBy: string, sortDirection: string): Promise<PostDBType[]> {
+        const sortObj: any = {
+            [sortBy]: sortDirection === SortDirections.ASC ? 1 : -1,
+        };
+
+        return postsCollection.find({ isDeleted: false }, { projection: { _id: 0 } })
+            .sort(sortObj).toArray();
     },
     async findPostById(id: string): Promise<PostDBType | null> {
         return postsCollection.findOne({ isDeleted: false, id: id }, { projection: { _id: 0 } });
