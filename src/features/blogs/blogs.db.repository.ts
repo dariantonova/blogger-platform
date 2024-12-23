@@ -22,17 +22,7 @@ export const blogsRepository = {
 
         return updateBlogInfo.modifiedCount === 1;
     },
-    async createBlog(name: string, description: string, websiteUrl: string): Promise<BlogDBType> {
-        const createdBlog: BlogDBType = {
-            id: String(+new Date()),
-            name,
-            description,
-            websiteUrl,
-            isDeleted: false,
-            createdAt: new Date().toISOString(),
-            isMembership: false,
-        };
-
+    async createBlog(createdBlog: BlogDBType): Promise<BlogDBType> {
         await blogsCollection.insertOne(createdBlog);
 
         return createdBlog;
