@@ -14,6 +14,7 @@ import {blogsQueryRepository} from "../../src/features/blogs/repositories/blogs.
 import {createBlogsPaginator} from "../../src/features/blogs/blogs.controller";
 import {DEFAULT_QUERY_VALUES} from "../../src/helpers/query-params-values";
 import {invalidPageNumbers, invalidPageSizes} from "../datasets/validation/validation-data";
+import {createPostsPaginator} from "../../src/features/posts/posts.controller";
 
 describe('tests for /blogs', () => {
     let server: MongoMemoryServer;
@@ -1736,5 +1737,742 @@ describe('tests for /blogs', () => {
                 expect(dbOtherBlog).toEqual(otherBlog);
             }
         });
+    });
+
+    describe('get posts of blog', () => {
+        let initialDbBlogs: BlogDBType[] = [
+            {
+                id: '1',
+                name: 'blog 1',
+                description: 'superblog 1',
+                websiteUrl: 'https://superblog.com/1',
+                isDeleted: false,
+                createdAt: '2024-12-15T05:32:26.882Z',
+                isMembership: false,
+            },
+            {
+                id: '2',
+                name: 'blog 2',
+                description: 'superblog 2',
+                websiteUrl: 'https://superblog.com/2',
+                isDeleted: false,
+                createdAt: '2024-12-16T05:32:26.882Z',
+                isMembership: false,
+            },
+            {
+                id: '3',
+                name: 'blog 3',
+                description: 'superblog 3',
+                websiteUrl: 'https://superblog.com/3',
+                isDeleted: true,
+                createdAt: '2024-12-17T05:32:26.882Z',
+                isMembership: false,
+            },
+        ];
+        let initialDbPosts: PostDBType[] = [];
+
+        beforeAll(async () => {
+            await setDb({ blogs: initialDbBlogs, posts: initialDbPosts });
+        });
+
+        afterAll(async () => {
+            await req
+                .delete(SETTINGS.PATH.TESTING + '/all-data');
+        });
+
+        it('should return empty array', async () => {
+            const expected = await createPostsPaginator(
+                [],
+                DEFAULT_QUERY_VALUES.POSTS.pageNumber,
+                DEFAULT_QUERY_VALUES.POSTS.pageSize,
+                0,
+                0
+            );
+
+            await req
+                .get(SETTINGS.PATH.BLOGS + '/' + initialDbBlogs[0].id + '/posts')
+                .expect(HTTP_STATUSES.OK_200, expected);
+        });
+
+        it('should return 404 for posts of non-existing blog', async () => {
+            initialDbPosts = [
+                {
+                    id: '1',
+                    title: 'post 1',
+                    shortDescription: 'superpost 1',
+                    content: 'content of superpost 1',
+                    blogId: '2',
+                    isDeleted: true,
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                },
+                {
+                    id: '2',
+                    title: 'post 2',
+                    shortDescription: 'superpost 2',
+                    content: 'content of superpost 2',
+                    blogId: '1',
+                    isDeleted: false,
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                },
+                {
+                    id: '3',
+                    title: 'post 3',
+                    shortDescription: 'superpost 3',
+                    content: 'content of superpost 3',
+                    blogId: '3',
+                    isDeleted: true,
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                },
+                {
+                    id: '4',
+                    title: 'post 4',
+                    shortDescription: 'superpost 4',
+                    content: 'content of superpost 4',
+                    blogId: '1',
+                    isDeleted: false,
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                },
+            ];
+
+            await setDb({ posts: initialDbPosts });
+
+            await req
+                .get(SETTINGS.PATH.BLOGS + '/-100/posts')
+                .expect(HTTP_STATUSES.NOT_FOUND_404);
+
+            // deleted blog
+            await req
+                .get(SETTINGS.PATH.BLOGS + '/' + initialDbBlogs[2].id + '/posts')
+                .expect(HTTP_STATUSES.NOT_FOUND_404);
+        });
+
+        it('should return all posts of blog', async () => {
+            initialDbPosts = [
+                {
+                    id: '1',
+                    title: 'post 1',
+                    shortDescription: 'superpost 1',
+                    content: 'content of superpost 1',
+                    blogId: '2',
+                    isDeleted: false,
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                },
+                {
+                    id: '2',
+                    title: 'post 2',
+                    shortDescription: 'superpost 2',
+                    content: 'content of superpost 2',
+                    blogId: '1',
+                    isDeleted: false,
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                },
+                {
+                    id: '3',
+                    title: 'post 3',
+                    shortDescription: 'superpost 3',
+                    content: 'content of superpost 3',
+                    blogId: '1',
+                    isDeleted: true,
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                },
+                {
+                    id: '4',
+                    title: 'post 4',
+                    shortDescription: 'superpost 4',
+                    content: 'content of superpost 4',
+                    blogId: '1',
+                    isDeleted: false,
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                },
+            ];
+
+            await setDb({ posts: initialDbPosts });
+
+            const blogId = initialDbBlogs[0].id;
+            const expectedPosts = initialDbPosts
+                .filter(p => !p.isDeleted && p.blogId === blogId);
+            const expected = await createPostsPaginator(
+                expectedPosts,
+                DEFAULT_QUERY_VALUES.POSTS.pageNumber,
+                DEFAULT_QUERY_VALUES.POSTS.pageSize,
+                1,
+                expectedPosts.length,
+            );
+
+            await req
+                .get(SETTINGS.PATH.BLOGS + '/' + blogId + '/posts')
+                .expect(HTTP_STATUSES.OK_200, expected);
+        });
+
+        // sorting
+        // createdAt desc
+        it('should return posts of blog sorted by creation date in desc order', async () => {
+            initialDbPosts = [
+                {
+                    id: '1',
+                    title: 'post 1',
+                    shortDescription: 'superpost 1',
+                    content: 'content of superpost 1',
+                    blogId: '2',
+                    isDeleted: false,
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                },
+                {
+                    id: '2',
+                    title: 'post 2',
+                    shortDescription: 'superpost 2',
+                    content: 'content of superpost 2',
+                    blogId: '1',
+                    isDeleted: false,
+                    createdAt: '2024-12-17T05:32:26.882Z',
+                },
+                {
+                    id: '3',
+                    title: 'post 3',
+                    shortDescription: 'superpost 3',
+                    content: 'content of superpost 3',
+                    blogId: '1',
+                    isDeleted: false,
+                    createdAt: '2024-12-18T05:32:26.882Z',
+                },
+                {
+                    id: '4',
+                    title: 'post 4',
+                    shortDescription: 'superpost 4',
+                    content: 'content of superpost 4',
+                    blogId: '1',
+                    isDeleted: false,
+                    createdAt: '2024-12-15T05:32:26.882Z',
+                },
+                {
+                    id: '5',
+                    title: 'post 5',
+                    shortDescription: 'superpost 5',
+                    content: 'content of superpost 5',
+                    blogId: '1',
+                    isDeleted: true,
+                    createdAt: '2024-12-15T05:32:26.882Z',
+                },
+            ];
+
+            await setDb({ posts: initialDbPosts });
+
+            const expectedPosts = [initialDbPosts[2], initialDbPosts[1], initialDbPosts[3]];
+            const expected = await createPostsPaginator(
+                expectedPosts,
+                DEFAULT_QUERY_VALUES.POSTS.pageNumber,
+                DEFAULT_QUERY_VALUES.POSTS.pageSize,
+                1,
+                expectedPosts.length,
+            );
+
+            const blogId = initialDbBlogs[0].id;
+
+            await req
+                .get(SETTINGS.PATH.BLOGS + '/' + blogId + '/posts'
+                    + '?sortBy=createdAt&sortDirection=desc')
+                .expect(HTTP_STATUSES.OK_200, expected);
+
+            await req
+                .get(SETTINGS.PATH.BLOGS + '/' + blogId + '/posts'
+                    + '?sortBy=createdAt')
+                .expect(HTTP_STATUSES.OK_200, expected);
+
+            await req
+                .get(SETTINGS.PATH.BLOGS + '/' + blogId + '/posts'
+                    + '?sortDirection=desc')
+                .expect(HTTP_STATUSES.OK_200, expected);
+
+            await req
+                .get(SETTINGS.PATH.BLOGS + '/' + blogId + '/posts')
+                .expect(HTTP_STATUSES.OK_200, expected);
+        });
+
+        // createdAt asc
+        it('should return posts of blog sorted by creation date in asc order', async () => {
+            const expectedPosts = [initialDbPosts[3], initialDbPosts[1], initialDbPosts[2]];
+            const expected = await createPostsPaginator(
+                expectedPosts,
+                DEFAULT_QUERY_VALUES.POSTS.pageNumber,
+                DEFAULT_QUERY_VALUES.POSTS.pageSize,
+                1,
+                expectedPosts.length,
+            );
+
+            const blogId = initialDbBlogs[0].id;
+
+            await req
+                .get(SETTINGS.PATH.BLOGS + '/' + blogId + '/posts'
+                    + '?sortBy=createdAt&sortDirection=asc')
+                .expect(HTTP_STATUSES.OK_200, expected);
+            await req
+                .get(SETTINGS.PATH.BLOGS + '/' + blogId + '/posts'
+                    + '?sortDirection=asc')
+                .expect(HTTP_STATUSES.OK_200, expected);
+        });
+
+        // bad sort field
+        it(`should return unordered posts of blog if sort field doesn't exist`, async () => {
+            const blogId = initialDbBlogs[0].id;
+
+            const expectedPosts = initialDbPosts
+                .filter(p => !p.isDeleted && p.blogId === blogId);
+            const expected = await createPostsPaginator(
+                expectedPosts,
+                DEFAULT_QUERY_VALUES.POSTS.pageNumber,
+                DEFAULT_QUERY_VALUES.POSTS.pageSize,
+                1,
+                expectedPosts.length,
+            );
+
+            await req
+                .get(SETTINGS.PATH.BLOGS + '/' + blogId + '/posts'
+                    + '?sortBy=bad')
+                .expect(HTTP_STATUSES.OK_200, expected);
+        });
+
+        // pagination
+        // invalid pageNumber
+        it('should return empty array if page number is invalid', async () => {
+            // no deleted posts
+            initialDbPosts = [
+                {
+                    id: '1',
+                    title: 'post 1',
+                    shortDescription: 'superpost 1',
+                    content: 'content of superpost 1',
+                    blogId: '2',
+                    isDeleted: false,
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                },
+                {
+                    id: '2',
+                    title: 'post 2',
+                    shortDescription: 'superpost 2',
+                    content: 'content of superpost 2',
+                    blogId: '1',
+                    isDeleted: false,
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                },
+                {
+                    id: '3',
+                    title: 'post 3',
+                    shortDescription: 'superpost 3',
+                    content: 'content of superpost 3',
+                    blogId: '1',
+                    isDeleted: false,
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                },
+                {
+                    id: '4',
+                    title: 'post 4',
+                    shortDescription: 'superpost 4',
+                    content: 'content of superpost 4',
+                    blogId: '1',
+                    isDeleted: false,
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                },
+                {
+                    id: '5',
+                    title: 'post 5',
+                    shortDescription: 'superpost 5',
+                    content: 'content of superpost 5',
+                    blogId: '2',
+                    isDeleted: false,
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                },
+                {
+                    id: '6',
+                    title: 'post 6',
+                    shortDescription: 'superpost 6',
+                    content: 'content of superpost 6',
+                    blogId: '1',
+                    isDeleted: false,
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                },
+                {
+                    id: '7',
+                    title: 'post 7',
+                    shortDescription: 'superpost 7',
+                    content: 'content of superpost 7',
+                    blogId: '1',
+                    isDeleted: false,
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                },
+                {
+                    id: '8',
+                    title: 'post 8',
+                    shortDescription: 'superpost 8',
+                    content: 'content of superpost 8',
+                    blogId: '1',
+                    isDeleted: false,
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                },
+                {
+                    id: '9',
+                    title: 'post 9',
+                    shortDescription: 'superpost 9',
+                    content: 'content of superpost 9',
+                    blogId: '2',
+                    isDeleted: false,
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                },
+                {
+                    id: '10',
+                    title: 'post 10',
+                    shortDescription: 'superpost 10',
+                    content: 'content of superpost 10',
+                    blogId: '1',
+                    isDeleted: false,
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                },
+                {
+                    id: '11',
+                    title: 'post 11',
+                    shortDescription: 'superpost 11',
+                    content: 'content of superpost 11',
+                    blogId: '1',
+                    isDeleted: false,
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                },
+                {
+                    id: '12',
+                    title: 'post 12',
+                    shortDescription: 'superpost 12',
+                    content: 'content of superpost 12',
+                    blogId: '1',
+                    isDeleted: false,
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                },
+                {
+                    id: '13',
+                    title: 'post 13',
+                    shortDescription: 'superpost 13',
+                    content: 'content of superpost 13',
+                    blogId: '2',
+                    isDeleted: false,
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                },
+                {
+                    id: '14',
+                    title: 'post 14',
+                    shortDescription: 'superpost 14',
+                    content: 'content of superpost 14',
+                    blogId: '1',
+                    isDeleted: false,
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                },
+                {
+                    id: '15',
+                    title: 'post 15',
+                    shortDescription: 'superpost 15',
+                    content: 'content of superpost 15',
+                    blogId: '1',
+                    isDeleted: false,
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                },
+                {
+                    id: '16',
+                    title: 'post 16',
+                    shortDescription: 'superpost 16',
+                    content: 'content of superpost 16',
+                    blogId: '1',
+                    isDeleted: false,
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                },
+                {
+                    id: '17',
+                    title: 'post 17',
+                    shortDescription: 'superpost 17',
+                    content: 'content of superpost 17',
+                    blogId: '2',
+                    isDeleted: false,
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                },
+                {
+                    id: '18',
+                    title: 'post 18',
+                    shortDescription: 'superpost 18',
+                    content: 'content of superpost 18',
+                    blogId: '1',
+                    isDeleted: false,
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                },
+                {
+                    id: '19',
+                    title: 'post 19',
+                    shortDescription: 'superpost 19',
+                    content: 'content of superpost 19',
+                    blogId: '1',
+                    isDeleted: false,
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                },
+                {
+                    id: '20',
+                    title: 'post 20',
+                    shortDescription: 'superpost 20',
+                    content: 'content of superpost 20',
+                    blogId: '1',
+                    isDeleted: false,
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                },
+                {
+                    id: '21',
+                    title: 'post 21',
+                    shortDescription: 'superpost 21',
+                    content: 'content of superpost 21',
+                    blogId: '2',
+                    isDeleted: false,
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                },
+                {
+                    id: '22',
+                    title: 'post 22',
+                    shortDescription: 'superpost 22',
+                    content: 'content of superpost 22',
+                    blogId: '1',
+                    isDeleted: false,
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                },
+                {
+                    id: '23',
+                    title: 'post 23',
+                    shortDescription: 'superpost 23',
+                    content: 'content of superpost 23',
+                    blogId: '1',
+                    isDeleted: false,
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                },
+                {
+                    id: '24',
+                    title: 'post 24',
+                    shortDescription: 'superpost 24',
+                    content: 'content of superpost 24',
+                    blogId: '1',
+                    isDeleted: false,
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                },
+                {
+                    id: '25',
+                    title: 'post 25',
+                    shortDescription: 'superpost 25',
+                    content: 'content of superpost 25',
+                    blogId: '2',
+                    isDeleted: false,
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                },
+                {
+                    id: '26',
+                    title: 'post 26',
+                    shortDescription: 'superpost 26',
+                    content: 'content of superpost 26',
+                    blogId: '1',
+                    isDeleted: false,
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                },
+                {
+                    id: '27',
+                    title: 'post 27',
+                    shortDescription: 'superpost 27',
+                    content: 'content of superpost 27',
+                    blogId: '1',
+                    isDeleted: false,
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                },
+                {
+                    id: '28',
+                    title: 'post 28',
+                    shortDescription: 'superpost 28',
+                    content: 'content of superpost 28',
+                    blogId: '1',
+                    isDeleted: false,
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                },
+            ];
+
+            await setDb({ posts: initialDbPosts });
+
+            for (const invalidPageNumber of invalidPageNumbers) {
+                const expected = await createPostsPaginator(
+                    [], 0, 0, 0, 0,
+                );
+
+                await req
+                    .get(SETTINGS.PATH.BLOGS + '/' + initialDbBlogs[0].id + '/posts'
+                        + '?pageNumber=' + invalidPageNumber)
+                    .expect(HTTP_STATUSES.OK_200, expected);
+            }
+        });
+
+        // invalid pageSize
+        it('should return empty array if page size is invalid', async () => {
+            for (const invalidPageSize of invalidPageSizes) {
+                const expected = await createPostsPaginator(
+                    [], 0, 0, 0, 0,
+                );
+
+                await req
+                    .get(SETTINGS.PATH.BLOGS + '/' + initialDbBlogs[0].id + '/posts'
+                        + '?pageSize=' + invalidPageSize)
+                    .expect(HTTP_STATUSES.OK_200, expected);
+            }
+        });
+
+        // invalid both pageNumber and pageSize
+        it('should return empty array if page number and page size are invalid',
+            async () => {
+                const invalidPageNumber = invalidPageNumbers[0];
+                const invalidPageSize = invalidPageSizes[0];
+
+                const expected = await createPostsPaginator(
+                    [], 0, 0, 0, 0,
+                );
+
+                await req
+                    .get(SETTINGS.PATH.BLOGS + '/' + initialDbBlogs[0].id + '/posts'
+                        + '?pageNumber=' + invalidPageNumber
+                        + '&pageSize=' + invalidPageSize)
+                    .expect(HTTP_STATUSES.OK_200, expected);
+            });
+
+        // pageNumber* and pageSize defaults
+        it('default page number and page size should be correct', async () => {
+            const defaultPageSize = 10;
+            const defaultPageNumber = 1;
+
+            const blogId = initialDbBlogs[0].id;
+            const postsOfBlog = initialDbPosts.filter(p => p.blogId === blogId);
+
+            const expectedPosts = postsOfBlog.slice(0, defaultPageSize);
+            const expected = await createPostsPaginator(
+                expectedPosts,
+                defaultPageNumber,
+                defaultPageSize,
+                Math.ceil(postsOfBlog.length / defaultPageSize),
+                postsOfBlog.length,
+            );
+
+            await req
+                .get(SETTINGS.PATH.BLOGS + '/' + blogId + '/posts')
+                .expect(HTTP_STATUSES.OK_200, expected);
+        });
+
+        // non-default pageNumber
+        it('should return correct part of posts array if page number is non-default',
+            async () => {
+                const pageNumber = 2;
+
+                const blogId = initialDbBlogs[0].id;
+                const postsOfBlog = initialDbPosts.filter(p => p.blogId === blogId);
+
+                const expectedPosts = postsOfBlog.slice(10, 20);
+                const expected = await createPostsPaginator(
+                    expectedPosts,
+                    pageNumber,
+                    DEFAULT_QUERY_VALUES.POSTS.pageSize,
+                    Math.ceil(postsOfBlog.length / DEFAULT_QUERY_VALUES.POSTS.pageSize),
+                    postsOfBlog.length,
+                );
+
+                await req
+                    .get(SETTINGS.PATH.BLOGS + '/' + blogId + '/posts'
+                        + '?pageNumber=' + pageNumber)
+                    .expect(HTTP_STATUSES.OK_200, expected);
+            });
+
+        // non-default pageSize
+        it('should return correct part of posts array if page size is non-default',
+            async () => {
+                const pageSize = 15;
+
+                const blogId = initialDbBlogs[0].id;
+                const postsOfBlog = initialDbPosts.filter(p => p.blogId === blogId);
+
+                const expectedPosts = postsOfBlog.slice(0, pageSize);
+                const expected = await createPostsPaginator(
+                    expectedPosts,
+                    DEFAULT_QUERY_VALUES.POSTS.pageNumber,
+                    pageSize,
+                    Math.ceil(postsOfBlog.length / pageSize),
+                    postsOfBlog.length,
+                );
+
+                await req
+                    .get(SETTINGS.PATH.BLOGS + '/' + blogId + '/posts'
+                        + '?pageSize=' + pageSize)
+                    .expect(HTTP_STATUSES.OK_200, expected);
+            });
+
+        // non-default pageNumber and pageSize
+        it('should return correct part of posts array if page number and page size are non-default',
+            async () => {
+                const pageNumber = 3;
+                const pageSize = 5;
+
+                const blogId = initialDbBlogs[0].id;
+                const postsOfBlog = initialDbPosts.filter(p => p.blogId === blogId);
+
+                const expectedPosts = postsOfBlog.slice((pageNumber - 1) * pageSize,
+                    (pageNumber - 1) * pageSize + pageSize);
+                const expected = await createPostsPaginator(
+                    expectedPosts,
+                    pageNumber,
+                    pageSize,
+                    Math.ceil(postsOfBlog.length / pageSize),
+                    postsOfBlog.length,
+                );
+
+                await req
+                    .get(SETTINGS.PATH.BLOGS + '/' + blogId + '/posts'
+                        + '?pageNumber=' + pageNumber
+                        + '&pageSize=' + pageSize)
+                    .expect(HTTP_STATUSES.OK_200, expected);
+            });
+
+        // pageNumber exceeds total number of pages
+        it('should return empty array if page number exceeds total number of pages',
+            async () => {
+                const blogId = initialDbBlogs[0].id;
+                const postsOfBlog = initialDbPosts.filter(p => p.blogId === blogId);
+
+                const pagesCount = Math.ceil(postsOfBlog.length / DEFAULT_QUERY_VALUES.POSTS.pageSize);
+                const pageNumber = pagesCount + 5;
+
+                const expectedPosts: PostDBType[] = [];
+                const expected = await createPostsPaginator(
+                    expectedPosts,
+                    pageNumber,
+                    DEFAULT_QUERY_VALUES.POSTS.pageSize,
+                    pagesCount,
+                    postsOfBlog.length,
+                );
+
+                await req
+                    .get(SETTINGS.PATH.BLOGS + '/' + blogId + '/posts'
+                        + '?pageNumber=' + pageNumber)
+                    .expect(HTTP_STATUSES.OK_200, expected);
+            });
+
+        // pageSize is greater than total number of items *
+        it('should return all posts if page size is greater than total number of items',
+            async () => {
+                const blogId = initialDbBlogs[0].id;
+                const postsOfBlog = initialDbPosts.filter(p => p.blogId === blogId);
+
+                const pageSize = postsOfBlog.length + 10;
+
+                const expected = await createPostsPaginator(
+                    postsOfBlog,
+                    DEFAULT_QUERY_VALUES.POSTS.pageNumber,
+                    pageSize,
+                    Math.ceil(postsOfBlog.length / pageSize),
+                    postsOfBlog.length,
+                );
+
+                await req
+                    .get(SETTINGS.PATH.BLOGS + '/' + blogId + '/posts'
+                        + '?pageSize=' + pageSize)
+                    .expect(HTTP_STATUSES.OK_200, expected);
+            });
     });
 });

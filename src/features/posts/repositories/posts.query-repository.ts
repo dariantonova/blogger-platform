@@ -6,13 +6,15 @@ import {blogsQueryRepository} from "../../blogs/repositories/blogs.query-reposit
 export const postsQueryRepository = {
     async findPosts(sortBy: string, sortDirection: SortDirections,
                     pageNumber: number, pageSize: number): Promise<PostDBType[]> {
+        const filterObj: any = { isDeleted: false };
+
         const sortObj: any = {
             [sortBy]: sortDirection === SortDirections.ASC ? 1 : -1,
             _id: 1,
         };
 
         return await postsCollection
-            .find({ isDeleted: false }, { projection: { _id: 0 } })
+            .find(filterObj, { projection: { _id: 0 } })
             .sort(sortObj)
             .skip((pageNumber - 1) * pageSize)
             .limit(pageSize)
@@ -23,6 +25,27 @@ export const postsQueryRepository = {
     },
     async countPosts(): Promise<number> {
         const filterObj: any = { isDeleted: false };
+        return postsCollection.countDocuments(filterObj);
+    },
+    async findPostsByBlogId(blogId: string,
+                            sortBy: string, sortDirection: SortDirections,
+                            pageNumber: number, pageSize: number): Promise<PostDBType[]> {
+        const filterObj: any = { isDeleted: false, blogId: blogId };
+
+        const sortObj: any = {
+            [sortBy]: sortDirection === SortDirections.ASC ? 1 : -1,
+            _id: 1,
+        };
+
+        return await postsCollection
+            .find(filterObj, { projection: { _id: 0 } })
+            .sort(sortObj)
+            .skip((pageNumber - 1) * pageSize)
+            .limit(pageSize)
+            .toArray() as PostDBType[];
+    },
+    async countPostsOfBlog(blogId: string): Promise<number> {
+        const filterObj: any = { isDeleted: false, blogId: blogId };
         return postsCollection.countDocuments(filterObj);
     },
     async mapToOutput(dbPost: PostDBType): Promise<PostViewModel> {

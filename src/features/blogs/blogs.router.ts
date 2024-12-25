@@ -37,5 +37,9 @@ router.put('/:id',
     websiteUrlFieldValidator,
     errorsResultMiddleware,
     blogsController.updateBlog);
+router.get('/:blogId/posts',
+    pageNumberQueryParamValidator,
+    pageSizeQueryParamValidator,
+    blogsController.getPostsOfBlog);
 
 export { router as blogsRouter };

@@ -3,7 +3,7 @@ import {
     Paginator,
     RequestWithBody,
     RequestWithParams,
-    RequestWithParamsAndBody,
+    RequestWithParamsAndBody, RequestWithParamsAndQuery,
     RequestWithQuery
 } from "../../types";
 import {BlogViewModel} from "./models/BlogViewModel";
@@ -15,8 +15,13 @@ import {UpdateBlogInputModel} from "./models/UpdateBlogInputModel";
 import {blogsService} from "./blogs.service";
 import {QueryBlogsModel} from "./models/QueryBlogsModel";
 import {blogsQueryRepository} from "./repositories/blogs.query-repository";
-import {getBlogsQueryParamsValues} from "../../helpers/query-params-values";
+import {getBlogsQueryParamsValues, getPostsQueryParamsValues} from "../../helpers/query-params-values";
 import {validationResult} from "express-validator";
+import {QueryPostsModel} from "../posts/models/QueryPostsModel";
+import {PostViewModel} from "../posts/models/PostViewModel";
+import {URIParamsBlogIdOfPostModel} from "./models/URIParamsBlogIdOfPostModel";
+import {createPostsPaginator} from "../posts/posts.controller";
+import {postsQueryRepository} from "../posts/repositories/posts.query-repository";
 
 export const createBlogsPaginator = (items: BlogDBType[], page: number, pageSize: number,
                                      pagesCount: number, totalCount: number): Paginator<BlogViewModel> => {
@@ -34,14 +39,6 @@ export const createBlogsPaginator = (items: BlogDBType[], page: number, pageSize
 export const blogsController = {
     getBlogs: async (req: RequestWithQuery<QueryBlogsModel>,
                      res: Response<Paginator<BlogViewModel>>) => {
-        const {
-            searchNameTerm,
-            sortBy,
-            sortDirection,
-            pageSize,
-            pageNumber
-        } = getBlogsQueryParamsValues(req);
-
         const validationErrors = validationResult(req);
         if (!validationErrors.isEmpty()) {
             const output = createBlogsPaginator(
@@ -50,6 +47,14 @@ export const blogsController = {
             res.json(output);
             return;
         }
+
+        const {
+            searchNameTerm,
+            sortBy,
+            sortDirection,
+            pageSize,
+            pageNumber
+        } = getBlogsQueryParamsValues(req);
 
         const foundBlogs =  await blogsQueryRepository.findBlogs(
             searchNameTerm, sortBy, sortDirection, pageNumber, pageSize
@@ -104,5 +109,42 @@ export const blogsController = {
         }
 
         res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
+    },
+    getPostsOfBlog: async (req: RequestWithParamsAndQuery<URIParamsBlogIdOfPostModel, QueryPostsModel>,
+                         res: Response<Paginator<PostViewModel>>) => {
+        const validationErrors = validationResult(req);
+        if (!validationErrors.isEmpty()) {
+            const output = await createPostsPaginator(
+                [], 0, 0, 0, 0
+            );
+            res.json(output);
+            return;
+        }
+
+        const blogId = req.params.blogId;
+        const isBlogFound = await blogsQueryRepository.findBlogById(blogId);
+        if (!isBlogFound) {
+            res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
+            return;
+        }
+
+        const {
+            sortBy,
+            sortDirection,
+            pageSize,
+            pageNumber
+        } = getPostsQueryParamsValues(req);
+
+        const foundPosts = await postsQueryRepository.findPostsByBlogId(
+            blogId, sortBy, sortDirection, pageNumber, pageSize
+        );
+        const totalCount = await postsQueryRepository.countPostsOfBlog(blogId);
+        const pagesCount = Math.ceil(totalCount / pageSize);
+
+        const output = await createPostsPaginator(
+            foundPosts, pageNumber, pageSize, pagesCount, totalCount
+        );
+
+        res.json(output);
     },
 };
