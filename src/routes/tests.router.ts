@@ -1,13 +1,13 @@
-import {Router, Request, Response} from 'express';
-import {blogsRepository} from "../features/blogs/blogs.db.repository";
-import {postsRepository} from "../features/posts/posts.db.repository";
+import {Request, Response, Router} from 'express';
 import {HTTP_STATUSES} from "../utils";
+import {blogsService} from "../features/blogs/blogs.service";
+import {postsService} from "../features/posts/posts.service";
 
 const router = Router();
 
 router.delete('/all-data', async (req: Request, res: Response) => {
-    await blogsRepository.deleteAllBlogs();
-    await postsRepository.deleteAllPosts();
+    await blogsService.deleteAllBlogs();
+    await postsService.deleteAllPosts();
 
     res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
 });
