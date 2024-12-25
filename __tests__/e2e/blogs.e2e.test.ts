@@ -694,8 +694,8 @@ describe('tests for /blogs', () => {
                 .expect(HTTP_STATUSES.OK_200, expected);
         });
 
-        // pageSize is greater than total items *
-        it('should return all blogs if page size is greater than total items',
+        // pageSize is greater than total number of items *
+        it('should return all blogs if page size is greater than total number of items',
             async () => {
             const pageSize = initialDbBlogs.length + 10;
 

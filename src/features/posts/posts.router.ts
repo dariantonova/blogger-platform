@@ -8,10 +8,13 @@ import {
     titleFieldValidator
 } from "../../validation/field-validators/posts-field-validators";
 import {errorsResultMiddleware} from "../../validation/errors-result-middleware";
+import {pageNumberQueryParamValidator, pageSizeQueryParamValidator} from "../../validation/query-params-validators";
 
 const router = Router();
 
 router.get('/',
+    pageNumberQueryParamValidator,
+    pageSizeQueryParamValidator,
     postsController.getPosts);
 router.get('/:id',
     postsController.getPost);

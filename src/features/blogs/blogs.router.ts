@@ -10,7 +10,7 @@ import {errorsResultMiddleware} from "../../validation/errors-result-middleware"
 import {
     pageNumberQueryParamValidator,
     pageSizeQueryParamValidator
-} from "../../validation/query-params-validators/blogs-query-params-validators";
+} from "../../validation/query-params-validators";
 
 const router = Router();
 

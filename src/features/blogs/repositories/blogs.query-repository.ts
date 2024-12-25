@@ -6,14 +6,12 @@ export const blogsQueryRepository = {
     async findBlogs(searchNameTerm: string | null,
                     sortBy: string, sortDirection: SortDirections,
                     pageNumber: number, pageSize: number): Promise<BlogDBType[]> {
-        // filter
         const filterObj: any = { isDeleted: false };
 
         if (searchNameTerm) {
             filterObj.name = { $regex: searchNameTerm, $options: 'i' };
         }
 
-        // sorting
         const sortObj: any = {
             [sortBy]: sortDirection === SortDirections.ASC ? 1 : -1,
             _id: 1,

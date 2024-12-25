@@ -1,12 +1,12 @@
 import {Response} from 'express';
 import {PostViewModel} from "./models/PostViewModel";
 import {
+    Paginator,
     PostDBType,
     RequestWithBody,
     RequestWithParams,
     RequestWithParamsAndBody,
-    RequestWithQuery,
-    SortDirections
+    RequestWithQuery
 } from "../../types";
 import {URIParamsPostIdModel} from "./models/URIParamsPostIdModel";
 import {HTTP_STATUSES} from "../../utils";
@@ -14,35 +14,55 @@ import {CreatePostInputModel} from "./models/CreatePostInputModel";
 import {UpdatePostInputModel} from "./models/UpdatePostInputModel";
 import {postsService} from "./posts.service";
 import {QueryPostsModel} from "./models/QueryPostsModel";
-import {blogsQueryRepository} from "../blogs/repositories/blogs.query-repository";
 import {postsQueryRepository} from "./repositories/posts.query-repository";
+import {getPostsQueryParamsValues} from "../../helpers/query-params-values";
+import {validationResult} from "express-validator";
 
-export const mapPostToViewModel = async (dbPost: PostDBType): Promise<PostViewModel> => {
-    const blog = await blogsQueryRepository.findBlogById(dbPost.blogId);
-    const blogName = blog?.name || '';
+export const createPostsPaginator = async (items: PostDBType[], page: number, pageSize: number,
+                                     pagesCount: number, totalCount: number): Promise<Paginator<PostViewModel>> => {
+    const itemsViewModels: PostViewModel[] = await Promise.all(
+        items.map(postsQueryRepository.mapToOutput)
+    );
 
     return {
-        id: dbPost.id,
-        title: dbPost.title,
-        shortDescription: dbPost.shortDescription,
-        content: dbPost.content,
-        blogId: dbPost.blogId,
-        blogName,
-        createdAt: dbPost.createdAt,
+        pagesCount,
+        page,
+        pageSize,
+        totalCount,
+        items: itemsViewModels,
     };
 };
 
 export const postsController = {
-    getPosts: async (req: RequestWithQuery<QueryPostsModel>, res: Response<PostViewModel[]>) => {
-        const sortBy = req.query.sortBy || 'createdAt';
-        const sortDirection = req.query.sortDirection
-            && Object.values<string>(SortDirections).includes(req.query.sortDirection)
-            ? req.query.sortDirection : SortDirections.DESC;
+    getPosts: async (req: RequestWithQuery<QueryPostsModel>,
+                     res: Response<Paginator<PostViewModel>>) => {
+        const {
+            sortBy,
+            sortDirection,
+            pageSize,
+            pageNumber
+        } = getPostsQueryParamsValues(req);
 
-        const foundPosts = await postsQueryRepository.findPosts(sortBy, sortDirection);
+        const validationErrors = validationResult(req);
+        if (!validationErrors.isEmpty()) {
+            const output = await createPostsPaginator(
+                [], 0, 0, 0, 0
+            );
+            res.json(output);
+            return;
+        }
 
-        const postsToSend = await Promise.all(foundPosts.map(mapPostToViewModel));
-        res.json(postsToSend);
+        const foundPosts = await postsQueryRepository.findPosts(
+            sortBy, sortDirection, pageNumber, pageSize
+        );
+        const totalCount = await postsQueryRepository.countPosts();
+        const pagesCount = Math.ceil(totalCount / pageSize);
+
+        const output = await createPostsPaginator(
+            foundPosts, pageNumber, pageSize, pagesCount, totalCount
+        );
+
+        res.json(output);
     },
     getPost: async (req: RequestWithParams<URIParamsPostIdModel>, res: Response<PostViewModel>) => {
         const foundPost = await postsQueryRepository.findPostById(req.params.id);
@@ -51,7 +71,7 @@ export const postsController = {
             return;
         }
 
-        const postToSend = await mapPostToViewModel(foundPost);
+        const postToSend = await postsQueryRepository.mapToOutput(foundPost);
         res.json(postToSend);
     },
     deletePost: async (req: RequestWithParams<URIParamsPostIdModel>, res: Response) => {
@@ -69,7 +89,7 @@ export const postsController = {
             req.body.title, req.body.shortDescription, req.body.content, req.body.blogId
         );
 
-        const postToSend = await mapPostToViewModel(createdPost);
+        const postToSend = await postsQueryRepository.mapToOutput(createdPost);
         res
             .status(HTTP_STATUSES.CREATED_201)
             .json(postToSend);
