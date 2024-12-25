@@ -7,10 +7,16 @@ import {
     websiteUrlFieldValidator
 } from "../../validation/field-validators/blogs-field-validators";
 import {errorsResultMiddleware} from "../../validation/errors-result-middleware";
+import {
+    pageNumberQueryParamValidator,
+    pageSizeQueryParamValidator
+} from "../../validation/query-params-validators/blogs-query-params-validators";
 
 const router = Router();
 
 router.get('/',
+    pageNumberQueryParamValidator,
+    pageSizeQueryParamValidator,
     blogsController.getBlogs);
 router.get('/:id',
     blogsController.getBlog);

@@ -13,11 +13,11 @@ import {HTTP_STATUSES} from "../../utils";
 import {CreatePostInputModel} from "./models/CreatePostInputModel";
 import {UpdatePostInputModel} from "./models/UpdatePostInputModel";
 import {postsService} from "./posts.service";
-import {blogsService} from "../blogs/blogs.service";
 import {QueryPostsModel} from "./models/QueryPostsModel";
+import {blogsQueryRepository} from "../blogs/repositories/blogs.query-repository";
 
 export const mapPostToViewModel = async (dbPost: PostDBType): Promise<PostViewModel> => {
-    const blog = await blogsService.findBlogById(dbPost.blogId);
+    const blog = await blogsQueryRepository.findBlogById(dbPost.blogId);
     const blogName = blog?.name || '';
 
     return {

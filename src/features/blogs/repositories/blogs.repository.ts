@@ -1,24 +1,7 @@
-import {BlogDBType, SortDirections} from "../../types";
-import {blogsCollection, postsCollection} from "../../db/db";
+import {BlogDBType} from "../../../types";
+import {blogsCollection, postsCollection} from "../../../db/db";
 
 export const blogsRepository = {
-    async findBlogs(searchNameTerm: string | null, sortBy: string, sortDirection: string): Promise<BlogDBType[]> {
-        const filterObj: any = { isDeleted: false };
-
-        if (searchNameTerm) {
-            filterObj.name = { $regex: searchNameTerm, $options: 'i' };
-        }
-
-        const sortObj: any = {
-            [sortBy]: sortDirection === SortDirections.ASC ? 1 : -1,
-        };
-
-        return await blogsCollection.find(filterObj, { projection: { _id: 0 } })
-            .sort(sortObj).toArray() as BlogDBType[];
-    },
-    async findBlogById(id: string): Promise<BlogDBType | null> {
-        return blogsCollection.findOne({ isDeleted: false, id: id }, { projection: { _id: 0 } });
-    },
     async deleteBlog(id: string): Promise<boolean> {
         const updateBlogInfo = await blogsCollection.updateOne(
             { isDeleted: false, id: id },

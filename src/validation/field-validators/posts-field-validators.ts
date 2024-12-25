@@ -1,5 +1,5 @@
 import {body} from "express-validator";
-import {blogsRepository} from "../../features/blogs/blogs.db.repository";
+import {blogsQueryRepository} from "../../features/blogs/repositories/blogs.query-repository";
 
 export const titleFieldValidator = body('title')
     .exists().withMessage('Title is required')
@@ -24,6 +24,6 @@ export const blogIdFieldValidator = body('blogId')
     .isString().withMessage('Blog id must be a string')
     .trim().notEmpty().withMessage('Blog id must not be empty')
     .custom(async (value) => {
-        const blog = await blogsRepository.findBlogById(value);
+        const blog = await blogsQueryRepository.findBlogById(value);
         return blog ? Promise.resolve() : Promise.reject();
     }).withMessage('Blog id does not exist');

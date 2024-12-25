@@ -1,10 +1,10 @@
 import {
     BlogDBType,
+    Paginator,
     RequestWithBody,
     RequestWithParams,
     RequestWithParamsAndBody,
-    RequestWithQuery,
-    SortDirections
+    RequestWithQuery
 } from "../../types";
 import {BlogViewModel} from "./models/BlogViewModel";
 import {Response} from "express";
@@ -14,40 +14,64 @@ import {CreateBlogInputModel} from "./models/CreateBlogInputModel";
 import {UpdateBlogInputModel} from "./models/UpdateBlogInputModel";
 import {blogsService} from "./blogs.service";
 import {QueryBlogsModel} from "./models/QueryBlogsModel";
+import {blogsQueryRepository} from "./repositories/blogs.query-repository";
+import {getBlogsQueryParamsValues} from "../../helpers/query-params-values";
+import {validationResult} from "express-validator";
 
-export const mapBlogToViewModel = (dbBlog: BlogDBType): BlogViewModel => {
+export const createBlogsPaginator = (items: BlogDBType[], page: number, pageSize: number,
+                                     pagesCount: number, totalCount: number): Paginator<BlogViewModel> => {
+    const itemsViewModels: BlogViewModel[] = items.map(blogsQueryRepository.mapToOutput);
+
     return {
-        id: dbBlog.id,
-        name: dbBlog.name,
-        description: dbBlog.description,
-        websiteUrl: dbBlog.websiteUrl,
-        createdAt: dbBlog.createdAt,
-        isMembership: dbBlog.isMembership,
+        pagesCount,
+        page,
+        pageSize,
+        totalCount,
+        items: itemsViewModels,
     };
 };
 
 export const blogsController = {
     getBlogs: async (req: RequestWithQuery<QueryBlogsModel>,
-                     res: Response<BlogViewModel[]>) => {
-        const searchNameTerm = req.query.searchNameTerm || null;
-        const sortBy = req.query.sortBy || 'createdAt';
-        const sortDirection = req.query.sortDirection
-            && Object.values<string>(SortDirections).includes(req.query.sortDirection)
-            ? req.query.sortDirection : SortDirections.DESC;
+                     res: Response<Paginator<BlogViewModel>>) => {
+        const {
+            searchNameTerm,
+            sortBy,
+            sortDirection,
+            pageSize,
+            pageNumber
+        } = getBlogsQueryParamsValues(req);
 
-        const foundBlogs =  await blogsService.findBlogs(searchNameTerm, sortBy, sortDirection);
+        const validationErrors = validationResult(req);
+        if (!validationErrors.isEmpty()) {
+            const output = createBlogsPaginator(
+                [], 0, 0, 0, 0
+            );
+            res.json(output);
+            return;
+        }
 
-        res.json(foundBlogs.map(mapBlogToViewModel));
+        const foundBlogs =  await blogsQueryRepository.findBlogs(
+            searchNameTerm, sortBy, sortDirection, pageNumber, pageSize
+        );
+        const totalCount = await blogsQueryRepository.countBlogs(searchNameTerm);
+        const pagesCount = Math.ceil(totalCount / pageSize);
+
+        const output = createBlogsPaginator(
+            foundBlogs, pageNumber, pageSize, pagesCount, totalCount
+        );
+
+        res.json(output);
     },
     getBlog: async (req: RequestWithParams<URIParamsBlogIdModel>,
               res: Response<BlogViewModel>) => {
-        const foundBlog = await blogsService.findBlogById(req.params.id);
+        const foundBlog = await blogsQueryRepository.findBlogById(req.params.id);
         if (!foundBlog) {
             res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
             return;
         }
 
-        res.json(mapBlogToViewModel(foundBlog));
+        res.json(blogsQueryRepository.mapToOutput(foundBlog));
     },
     deleteBlog: async (req: RequestWithParams<URIParamsBlogIdModel>, res: Response) => {
         const isDeleted = await blogsService.deleteBlog(req.params.id);
@@ -66,7 +90,7 @@ export const blogsController = {
 
         res
             .status(HTTP_STATUSES.CREATED_201)
-            .json(mapBlogToViewModel(createdBlog));
+            .json(blogsQueryRepository.mapToOutput(createdBlog));
     },
     updateBlog: async (req: RequestWithParamsAndBody<URIParamsBlogIdModel, UpdateBlogInputModel>,
                  res: Response) => {

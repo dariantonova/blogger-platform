@@ -43,3 +43,11 @@ export enum SortDirections {
     ASC = 'asc',
     DESC = 'desc',
 }
+
+export type Paginator<T> = {
+    pagesCount?: number,
+    page?: number,
+    pageSize?: number,
+    totalCount?: number,
+    items: T[],
+};
