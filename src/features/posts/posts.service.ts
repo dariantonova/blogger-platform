@@ -1,13 +1,7 @@
 import {PostDBType} from "../../types";
-import {postsRepository} from "./posts.db.repository";
+import {postsRepository} from "./repositories/posts.repository";
 
 export const postsService = {
-    async findPosts(sortBy: string, sortDirection: string): Promise<PostDBType[]> {
-        return postsRepository.findPosts(sortBy, sortDirection);
-    },
-    async findPostById(id: string): Promise<PostDBType | null> {
-        return postsRepository.findPostById(id);
-    },
     async deletePost(id: string): Promise<boolean> {
         return postsRepository.deletePost(id);
     },

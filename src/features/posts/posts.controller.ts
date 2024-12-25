@@ -15,6 +15,7 @@ import {UpdatePostInputModel} from "./models/UpdatePostInputModel";
 import {postsService} from "./posts.service";
 import {QueryPostsModel} from "./models/QueryPostsModel";
 import {blogsQueryRepository} from "../blogs/repositories/blogs.query-repository";
+import {postsQueryRepository} from "./repositories/posts.query-repository";
 
 export const mapPostToViewModel = async (dbPost: PostDBType): Promise<PostViewModel> => {
     const blog = await blogsQueryRepository.findBlogById(dbPost.blogId);
@@ -38,13 +39,13 @@ export const postsController = {
             && Object.values<string>(SortDirections).includes(req.query.sortDirection)
             ? req.query.sortDirection : SortDirections.DESC;
 
-        const foundPosts = await postsService.findPosts(sortBy, sortDirection);
+        const foundPosts = await postsQueryRepository.findPosts(sortBy, sortDirection);
 
         const postsToSend = await Promise.all(foundPosts.map(mapPostToViewModel));
         res.json(postsToSend);
     },
     getPost: async (req: RequestWithParams<URIParamsPostIdModel>, res: Response<PostViewModel>) => {
-        const foundPost = await postsService.findPostById(req.params.id);
+        const foundPost = await postsQueryRepository.findPostById(req.params.id);
         if (!foundPost) {
             res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
             return;
