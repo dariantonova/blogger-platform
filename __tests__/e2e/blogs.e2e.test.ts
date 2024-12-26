@@ -13,7 +13,7 @@ import {invalidUrls, validBlogFieldInput} from "../datasets/validation/blogs-val
 import {blogsQueryRepository} from "../../src/features/blogs/repositories/blogs.query-repository";
 import {createBlogsPaginator} from "../../src/features/blogs/blogs.controller";
 import {DEFAULT_QUERY_VALUES} from "../../src/helpers/query-params-values";
-import {invalidPageNumbers, invalidPageSizes} from "../datasets/validation/validation-data";
+import {invalidPageNumbers, invalidPageSizes} from "../datasets/validation/query-validation-data";
 import {createPostsPaginator} from "../../src/features/posts/posts.controller";
 import {validPostFieldInput} from "../datasets/validation/posts-validation-data";
 import {CreateBlogPostInputModel} from "../../src/features/blogs/models/CreateBlogPostInputModel";
@@ -317,7 +317,7 @@ describe('tests for /blogs', () => {
         });
 
         // bad sort field
-        it(`should return unordered blogs if sort field doesn't exist`, async () => {
+        it(`should return blogs ordered by _id if sort field doesn't exist`, async () => {
             const expectedBlogs = initialDbBlogs.slice(1);
             const expected = createBlogsPaginator(
                 expectedBlogs,
@@ -2014,7 +2014,8 @@ describe('tests for /blogs', () => {
         });
 
         // bad sort field
-        it(`should return unordered posts of blog if sort field doesn't exist`, async () => {
+        it(`should return posts of blog ordered by _id if sort field doesn't exist`,
+            async () => {
             const blogId = initialDbBlogs[0].id;
 
             const expectedPosts = initialDbPosts

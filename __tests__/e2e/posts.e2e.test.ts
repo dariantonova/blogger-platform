@@ -13,7 +13,7 @@ import {invalidAuthValues} from "../datasets/authorization-data";
 import {validPostFieldInput} from "../datasets/validation/posts-validation-data";
 import {createPostsPaginator} from "../../src/features/posts/posts.controller";
 import {DEFAULT_QUERY_VALUES} from "../../src/helpers/query-params-values";
-import {invalidPageNumbers, invalidPageSizes} from "../datasets/validation/validation-data";
+import {invalidPageNumbers, invalidPageSizes} from "../datasets/validation/query-validation-data";
 import {postsQueryRepository} from "../../src/features/posts/repositories/posts.query-repository";
 
 describe('tests for /posts', () => {
@@ -268,7 +268,7 @@ describe('tests for /posts', () => {
         });
 
         // bad sort field
-        it(`should return unordered posts if sort field doesn't exist`, async () => {
+        it(`should return posts ordered by _id if sort field doesn't exist`, async () => {
             const expectedPosts = initialDbPosts.slice(1);
             const expected = await createPostsPaginator(
                 expectedPosts,
