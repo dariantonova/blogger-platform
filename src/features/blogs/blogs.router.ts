@@ -11,6 +11,11 @@ import {
     pageNumberQueryParamValidator,
     pageSizeQueryParamValidator
 } from "../../validation/query-params-validators";
+import {
+    contentFieldValidator,
+    shortDescriptionFieldValidator,
+    titleFieldValidator
+} from "../../validation/field-validators/posts-field-validators";
 
 const router = Router();
 
@@ -40,6 +45,13 @@ router.put('/:id',
 router.get('/:blogId/posts',
     pageNumberQueryParamValidator,
     pageSizeQueryParamValidator,
-    blogsController.getPostsOfBlog);
+    blogsController.getBlogPosts);
+router.post('/:blogId/posts',
+    authorizationMiddleware,
+    titleFieldValidator,
+    shortDescriptionFieldValidator,
+    contentFieldValidator,
+    errorsResultMiddleware,
+    blogsController.createBlogPost);
 
 export { router as blogsRouter };

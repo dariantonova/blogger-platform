@@ -4,6 +4,8 @@ import {HTTP_STATUSES} from "../../src/utils";
 import {BlogViewModel} from "../../src/features/blogs/models/BlogViewModel";
 import {blogsCollection} from "../../src/db/db";
 import {VALID_AUTH} from "../datasets/authorization-data";
+import {postTestManager} from "./post-test-manager";
+import {PostViewModel} from "../../src/features/posts/models/PostViewModel";
 
 export const blogTestManager = {
     async deleteBlog(blogId: string, expectedStatusCode: number, auth: string = VALID_AUTH) {
@@ -58,6 +60,21 @@ export const blogTestManager = {
                 ...dbBlogBeforeUpdate,
                 ...data,
             });
+        }
+
+        return response;
+    },
+    async createBlogPost(blogId: string, data: any, expectedStatusCode: number, auth: string = VALID_AUTH) {
+        const response = await req
+            .post(SETTINGS.PATH.BLOGS + '/' + blogId + '/posts')
+            .set('Authorization', auth)
+            .send(data)
+            .expect(expectedStatusCode);
+
+        if (expectedStatusCode === HTTP_STATUSES.CREATED_201) {
+            const createdPost: PostViewModel = response.body;
+            const input = { ...data, blogId };
+            await postTestManager.verifyCreatedPost(input, createdPost);
         }
 
         return response;

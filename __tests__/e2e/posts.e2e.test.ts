@@ -969,10 +969,10 @@ describe('tests for /posts', () => {
         // authorization
         it('should forbid creating posts for non-admin users', async () => {
             const data: CreatePostInputModel = {
-                title: 'post 1',
-                shortDescription: 'superpost 1',
-                content: 'content of superpost 1',
-                blogId: initialDbBlogs[1].id,
+                title: validPostFieldInput.title,
+                shortDescription: validPostFieldInput.shortDescription,
+                content: validPostFieldInput.content,
+                blogId: validBlogIdInput,
             };
 
             // no auth

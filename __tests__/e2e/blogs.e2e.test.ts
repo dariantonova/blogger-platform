@@ -15,6 +15,8 @@ import {createBlogsPaginator} from "../../src/features/blogs/blogs.controller";
 import {DEFAULT_QUERY_VALUES} from "../../src/helpers/query-params-values";
 import {invalidPageNumbers, invalidPageSizes} from "../datasets/validation/validation-data";
 import {createPostsPaginator} from "../../src/features/posts/posts.controller";
+import {validPostFieldInput} from "../datasets/validation/posts-validation-data";
+import {CreateBlogPostInputModel} from "../../src/features/blogs/models/CreateBlogPostInputModel";
 
 describe('tests for /blogs', () => {
     let server: MongoMemoryServer;
@@ -1739,7 +1741,7 @@ describe('tests for /blogs', () => {
         });
     });
 
-    describe('get posts of blog', () => {
+    describe('get blog posts', () => {
         let initialDbBlogs: BlogDBType[] = [
             {
                 id: '1',
@@ -2474,5 +2476,429 @@ describe('tests for /blogs', () => {
                         + '?pageSize=' + pageSize)
                     .expect(HTTP_STATUSES.OK_200, expected);
             });
+    });
+
+    describe('create blog post', () => {
+        let initialDbBlogs: BlogDBType[];
+        let validBlogIdInput: string;
+
+        beforeAll(async () => {
+            initialDbBlogs =  [
+                {
+                    id: '1',
+                    name: 'blog 1',
+                    description: 'superblog 1',
+                    websiteUrl: 'https://superblog.com/1',
+                    isDeleted: false,
+                    createdAt: '2024-12-15T05:32:26.882Z',
+                    isMembership: false,
+                },
+                {
+                    id: '2',
+                    name: 'blog 2',
+                    description: 'superblog 2',
+                    websiteUrl: 'https://superblog.com/2',
+                    isDeleted: false,
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                    isMembership: false,
+                },
+                {
+                    id: '3',
+                    name: 'blog 3',
+                    description: 'superblog 3',
+                    websiteUrl: 'https://superblog.com/3',
+                    isDeleted: true,
+                    createdAt: '2024-12-17T05:32:26.882Z',
+                    isMembership: false,
+                },
+            ];
+
+            await setDb({ blogs: initialDbBlogs });
+
+            validBlogIdInput = initialDbBlogs[0].id;
+        });
+
+        afterAll(async () => {
+            await req
+                .delete(SETTINGS.PATH.TESTING + '/all-data');
+        });
+
+        // authorization
+        it('should forbid creating posts for non-admin users', async () => {
+            const data: CreateBlogPostInputModel = {
+                title: validPostFieldInput.title,
+                shortDescription: validPostFieldInput.shortDescription,
+                content: validPostFieldInput.content,
+            };
+
+            const blogId = validBlogIdInput;
+
+            // no auth
+            await req
+                .post(SETTINGS.PATH.BLOGS + '/' + blogId + '/posts')
+                .send(data)
+                .expect(HTTP_STATUSES.UNAUTHORIZED_401);
+
+            for (const invalidAuthValue of invalidAuthValues) {
+                await blogTestManager.createBlogPost(blogId, data,
+                    HTTP_STATUSES.UNAUTHORIZED_401, invalidAuthValue);
+            }
+
+            expect(await postsCollection.find({}).toArray()).toEqual([]);
+        });
+
+        // validation
+        it(`shouldn't create post of non-existing blog`, async () => {
+            const data: CreateBlogPostInputModel = {
+                title: validPostFieldInput.title,
+                shortDescription: validPostFieldInput.shortDescription,
+                content: validPostFieldInput.content,
+            };
+
+            await blogTestManager.createBlogPost('-100', data,
+                HTTP_STATUSES.NOT_FOUND_404);
+
+            // deleted
+            await blogTestManager.createBlogPost(initialDbBlogs[2].id, data,
+                HTTP_STATUSES.NOT_FOUND_404);
+        });
+
+        it(`shouldn't create post if required fields are missing`, async () => {
+            const blogId = validBlogIdInput;
+
+            const data1 = {
+                shortDescription: validPostFieldInput.shortDescription,
+                content: validPostFieldInput.content,
+            };
+
+            const response1 = await blogTestManager.createBlogPost(blogId, data1,
+                HTTP_STATUSES.BAD_REQUEST_400);
+            expect(response1.body).toEqual({
+                errorsMessages: [
+                    {
+                        field: 'title',
+                        message: 'Title is required',
+                    }
+                ],
+            });
+
+            const data2 = {
+                title: validPostFieldInput.title,
+                content: validPostFieldInput.content,
+            };
+
+            const response2 = await blogTestManager.createBlogPost(blogId, data2,
+                HTTP_STATUSES.BAD_REQUEST_400);
+            expect(response2.body).toEqual({
+                errorsMessages: [
+                    {
+                        field: 'shortDescription',
+                        message: 'Short description is required',
+                    }
+                ],
+            });
+
+            const data3 = {
+                title: validPostFieldInput.title,
+                shortDescription: validPostFieldInput.shortDescription,
+            };
+
+            const response3 = await blogTestManager.createBlogPost(blogId, data3,
+                HTTP_STATUSES.BAD_REQUEST_400);
+            expect(response3.body).toEqual({
+                errorsMessages: [
+                    {
+                        field: 'content',
+                        message: 'Content is required',
+                    }
+                ],
+            });
+
+            expect(await postsCollection.find({}).toArray()).toEqual([]);
+        });
+
+        it(`shouldn't create post if title is invalid`, async () => {
+            const blogId = validBlogIdInput;
+
+            const data1 = {
+                title: 24,
+                shortDescription: validPostFieldInput.shortDescription,
+                content: validPostFieldInput.content,
+            };
+
+            const response1 = await blogTestManager.createBlogPost(blogId, data1,
+                HTTP_STATUSES.BAD_REQUEST_400);
+            expect(response1.body).toEqual({
+                errorsMessages: [
+                    {
+                        field: 'title',
+                        message: 'Title must be a string',
+                    }
+                ],
+            });
+
+            const data2 = {
+                title: '',
+                shortDescription: validPostFieldInput.shortDescription,
+                content: validPostFieldInput.content,
+            };
+
+            const response2 = await blogTestManager.createBlogPost(blogId, data2,
+                HTTP_STATUSES.BAD_REQUEST_400);
+            expect(response2.body).toEqual({
+                errorsMessages: [
+                    {
+                        field: 'title',
+                        message: 'Title must not be empty',
+                    }
+                ],
+            });
+
+            const data3 = {
+                title: '  ',
+                shortDescription: validPostFieldInput.shortDescription,
+                content: validPostFieldInput.content,
+            };
+
+            const response3 = await blogTestManager.createBlogPost(blogId, data3,
+                HTTP_STATUSES.BAD_REQUEST_400);
+            expect(response3.body).toEqual({
+                errorsMessages: [
+                    {
+                        field: 'title',
+                        message: 'Title must not be empty',
+                    }
+                ],
+            });
+
+            const data4 = {
+                title: 'a'.repeat(31),
+                shortDescription: validPostFieldInput.shortDescription,
+                content: validPostFieldInput.content,
+            };
+
+            const response4 = await blogTestManager.createBlogPost(blogId, data4,
+                HTTP_STATUSES.BAD_REQUEST_400);
+            expect(response4.body).toEqual({
+                errorsMessages: [
+                    {
+                        field: 'title',
+                        message: 'Title length must be between 1 and 30 symbols',
+                    }
+                ],
+            });
+
+            expect(await postsCollection.find({}).toArray()).toEqual([]);
+        });
+
+        it(`shouldn't create post if short description is invalid`, async () => {
+            const blogId = validBlogIdInput;
+
+            const data1 = {
+                title: validPostFieldInput.title,
+                shortDescription: 24,
+                content: validPostFieldInput.content,
+            };
+
+            const response1 = await blogTestManager.createBlogPost(blogId, data1,
+                HTTP_STATUSES.BAD_REQUEST_400);
+            expect(response1.body).toEqual({
+                errorsMessages: [
+                    {
+                        field: 'shortDescription',
+                        message: 'Short description must be a string',
+                    }
+                ],
+            });
+
+            const data2 = {
+                title: validPostFieldInput.title,
+                shortDescription: '',
+                content: validPostFieldInput.content,
+            };
+
+            const response2 = await blogTestManager.createBlogPost(blogId, data2,
+                HTTP_STATUSES.BAD_REQUEST_400);
+            expect(response2.body).toEqual({
+                errorsMessages: [
+                    {
+                        field: 'shortDescription',
+                        message: 'Short description must not be empty',
+                    }
+                ],
+            });
+
+            const data3 = {
+                title: validPostFieldInput.title,
+                shortDescription: '  ',
+                content: validPostFieldInput.content,
+            };
+
+            const response3 = await blogTestManager.createBlogPost(blogId, data3,
+                HTTP_STATUSES.BAD_REQUEST_400);
+            expect(response3.body).toEqual({
+                errorsMessages: [
+                    {
+                        field: 'shortDescription',
+                        message: 'Short description must not be empty',
+                    }
+                ],
+            });
+
+            const data4 = {
+                title: validPostFieldInput.title,
+                shortDescription: 'a'.repeat(101),
+                content: validPostFieldInput.content,
+            };
+
+            const response4 = await blogTestManager.createBlogPost(blogId, data4,
+                HTTP_STATUSES.BAD_REQUEST_400);
+            expect(response4.body).toEqual({
+                errorsMessages: [
+                    {
+                        field: 'shortDescription',
+                        message: 'Short description length must be between 1 and 100 symbols',
+                    }
+                ],
+            });
+
+            expect(await postsCollection.find({}).toArray()).toEqual([]);
+        });
+
+        it(`shouldn't create post if content is invalid`, async () => {
+            const blogId = validBlogIdInput;
+
+            const data1 = {
+                title: validPostFieldInput.title,
+                shortDescription: validPostFieldInput.shortDescription,
+                content: 24,
+            };
+
+            const response1 = await blogTestManager.createBlogPost(blogId, data1,
+                HTTP_STATUSES.BAD_REQUEST_400);
+            expect(response1.body).toEqual({
+                errorsMessages: [
+                    {
+                        field: 'content',
+                        message: 'Content must be a string',
+                    }
+                ],
+            });
+
+            const data2 = {
+                title: validPostFieldInput.title,
+                shortDescription: validPostFieldInput.shortDescription,
+                content: '',
+            };
+
+            const response2 = await blogTestManager.createBlogPost(blogId, data2,
+                HTTP_STATUSES.BAD_REQUEST_400);
+            expect(response2.body).toEqual({
+                errorsMessages: [
+                    {
+                        field: 'content',
+                        message: 'Content must not be empty',
+                    }
+                ],
+            });
+
+            const data3 = {
+                title: validPostFieldInput.title,
+                shortDescription: validPostFieldInput.shortDescription,
+                content: '  ',
+            };
+
+            const response3 = await blogTestManager.createBlogPost(blogId, data3,
+                HTTP_STATUSES.BAD_REQUEST_400);
+            expect(response3.body).toEqual({
+                errorsMessages: [
+                    {
+                        field: 'content',
+                        message: 'Content must not be empty',
+                    }
+                ],
+            });
+
+            const data4 = {
+                title: validPostFieldInput.title,
+                shortDescription: validPostFieldInput.shortDescription,
+                content: 'a'.repeat(1001),
+            };
+
+            const response4 = await blogTestManager.createBlogPost(blogId, data4,
+                HTTP_STATUSES.BAD_REQUEST_400);
+            expect(response4.body).toEqual({
+                errorsMessages: [
+                    {
+                        field: 'content',
+                        message: 'Content length must be between 1 and 1000 symbols',
+                    }
+                ],
+            });
+
+            expect(await postsCollection.find({}).toArray()).toEqual([]);
+        });
+
+        it(`shouldn't create post if multiple fields are invalid`, async () => {
+            const blogId = validBlogIdInput;
+
+            const data = {
+                title: 'a'.repeat(31),
+                shortDescription: '  ',
+            };
+
+            const response = await blogTestManager.createBlogPost(blogId, data,
+                HTTP_STATUSES.BAD_REQUEST_400);
+            expect(response.body).toEqual({
+                errorsMessages: expect.arrayContaining([
+                    { field: 'title', message: 'Title length must be between 1 and 30 symbols' },
+                    { field: 'shortDescription', message: 'Short description must not be empty' },
+                    { field: 'content', message: 'Content is required' },
+                ]),
+            });
+
+            expect(await postsCollection.find({}).toArray()).toEqual([]);
+        });
+
+        // correct input
+        it('should create post if input data is correct', async () => {
+            const createBlogData: CreateBlogInputModel = {
+                name: 'blog 51',
+                description: 'superblog 51',
+                websiteUrl: 'https://superblog.com/51',
+            }
+
+            const createBlogResponse = await blogTestManager.createBlog(createBlogData,
+                HTTP_STATUSES.CREATED_201);
+            const createdBlog = createBlogResponse.body;
+
+            const createPostData: CreateBlogPostInputModel = {
+                title: 'post 1',
+                shortDescription: 'superpost 1',
+                content: 'content of superpost 1',
+            };
+
+            await blogTestManager.createBlogPost(createdBlog.id, createPostData,
+                HTTP_STATUSES.CREATED_201);
+
+            const dbPosts = await postsCollection.find({}).toArray();
+            expect(dbPosts.length).toBe(1);
+        });
+
+        it('should create one more post', async () => {
+            const createPostData: CreateBlogPostInputModel = {
+                title: 'post 2',
+                shortDescription: 'superpost 2',
+                content: 'content of superpost 2',
+            };
+
+            const blogId = initialDbBlogs[0].id;
+
+            await blogTestManager.createBlogPost(blogId, createPostData,
+                HTTP_STATUSES.CREATED_201);
+
+            const dbPosts = await postsCollection.find({}).toArray();
+            expect(dbPosts.length).toBe(2);
+        });
     });
 });

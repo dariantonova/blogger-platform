@@ -3,7 +3,8 @@ import {
     Paginator,
     RequestWithBody,
     RequestWithParams,
-    RequestWithParamsAndBody, RequestWithParamsAndQuery,
+    RequestWithParamsAndBody,
+    RequestWithParamsAndQuery,
     RequestWithQuery
 } from "../../types";
 import {BlogViewModel} from "./models/BlogViewModel";
@@ -19,9 +20,11 @@ import {getBlogsQueryParamsValues, getPostsQueryParamsValues} from "../../helper
 import {validationResult} from "express-validator";
 import {QueryPostsModel} from "../posts/models/QueryPostsModel";
 import {PostViewModel} from "../posts/models/PostViewModel";
-import {URIParamsBlogIdOfPostModel} from "./models/URIParamsBlogIdOfPostModel";
+import {URIParamsPostBlogIdModel} from "./models/URIParamsPostBlogIdModel";
 import {createPostsPaginator} from "../posts/posts.controller";
 import {postsQueryRepository} from "../posts/repositories/posts.query-repository";
+import {postsService} from "../posts/posts.service";
+import {CreateBlogPostInputModel} from "./models/CreateBlogPostInputModel";
 
 export const createBlogsPaginator = (items: BlogDBType[], page: number, pageSize: number,
                                      pagesCount: number, totalCount: number): Paginator<BlogViewModel> => {
@@ -110,7 +113,7 @@ export const blogsController = {
 
         res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
     },
-    getPostsOfBlog: async (req: RequestWithParamsAndQuery<URIParamsBlogIdOfPostModel, QueryPostsModel>,
+    getBlogPosts: async (req: RequestWithParamsAndQuery<URIParamsPostBlogIdModel, QueryPostsModel>,
                          res: Response<Paginator<PostViewModel>>) => {
         const validationErrors = validationResult(req);
         if (!validationErrors.isEmpty()) {
@@ -122,8 +125,8 @@ export const blogsController = {
         }
 
         const blogId = req.params.blogId;
-        const isBlogFound = await blogsQueryRepository.findBlogById(blogId);
-        if (!isBlogFound) {
+        const foundBlog = await blogsQueryRepository.findBlogById(blogId);
+        if (!foundBlog) {
             res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
             return;
         }
@@ -146,5 +149,23 @@ export const blogsController = {
         );
 
         res.json(output);
+    },
+    createBlogPost: async (req: RequestWithParamsAndBody<URIParamsPostBlogIdModel, CreateBlogPostInputModel>,
+                             res: Response<PostViewModel>) => {
+        const blogId = req.params.blogId;
+        const foundBlog = await blogsQueryRepository.findBlogById(blogId);
+        if (!foundBlog) {
+            res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
+            return;
+        }
+
+        const createdPost = await postsService.createPost(
+            req.body.title, req.body.shortDescription, req.body.content, blogId
+        );
+
+        const output = await postsQueryRepository.mapToOutput(createdPost);
+        res
+            .status(HTTP_STATUSES.CREATED_201)
+            .json(output);
     },
 };

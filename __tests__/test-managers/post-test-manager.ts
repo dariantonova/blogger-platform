@@ -4,6 +4,7 @@ import {HTTP_STATUSES} from "../../src/utils";
 import {PostViewModel} from "../../src/features/posts/models/PostViewModel";
 import {blogsCollection, postsCollection} from "../../src/db/db";
 import {VALID_AUTH} from "../datasets/authorization-data";
+import {CreatePostInputModel} from "../../src/features/posts/models/CreatePostInputModel";
 
 export const postTestManager = {
     async deletePost(postId: string, expectedStatusCode: number, auth: string = VALID_AUTH) {
@@ -21,35 +22,38 @@ export const postTestManager = {
 
         if (expectedStatusCode === HTTP_STATUSES.CREATED_201) {
             const createdPost: PostViewModel = response.body;
-            const dbRelatedBlog = await blogsCollection
-                .findOne({ id: createdPost.blogId }, { projection: { _id: 0 } });
-
-            expect(createdPost).toEqual({
-                id: expect.any(String),
-                title: data.title,
-                shortDescription: data.shortDescription,
-                content: data.content,
-                blogId: data.blogId,
-                blogName: dbRelatedBlog?.name || '',
-                createdAt: expect.any(String),
-            });
-
-            expect(isNaN(new Date(createdPost.createdAt).getTime())).toBe(false);
-
-            const dbCreatedPost = await postsCollection
-                .findOne({ id: createdPost.id }, { projection: { _id: 0 } });
-            expect(dbCreatedPost).toEqual({
-                id: createdPost.id,
-                title: createdPost.title,
-                shortDescription: createdPost.shortDescription,
-                content: createdPost.content,
-                blogId: createdPost.blogId,
-                createdAt: createdPost.createdAt,
-                isDeleted: false,
-            });
+            await this.verifyCreatedPost(data, createdPost);
         }
 
         return response;
+    },
+    async verifyCreatedPost(input: CreatePostInputModel, createdPost: PostViewModel) {
+        const dbRelatedBlog = await blogsCollection
+            .findOne({ id: createdPost.blogId }, { projection: { _id: 0 } });
+
+        expect(createdPost).toEqual({
+            id: expect.any(String),
+            title: input.title,
+            shortDescription: input.shortDescription,
+            content: input.content,
+            blogId: input.blogId,
+            blogName: dbRelatedBlog?.name || '',
+            createdAt: expect.any(String),
+        });
+
+        expect(isNaN(new Date(createdPost.createdAt).getTime())).toBe(false);
+
+        const dbCreatedPost = await postsCollection
+            .findOne({ id: createdPost.id }, { projection: { _id: 0 } });
+        expect(dbCreatedPost).toEqual({
+            id: createdPost.id,
+            title: createdPost.title,
+            shortDescription: createdPost.shortDescription,
+            content: createdPost.content,
+            blogId: createdPost.blogId,
+            createdAt: createdPost.createdAt,
+            isDeleted: false,
+        });
     },
     async updatePost(postId: string, data: any, expectedStatusCode: number, auth: string = VALID_AUTH) {
         const dbPostBeforeUpdate = await postsCollection
