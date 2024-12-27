@@ -88,6 +88,10 @@ export const postsController = {
         const createdPost = await postsService.createPost(
             req.body.title, req.body.shortDescription, req.body.content, req.body.blogId
         );
+        if (!createdPost) {
+            res.sendStatus(HTTP_STATUSES.INTERNAL_SERVER_ERROR_500);
+            return;
+        }
 
         const postToSend = await postsQueryRepository.mapToOutput(createdPost);
         res

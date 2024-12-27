@@ -152,16 +152,13 @@ export const blogsController = {
     },
     createBlogPost: async (req: RequestWithParamsAndBody<URIParamsPostBlogIdModel, CreateBlogPostInputModel>,
                              res: Response<PostViewModel>) => {
-        const blogId = req.params.blogId;
-        const foundBlog = await blogsQueryRepository.findBlogById(blogId);
-        if (!foundBlog) {
+        const createdPost = await postsService.createPost(
+            req.body.title, req.body.shortDescription, req.body.content, req.params.blogId
+        );
+        if (!createdPost) {
             res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
             return;
         }
-
-        const createdPost = await postsService.createPost(
-            req.body.title, req.body.shortDescription, req.body.content, blogId
-        );
 
         const output = await postsQueryRepository.mapToOutput(createdPost);
         res

@@ -31,6 +31,7 @@ export type PostDBType = {
     shortDescription: string,
     content: string,
     blogId: string,
+    blogName: string,
     isDeleted: boolean,
     createdAt: string,
 };

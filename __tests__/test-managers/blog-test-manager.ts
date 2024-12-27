@@ -13,6 +13,12 @@ export const blogTestManager = {
             .delete(SETTINGS.PATH.BLOGS + '/' + blogId)
             .set('Authorization', auth)
             .expect(expectedStatusCode);
+
+        if (expectedStatusCode === HTTP_STATUSES.NO_CONTENT_204) {
+            const dbDeletedBlog = await blogsCollection
+                .findOne({ id: blogId, isDeleted: false });
+            expect(dbDeletedBlog).toEqual(null);
+        }
     },
     async createBlog(data: any, expectedStatusCode: number, auth: string = VALID_AUTH) {
         const response = await req

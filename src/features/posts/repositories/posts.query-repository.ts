@@ -1,7 +1,6 @@
 import {PostDBType, SortDirections} from "../../../types";
 import {postsCollection} from "../../../db/db";
 import {PostViewModel} from "../models/PostViewModel";
-import {blogsQueryRepository} from "../../blogs/repositories/blogs.query-repository";
 
 export const postsQueryRepository = {
     async findPosts(sortBy: string, sortDirection: SortDirections,
@@ -49,16 +48,13 @@ export const postsQueryRepository = {
         return postsCollection.countDocuments(filterObj);
     },
     async mapToOutput(dbPost: PostDBType): Promise<PostViewModel> {
-        const blog = await blogsQueryRepository.findBlogById(dbPost.blogId);
-        const blogName = blog?.name || '';
-
         return {
             id: dbPost.id,
             title: dbPost.title,
             shortDescription: dbPost.shortDescription,
             content: dbPost.content,
             blogId: dbPost.blogId,
-            blogName,
+            blogName: dbPost.blogName,
             createdAt: dbPost.createdAt,
         };
     },

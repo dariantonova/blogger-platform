@@ -12,6 +12,12 @@ export const postTestManager = {
             .delete(SETTINGS.PATH.POSTS + '/' + postId)
             .set('Authorization', auth)
             .expect(expectedStatusCode);
+
+        if (expectedStatusCode === HTTP_STATUSES.NO_CONTENT_204) {
+            const dbPostToDelete = await postsCollection
+                .findOne({ id: postId, isDeleted: false });
+            expect(dbPostToDelete).toEqual(null);
+        }
     },
     async createPost(data: any, expectedStatusCode: number, auth: string = VALID_AUTH) {
         const response = await req
@@ -51,6 +57,7 @@ export const postTestManager = {
             shortDescription: createdPost.shortDescription,
             content: createdPost.content,
             blogId: createdPost.blogId,
+            blogName: createdPost.blogName,
             createdAt: createdPost.createdAt,
             isDeleted: false,
         });
@@ -68,10 +75,21 @@ export const postTestManager = {
         if (expectedStatusCode === HTTP_STATUSES.NO_CONTENT_204) {
             const dbUpdatedPost = await postsCollection
                 .findOne({ id: postId }, { projection: { _id: 0 } });
+            if (!dbUpdatedPost) throw new Error('Updated post not found');
+
+            const dbCurrentRelatedBlog = await blogsCollection
+                .findOne({ id: dbUpdatedPost.blogId }, { projection: { _id: 0 } });
+            if (!dbCurrentRelatedBlog) throw new Error('Blog of updated post not found');
+
+            // duplicate fields
+            const additionalChanges = {
+                blogName: dbCurrentRelatedBlog.name,
+            };
 
             expect(dbUpdatedPost).toEqual({
                 ...dbPostBeforeUpdate,
                 ...data,
+                ...additionalChanges,
             });
         }
 

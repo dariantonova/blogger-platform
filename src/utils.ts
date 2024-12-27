@@ -6,6 +6,8 @@ export enum HTTP_STATUSES {
     BAD_REQUEST_400 = 400,
     UNAUTHORIZED_401 = 401,
     NOT_FOUND_404 = 404,
+
+    INTERNAL_SERVER_ERROR_500 = 500,
 }
 
 export const encodeToBase64 = (data: string) => {

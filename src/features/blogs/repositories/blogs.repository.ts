@@ -1,15 +1,10 @@
 import {BlogDBType} from "../../../types";
-import {blogsCollection, postsCollection} from "../../../db/db";
+import {blogsCollection} from "../../../db/db";
 
 export const blogsRepository = {
     async deleteBlog(id: string): Promise<boolean> {
         const updateBlogInfo = await blogsCollection.updateOne(
             { isDeleted: false, id: id },
-            { $set: { isDeleted: true } }
-        );
-
-        await postsCollection.updateMany(
-            { isDeleted: false, blogId: id },
             { $set: { isDeleted: true } }
         );
 

@@ -182,8 +182,8 @@ describe('tests for /blogs', () => {
                 {
                     id: '1',
                     name: 'a blog 1',
-                    description: 'superblog 1',
-                    websiteUrl: 'https://superblog.com/1',
+                    description: 'a superblog 1',
+                    websiteUrl: 'https://asuperblog.com/1',
                     isDeleted: true,
                     createdAt: '2024-12-16T05:32:26.882Z',
                     isMembership: false,
@@ -191,8 +191,8 @@ describe('tests for /blogs', () => {
                 {
                     id: '2',
                     name: 'b blog 2',
-                    description: 'superblog 2',
-                    websiteUrl: 'https://superblog.com/2',
+                    description: 'b superblog 2',
+                    websiteUrl: 'https://bsuperblog.com/2',
                     isDeleted: false,
                     createdAt: '2024-12-17T05:32:26.882Z',
                     isMembership: false,
@@ -200,8 +200,8 @@ describe('tests for /blogs', () => {
                 {
                     id: '3',
                     name: 'c neblog 3',
-                    description: 'superblog 3',
-                    websiteUrl: 'https://superblog.com/3',
+                    description: 'c superblog 3',
+                    websiteUrl: 'https://csuperblog.com/3',
                     isDeleted: false,
                     createdAt: '2024-12-18T05:32:26.882Z',
                     isMembership: false,
@@ -209,10 +209,10 @@ describe('tests for /blogs', () => {
                 {
                     id: '4',
                     name: 'a 4 neBlog',
-                    description: 'superblog 4',
-                    websiteUrl: 'https://superblog.com/4',
+                    description: 'a superblog 4',
+                    websiteUrl: 'https://asuperblog.com/4',
                     isDeleted: false,
-                    createdAt: '2024-12-15T05:32:26.882Z',
+                    createdAt: '2024-12-16T05:32:26.882Z',
                     isMembership: false,
                 },
             ];
@@ -279,6 +279,10 @@ describe('tests for /blogs', () => {
             await req
                 .get(SETTINGS.PATH.BLOGS + '?sortBy=name&sortDirection=desc')
                 .expect(HTTP_STATUSES.OK_200, expected);
+
+            await req
+                .get(SETTINGS.PATH.BLOGS + '?sortBy=name')
+                .expect(HTTP_STATUSES.OK_200, expected);
         });
 
         // name asc
@@ -294,6 +298,114 @@ describe('tests for /blogs', () => {
 
             await req
                 .get(SETTINGS.PATH.BLOGS + '?sortBy=name&sortDirection=asc')
+                .expect(HTTP_STATUSES.OK_200, expected);
+        });
+
+        // id desc
+        it('should return blogs sorted by id in desc order', async () => {
+            const expectedBlogs = [initialDbBlogs[3], initialDbBlogs[2], initialDbBlogs[1]];
+            const expected = createBlogsPaginator(
+                expectedBlogs,
+                DEFAULT_QUERY_VALUES.BLOGS.pageNumber,
+                DEFAULT_QUERY_VALUES.BLOGS.pageSize,
+                1,
+                expectedBlogs.length,
+            );
+
+            await req
+                .get(SETTINGS.PATH.BLOGS + '?sortBy=id&sortDirection=desc')
+                .expect(HTTP_STATUSES.OK_200, expected);
+
+            await req
+                .get(SETTINGS.PATH.BLOGS + '?sortBy=id')
+                .expect(HTTP_STATUSES.OK_200, expected);
+        });
+
+        // id asc
+        it('should return blogs sorted by id in asc order', async () => {
+            const expectedBlogs = [initialDbBlogs[1], initialDbBlogs[2], initialDbBlogs[3]];
+            const expected = createBlogsPaginator(
+                expectedBlogs,
+                DEFAULT_QUERY_VALUES.BLOGS.pageNumber,
+                DEFAULT_QUERY_VALUES.BLOGS.pageSize,
+                1,
+                expectedBlogs.length,
+            );
+
+            await req
+                .get(SETTINGS.PATH.BLOGS + '?sortBy=id&sortDirection=asc')
+                .expect(HTTP_STATUSES.OK_200, expected);
+        });
+
+        // description desc
+        it('should return blogs sorted by description in desc order', async () => {
+            const expectedBlogs = [initialDbBlogs[2], initialDbBlogs[1], initialDbBlogs[3]];
+            const expected = createBlogsPaginator(
+                expectedBlogs,
+                DEFAULT_QUERY_VALUES.BLOGS.pageNumber,
+                DEFAULT_QUERY_VALUES.BLOGS.pageSize,
+                1,
+                expectedBlogs.length,
+            );
+
+            await req
+                .get(SETTINGS.PATH.BLOGS + '?sortBy=description&sortDirection=desc')
+                .expect(HTTP_STATUSES.OK_200, expected);
+
+            await req
+                .get(SETTINGS.PATH.BLOGS + '?sortBy=description')
+                .expect(HTTP_STATUSES.OK_200, expected);
+        });
+
+        // description asc
+        it('should return blogs sorted by description in asc order', async () => {
+            const expectedBlogs = [initialDbBlogs[3], initialDbBlogs[1], initialDbBlogs[2]];
+            const expected = createBlogsPaginator(
+                expectedBlogs,
+                DEFAULT_QUERY_VALUES.BLOGS.pageNumber,
+                DEFAULT_QUERY_VALUES.BLOGS.pageSize,
+                1,
+                expectedBlogs.length,
+            );
+
+            await req
+                .get(SETTINGS.PATH.BLOGS + '?sortBy=description&sortDirection=asc')
+                .expect(HTTP_STATUSES.OK_200, expected);
+        });
+
+        // websiteUrl desc
+        it('should return blogs sorted by websiteUrl in desc order', async () => {
+            const expectedBlogs = [initialDbBlogs[2], initialDbBlogs[1], initialDbBlogs[3]];
+            const expected = createBlogsPaginator(
+                expectedBlogs,
+                DEFAULT_QUERY_VALUES.BLOGS.pageNumber,
+                DEFAULT_QUERY_VALUES.BLOGS.pageSize,
+                1,
+                expectedBlogs.length,
+            );
+
+            await req
+                .get(SETTINGS.PATH.BLOGS + '?sortBy=websiteUrl&sortDirection=desc')
+                .expect(HTTP_STATUSES.OK_200, expected);
+
+            await req
+                .get(SETTINGS.PATH.BLOGS + '?sortBy=websiteUrl')
+                .expect(HTTP_STATUSES.OK_200, expected);
+        });
+
+        // websiteUrl asc
+        it('should return blogs sorted by websiteUrl in asc order', async () => {
+            const expectedBlogs = [initialDbBlogs[3], initialDbBlogs[1], initialDbBlogs[2]];
+            const expected = createBlogsPaginator(
+                expectedBlogs,
+                DEFAULT_QUERY_VALUES.BLOGS.pageNumber,
+                DEFAULT_QUERY_VALUES.BLOGS.pageSize,
+                1,
+                expectedBlogs.length,
+            );
+
+            await req
+                .get(SETTINGS.PATH.BLOGS + '?sortBy=websiteUrl&sortDirection=asc')
                 .expect(HTTP_STATUSES.OK_200, expected);
         });
 
@@ -819,6 +931,7 @@ describe('tests for /blogs', () => {
                     shortDescription: 'superpost 1',
                     content: 'content of superpost 1',
                     blogId: '2',
+                    blogName: 'blog 2',
                     isDeleted: false,
                     createdAt: '2024-12-15T05:32:26.882Z',
                 },
@@ -828,6 +941,7 @@ describe('tests for /blogs', () => {
                     shortDescription: 'superpost 2',
                     content: 'content of superpost 2',
                     blogId: '1',
+                    blogName: 'blog 1',
                     isDeleted: false,
                     createdAt: '2024-12-16T05:32:26.882Z',
                 },
@@ -837,6 +951,7 @@ describe('tests for /blogs', () => {
                     shortDescription: 'superpost 3',
                     content: 'content of superpost 3',
                     blogId: '1',
+                    blogName: 'blog 1',
                     isDeleted: true,
                     createdAt: '2024-12-16T05:32:26.882Z',
                 },
@@ -846,6 +961,7 @@ describe('tests for /blogs', () => {
                     shortDescription: 'superpost 4',
                     content: 'content of superpost 4',
                     blogId: '1',
+                    blogName: 'blog 1',
                     isDeleted: false,
                     createdAt: '2024-12-16T05:32:26.882Z',
                 },
@@ -898,12 +1014,8 @@ describe('tests for /blogs', () => {
             await blogTestManager.deleteBlog(blogToDelete.id,
                 HTTP_STATUSES.NO_CONTENT_204);
 
-            const dbBlogToDelete = await blogsCollection
-                .findOne({ id: blogToDelete.id, isDeleted: false });
-            expect(dbBlogToDelete).toEqual(null);
-
             const dbRelatedPosts = await postsCollection
-                .find({ blogId: blogToDelete.id, isDeleted: false }).toArray() as PostDBType[];
+                .find({ blogId: blogToDelete.id, isDeleted: false }).toArray();
             expect(dbRelatedPosts).toEqual([]);
         });
     });
@@ -1296,6 +1408,7 @@ describe('tests for /blogs', () => {
 
     describe('update blog', () => {
         let initialDbBlogs: BlogDBType[];
+        let initialDbPosts: PostDBType[] = [];
 
         beforeAll(async () => {
             initialDbBlogs = [
@@ -1328,7 +1441,7 @@ describe('tests for /blogs', () => {
                 },
             ];
 
-            await setDb({ blogs: initialDbBlogs } );
+            await setDb({ blogs: initialDbBlogs, posts: initialDbPosts } );
         });
 
         afterAll(async () => {
@@ -1739,6 +1852,102 @@ describe('tests for /blogs', () => {
                 expect(dbOtherBlog).toEqual(otherBlog);
             }
         });
+
+        // related posts' blogName changes after blog's name is updated
+        it(`should update blogName of all related posts after blog's name is updated`,
+            async () => {
+            initialDbBlogs = [
+                    {
+                        id: '1',
+                        name: 'blog 1',
+                        description: 'superblog 1',
+                        websiteUrl: 'https://superblog.com/1',
+                        isDeleted: false,
+                        createdAt: '2024-12-15T05:32:26.882Z',
+                        isMembership: false,
+                    },
+                    {
+                        id: '2',
+                        name: 'blog 2',
+                        description: 'superblog 2',
+                        websiteUrl: 'https://superblog.com/2',
+                        isDeleted: false,
+                        createdAt: '2024-12-16T05:32:26.882Z',
+                        isMembership: false,
+                    },
+                    {
+                        id: '3',
+                        name: 'blog 3',
+                        description: 'superblog 3',
+                        websiteUrl: 'https://superblog.com/3',
+                        isDeleted: true,
+                        createdAt: '2024-12-17T05:32:26.882Z',
+                        isMembership: false,
+                    },
+                ];
+
+            initialDbPosts = [
+                {
+                    id: '1',
+                    title: 'post 1',
+                    shortDescription: 'superpost 1',
+                    content: 'content of superpost 1',
+                    blogId: '1',
+                    blogName: 'blog 1',
+                    isDeleted: true,
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                },
+                {
+                    id: '2',
+                    title: 'post 2',
+                    shortDescription: 'superpost 2',
+                    content: 'content of superpost 2',
+                    blogId: '2',
+                    blogName: 'blog 2',
+                    isDeleted: false,
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                },
+                {
+                    id: '3',
+                    title: 'post 3',
+                    shortDescription: 'superpost 3',
+                    content: 'content of superpost 3',
+                    blogId: '2',
+                    blogName: 'blog 2',
+                    isDeleted: true,
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                },
+                {
+                    id: '4',
+                    title: 'post 4',
+                    shortDescription: 'superpost 4',
+                    content: 'content of superpost 4',
+                    blogId: '2',
+                    blogName: 'blog 2',
+                    isDeleted: false,
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                },
+            ];
+
+            await setDb({ blogs: initialDbBlogs, posts: initialDbPosts });
+
+            const newBlogName = 'new blog name';
+            const blogToUpdate = initialDbBlogs[0];
+            const data: UpdateBlogInputModel = {
+                name: newBlogName,
+                description: blogToUpdate.description,
+                websiteUrl: blogToUpdate.websiteUrl,
+            };
+
+            await blogTestManager.updateBlog(blogToUpdate.id, data, HTTP_STATUSES.NO_CONTENT_204);
+
+            const dbRelatedPosts = await postsCollection
+                .find({ blogId: blogToUpdate.id, isDeleted: false }, { projection: { _id: 0 } })
+                .toArray() as PostDBType[];
+            for (const dbRelatedPost of dbRelatedPosts) {
+                expect(dbRelatedPost.blogName).toBe(newBlogName);
+            }
+        });
     });
 
     describe('get blog posts', () => {
@@ -1804,6 +2013,7 @@ describe('tests for /blogs', () => {
                     shortDescription: 'superpost 1',
                     content: 'content of superpost 1',
                     blogId: '2',
+                    blogName: 'blog 2',
                     isDeleted: true,
                     createdAt: '2024-12-16T05:32:26.882Z',
                 },
@@ -1813,6 +2023,7 @@ describe('tests for /blogs', () => {
                     shortDescription: 'superpost 2',
                     content: 'content of superpost 2',
                     blogId: '1',
+                    blogName: 'blog 1',
                     isDeleted: false,
                     createdAt: '2024-12-16T05:32:26.882Z',
                 },
@@ -1822,6 +2033,7 @@ describe('tests for /blogs', () => {
                     shortDescription: 'superpost 3',
                     content: 'content of superpost 3',
                     blogId: '3',
+                    blogName: 'blog 3',
                     isDeleted: true,
                     createdAt: '2024-12-16T05:32:26.882Z',
                 },
@@ -1831,6 +2043,7 @@ describe('tests for /blogs', () => {
                     shortDescription: 'superpost 4',
                     content: 'content of superpost 4',
                     blogId: '1',
+                    blogName: 'blog 1',
                     isDeleted: false,
                     createdAt: '2024-12-16T05:32:26.882Z',
                 },
@@ -1856,6 +2069,7 @@ describe('tests for /blogs', () => {
                     shortDescription: 'superpost 1',
                     content: 'content of superpost 1',
                     blogId: '2',
+                    blogName: 'blog 2',
                     isDeleted: false,
                     createdAt: '2024-12-16T05:32:26.882Z',
                 },
@@ -1865,6 +2079,7 @@ describe('tests for /blogs', () => {
                     shortDescription: 'superpost 2',
                     content: 'content of superpost 2',
                     blogId: '1',
+                    blogName: 'blog 1',
                     isDeleted: false,
                     createdAt: '2024-12-16T05:32:26.882Z',
                 },
@@ -1874,6 +2089,7 @@ describe('tests for /blogs', () => {
                     shortDescription: 'superpost 3',
                     content: 'content of superpost 3',
                     blogId: '1',
+                    blogName: 'blog 1',
                     isDeleted: true,
                     createdAt: '2024-12-16T05:32:26.882Z',
                 },
@@ -1883,6 +2099,7 @@ describe('tests for /blogs', () => {
                     shortDescription: 'superpost 4',
                     content: 'content of superpost 4',
                     blogId: '1',
+                    blogName: 'blog 1',
                     isDeleted: false,
                     createdAt: '2024-12-16T05:32:26.882Z',
                 },
@@ -1916,6 +2133,7 @@ describe('tests for /blogs', () => {
                     shortDescription: 'superpost 1',
                     content: 'content of superpost 1',
                     blogId: '2',
+                    blogName: 'blog 2',
                     isDeleted: false,
                     createdAt: '2024-12-16T05:32:26.882Z',
                 },
@@ -1925,6 +2143,7 @@ describe('tests for /blogs', () => {
                     shortDescription: 'superpost 2',
                     content: 'content of superpost 2',
                     blogId: '1',
+                    blogName: 'blog 1',
                     isDeleted: false,
                     createdAt: '2024-12-17T05:32:26.882Z',
                 },
@@ -1934,6 +2153,7 @@ describe('tests for /blogs', () => {
                     shortDescription: 'superpost 3',
                     content: 'content of superpost 3',
                     blogId: '1',
+                    blogName: 'blog 1',
                     isDeleted: false,
                     createdAt: '2024-12-18T05:32:26.882Z',
                 },
@@ -1943,6 +2163,7 @@ describe('tests for /blogs', () => {
                     shortDescription: 'superpost 4',
                     content: 'content of superpost 4',
                     blogId: '1',
+                    blogName: 'blog 1',
                     isDeleted: false,
                     createdAt: '2024-12-15T05:32:26.882Z',
                 },
@@ -1952,6 +2173,7 @@ describe('tests for /blogs', () => {
                     shortDescription: 'superpost 5',
                     content: 'content of superpost 5',
                     blogId: '1',
+                    blogName: 'blog 1',
                     isDeleted: true,
                     createdAt: '2024-12-15T05:32:26.882Z',
                 },
@@ -2045,6 +2267,7 @@ describe('tests for /blogs', () => {
                     shortDescription: 'superpost 1',
                     content: 'content of superpost 1',
                     blogId: '2',
+                    blogName: 'blog 2',
                     isDeleted: false,
                     createdAt: '2024-12-16T05:32:26.882Z',
                 },
@@ -2054,6 +2277,7 @@ describe('tests for /blogs', () => {
                     shortDescription: 'superpost 2',
                     content: 'content of superpost 2',
                     blogId: '1',
+                    blogName: 'blog 1',
                     isDeleted: false,
                     createdAt: '2024-12-16T05:32:26.882Z',
                 },
@@ -2063,6 +2287,7 @@ describe('tests for /blogs', () => {
                     shortDescription: 'superpost 3',
                     content: 'content of superpost 3',
                     blogId: '1',
+                    blogName: 'blog 1',
                     isDeleted: false,
                     createdAt: '2024-12-16T05:32:26.882Z',
                 },
@@ -2072,6 +2297,7 @@ describe('tests for /blogs', () => {
                     shortDescription: 'superpost 4',
                     content: 'content of superpost 4',
                     blogId: '1',
+                    blogName: 'blog 1',
                     isDeleted: false,
                     createdAt: '2024-12-16T05:32:26.882Z',
                 },
@@ -2081,6 +2307,7 @@ describe('tests for /blogs', () => {
                     shortDescription: 'superpost 5',
                     content: 'content of superpost 5',
                     blogId: '2',
+                    blogName: 'blog 2',
                     isDeleted: false,
                     createdAt: '2024-12-16T05:32:26.882Z',
                 },
@@ -2090,6 +2317,7 @@ describe('tests for /blogs', () => {
                     shortDescription: 'superpost 6',
                     content: 'content of superpost 6',
                     blogId: '1',
+                    blogName: 'blog 1',
                     isDeleted: false,
                     createdAt: '2024-12-16T05:32:26.882Z',
                 },
@@ -2099,6 +2327,7 @@ describe('tests for /blogs', () => {
                     shortDescription: 'superpost 7',
                     content: 'content of superpost 7',
                     blogId: '1',
+                    blogName: 'blog 1',
                     isDeleted: false,
                     createdAt: '2024-12-16T05:32:26.882Z',
                 },
@@ -2108,6 +2337,7 @@ describe('tests for /blogs', () => {
                     shortDescription: 'superpost 8',
                     content: 'content of superpost 8',
                     blogId: '1',
+                    blogName: 'blog 1',
                     isDeleted: false,
                     createdAt: '2024-12-16T05:32:26.882Z',
                 },
@@ -2117,6 +2347,7 @@ describe('tests for /blogs', () => {
                     shortDescription: 'superpost 9',
                     content: 'content of superpost 9',
                     blogId: '2',
+                    blogName: 'blog 2',
                     isDeleted: false,
                     createdAt: '2024-12-16T05:32:26.882Z',
                 },
@@ -2126,6 +2357,7 @@ describe('tests for /blogs', () => {
                     shortDescription: 'superpost 10',
                     content: 'content of superpost 10',
                     blogId: '1',
+                    blogName: 'blog 1',
                     isDeleted: false,
                     createdAt: '2024-12-16T05:32:26.882Z',
                 },
@@ -2135,6 +2367,7 @@ describe('tests for /blogs', () => {
                     shortDescription: 'superpost 11',
                     content: 'content of superpost 11',
                     blogId: '1',
+                    blogName: 'blog 1',
                     isDeleted: false,
                     createdAt: '2024-12-16T05:32:26.882Z',
                 },
@@ -2144,6 +2377,7 @@ describe('tests for /blogs', () => {
                     shortDescription: 'superpost 12',
                     content: 'content of superpost 12',
                     blogId: '1',
+                    blogName: 'blog 1',
                     isDeleted: false,
                     createdAt: '2024-12-16T05:32:26.882Z',
                 },
@@ -2153,6 +2387,7 @@ describe('tests for /blogs', () => {
                     shortDescription: 'superpost 13',
                     content: 'content of superpost 13',
                     blogId: '2',
+                    blogName: 'blog 2',
                     isDeleted: false,
                     createdAt: '2024-12-16T05:32:26.882Z',
                 },
@@ -2162,6 +2397,7 @@ describe('tests for /blogs', () => {
                     shortDescription: 'superpost 14',
                     content: 'content of superpost 14',
                     blogId: '1',
+                    blogName: 'blog 1',
                     isDeleted: false,
                     createdAt: '2024-12-16T05:32:26.882Z',
                 },
@@ -2171,6 +2407,7 @@ describe('tests for /blogs', () => {
                     shortDescription: 'superpost 15',
                     content: 'content of superpost 15',
                     blogId: '1',
+                    blogName: 'blog 1',
                     isDeleted: false,
                     createdAt: '2024-12-16T05:32:26.882Z',
                 },
@@ -2180,6 +2417,7 @@ describe('tests for /blogs', () => {
                     shortDescription: 'superpost 16',
                     content: 'content of superpost 16',
                     blogId: '1',
+                    blogName: 'blog 1',
                     isDeleted: false,
                     createdAt: '2024-12-16T05:32:26.882Z',
                 },
@@ -2189,6 +2427,7 @@ describe('tests for /blogs', () => {
                     shortDescription: 'superpost 17',
                     content: 'content of superpost 17',
                     blogId: '2',
+                    blogName: 'blog 2',
                     isDeleted: false,
                     createdAt: '2024-12-16T05:32:26.882Z',
                 },
@@ -2198,6 +2437,7 @@ describe('tests for /blogs', () => {
                     shortDescription: 'superpost 18',
                     content: 'content of superpost 18',
                     blogId: '1',
+                    blogName: 'blog 1',
                     isDeleted: false,
                     createdAt: '2024-12-16T05:32:26.882Z',
                 },
@@ -2207,6 +2447,7 @@ describe('tests for /blogs', () => {
                     shortDescription: 'superpost 19',
                     content: 'content of superpost 19',
                     blogId: '1',
+                    blogName: 'blog 1',
                     isDeleted: false,
                     createdAt: '2024-12-16T05:32:26.882Z',
                 },
@@ -2216,6 +2457,7 @@ describe('tests for /blogs', () => {
                     shortDescription: 'superpost 20',
                     content: 'content of superpost 20',
                     blogId: '1',
+                    blogName: 'blog 1',
                     isDeleted: false,
                     createdAt: '2024-12-16T05:32:26.882Z',
                 },
@@ -2225,6 +2467,7 @@ describe('tests for /blogs', () => {
                     shortDescription: 'superpost 21',
                     content: 'content of superpost 21',
                     blogId: '2',
+                    blogName: 'blog 2',
                     isDeleted: false,
                     createdAt: '2024-12-16T05:32:26.882Z',
                 },
@@ -2234,6 +2477,7 @@ describe('tests for /blogs', () => {
                     shortDescription: 'superpost 22',
                     content: 'content of superpost 22',
                     blogId: '1',
+                    blogName: 'blog 1',
                     isDeleted: false,
                     createdAt: '2024-12-16T05:32:26.882Z',
                 },
@@ -2243,6 +2487,7 @@ describe('tests for /blogs', () => {
                     shortDescription: 'superpost 23',
                     content: 'content of superpost 23',
                     blogId: '1',
+                    blogName: 'blog 1',
                     isDeleted: false,
                     createdAt: '2024-12-16T05:32:26.882Z',
                 },
@@ -2252,6 +2497,7 @@ describe('tests for /blogs', () => {
                     shortDescription: 'superpost 24',
                     content: 'content of superpost 24',
                     blogId: '1',
+                    blogName: 'blog 1',
                     isDeleted: false,
                     createdAt: '2024-12-16T05:32:26.882Z',
                 },
@@ -2261,6 +2507,7 @@ describe('tests for /blogs', () => {
                     shortDescription: 'superpost 25',
                     content: 'content of superpost 25',
                     blogId: '2',
+                    blogName: 'blog 2',
                     isDeleted: false,
                     createdAt: '2024-12-16T05:32:26.882Z',
                 },
@@ -2270,6 +2517,7 @@ describe('tests for /blogs', () => {
                     shortDescription: 'superpost 26',
                     content: 'content of superpost 26',
                     blogId: '1',
+                    blogName: 'blog 1',
                     isDeleted: false,
                     createdAt: '2024-12-16T05:32:26.882Z',
                 },
@@ -2279,6 +2527,7 @@ describe('tests for /blogs', () => {
                     shortDescription: 'superpost 27',
                     content: 'content of superpost 27',
                     blogId: '1',
+                    blogName: 'blog 1',
                     isDeleted: false,
                     createdAt: '2024-12-16T05:32:26.882Z',
                 },
@@ -2288,6 +2537,7 @@ describe('tests for /blogs', () => {
                     shortDescription: 'superpost 28',
                     content: 'content of superpost 28',
                     blogId: '1',
+                    blogName: 'blog 1',
                     isDeleted: false,
                     createdAt: '2024-12-16T05:32:26.882Z',
                 },
