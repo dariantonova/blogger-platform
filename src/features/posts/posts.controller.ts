@@ -113,16 +113,31 @@ export const postsController = {
             .json(createdPost);
     },
     updatePost: async (req: RequestWithParamsAndBody<URIParamsPostIdModel, UpdatePostInputModel>,
-                 res: Response) => {
-        const isUpdated = await postsService.updatePost(
-            req.params.id, req.body.title, req.body.shortDescription, req.body.content, req.body.blogId
-        );
+                 res: Response<APIErrorResult>) => {
+        try {
+            const isUpdated = await postsService.updatePost(
+                req.params.id, req.body.title, req.body.shortDescription, req.body.content, req.body.blogId
+            );
+            if (!isUpdated) {
+                res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
+                return;
+            }
 
-        if (!isUpdated) {
-            res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
-            return;
+            res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
         }
+        catch (err) {
+            const error: APIErrorResult = {
+                errorsMessages: [
+                    {
+                        field: 'blogId',
+                        message: 'Blog does not exist'
+                    }
+                ],
+            };
 
-        res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
+            res
+                .status(HTTP_STATUSES.BAD_REQUEST_400)
+                .json(error);
+        }
     },
 };

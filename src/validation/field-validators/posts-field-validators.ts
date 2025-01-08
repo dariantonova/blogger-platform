@@ -26,4 +26,4 @@ export const blogIdFieldValidator = body('blogId')
     .custom(async (value) => {
         const blog = await blogsQueryRepository.findBlogById(value);
         return blog ? Promise.resolve() : Promise.reject();
-    }).withMessage('Blog id does not exist');
+    }).withMessage('Blog does not exist');

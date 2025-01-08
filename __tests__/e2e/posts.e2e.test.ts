@@ -1604,7 +1604,7 @@ describe('tests for /posts', () => {
                 errorsMessages: [
                     {
                         field: 'blogId',
-                        message: 'Blog id does not exist',
+                        message: 'Blog does not exist',
                     }
                 ],
             });
@@ -1626,7 +1626,7 @@ describe('tests for /posts', () => {
                     { field: 'title', message: 'Title length must be between 1 and 30 symbols' },
                     { field: 'shortDescription', message: 'Short description must not be empty' },
                     { field: 'content', message: 'Content is required' },
-                    { field: 'blogId', message: 'Blog id does not exist' },
+                    { field: 'blogId', message: 'Blog does not exist' },
                 ]),
             });
 
@@ -2177,7 +2177,7 @@ describe('tests for /posts', () => {
                 errorsMessages: [
                     {
                         field: 'blogId',
-                        message: 'Blog id does not exist',
+                        message: 'Blog does not exist',
                     }
                 ],
             });
@@ -2203,7 +2203,7 @@ describe('tests for /posts', () => {
                     { field: 'title', message: 'Title length must be between 1 and 30 symbols' },
                     { field: 'shortDescription', message: 'Short description must not be empty' },
                     { field: 'content', message: 'Content is required' },
-                    { field: 'blogId', message: 'Blog id does not exist' },
+                    { field: 'blogId', message: 'Blog does not exist' },
                 ]),
             });
 
