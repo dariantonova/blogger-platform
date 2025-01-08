@@ -1,6 +1,7 @@
 import {Response} from 'express';
 import {PostViewModel} from "./models/PostViewModel";
 import {
+    APIErrorResult,
     Paginator,
     PostDBType,
     RequestWithBody,
@@ -81,19 +82,35 @@ export const postsController = {
         res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
     },
     createPost: async (req: RequestWithBody<CreatePostInputModel>,
-                 res: Response<PostViewModel>) => {
-        const createdPost = await postsService.createPost(
+                 res: Response<PostViewModel | APIErrorResult>) => {
+        const createdPostId = await postsService.createPost(
             req.body.title, req.body.shortDescription, req.body.content, req.body.blogId
         );
+        if (!createdPostId) {
+            const error: APIErrorResult = {
+                errorsMessages: [
+                    {
+                        message: 'Blog id does not exist',
+                        field: 'blogId',
+                    }
+                ],
+            };
+
+            res
+                .status(HTTP_STATUSES.BAD_REQUEST_400)
+                .json(error);
+            return;
+        }
+
+        const createdPost = await postsQueryRepository.findPostById(createdPostId);
         if (!createdPost) {
             res.sendStatus(HTTP_STATUSES.INTERNAL_SERVER_ERROR_500);
             return;
         }
 
-        const postToSend = await postsQueryRepository._mapToOutput(createdPost);
         res
             .status(HTTP_STATUSES.CREATED_201)
-            .json(postToSend);
+            .json(createdPost);
     },
     updatePost: async (req: RequestWithParamsAndBody<URIParamsPostIdModel, UpdatePostInputModel>,
                  res: Response) => {

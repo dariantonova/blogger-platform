@@ -1,13 +1,14 @@
 import {PostDBType} from "../../types";
 import {postsRepository} from "./repositories/posts.repository";
 import {blogsQueryRepository} from "../blogs/repositories/blogs.query.repository";
+import {blogsRepository} from "../blogs/repositories/blogs.repository";
 
 export const postsService = {
     async deletePost(id: string): Promise<boolean> {
         return postsRepository.deletePost(id);
     },
-    async createPost(title: string, shortDescription: string, content: string, blogId: string): Promise<PostDBType | null> {
-        const blog = await blogsQueryRepository.findBlogById(blogId);
+    async createPost(title: string, shortDescription: string, content: string, blogId: string): Promise<string | null> {
+        const blog = await blogsRepository.findBlogById(blogId);
         if (!blog) {
             return null;
         }
@@ -23,7 +24,9 @@ export const postsService = {
             createdAt: new Date().toISOString(),
         };
 
-        return postsRepository.createPost(createdPost);
+        await postsRepository.createPost(createdPost);
+
+        return createdPost.id;
     },
     async updatePost(id: string, title: string, shortDescription: string,
                      content: string, blogId: string): Promise<boolean> {

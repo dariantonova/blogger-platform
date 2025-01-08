@@ -10,10 +10,8 @@ export const postsRepository = {
 
         return updatePostInfo.modifiedCount === 1;
     },
-    async createPost(createdPost: PostDBType): Promise<PostDBType> {
+    async createPost(createdPost: PostDBType) {
         await postsCollection.insertOne(createdPost);
-
-        return createdPost;
     },
     async updatePost(id: string, title: string, shortDescription: string,
                      content: string, blogId: string, blogName: string): Promise<boolean> {

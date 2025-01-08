@@ -24,4 +24,9 @@ export const blogsRepository = {
     async deleteAllBlogs() {
         await blogsCollection.drop();
     },
+    async findBlogById(id: string): Promise<BlogDBType | null> {
+        const filterObj: any = { isDeleted: false, id: id };
+        return blogsCollection
+            .findOne(filterObj, { projection: { _id: 0 } });
+    },
 };
