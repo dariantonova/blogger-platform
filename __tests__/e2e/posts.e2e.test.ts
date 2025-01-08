@@ -1039,7 +1039,7 @@ describe('tests for /posts', () => {
         it('should return the second post', async () => {
             const postToGet = initialDbPosts[1];
 
-            const expectedData = await postsQueryRepository.mapToOutput(postToGet);
+            const expectedData = await postsQueryRepository._mapToOutput(postToGet);
             await req
                 .get(SETTINGS.PATH.POSTS + '/' + postToGet.id)
                 .expect(HTTP_STATUSES.OK_200, expectedData);

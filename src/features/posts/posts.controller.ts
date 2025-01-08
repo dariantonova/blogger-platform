@@ -21,7 +21,7 @@ import {validationResult} from "express-validator";
 export const createPostsPaginator = async (items: PostDBType[], page: number, pageSize: number,
                                      pagesCount: number, totalCount: number): Promise<Paginator<PostViewModel>> => {
     const itemsViewModels: PostViewModel[] = await Promise.all(
-        items.map(postsQueryRepository.mapToOutput)
+        items.map(postsQueryRepository._mapToOutput)
     );
 
     return {
@@ -45,21 +45,19 @@ export const postsController = {
 
         const validationErrors = validationResult(req);
         if (!validationErrors.isEmpty()) {
-            const output = await createPostsPaginator(
-                [], 0, 0, 0, 0
-            );
+            const output: Paginator<PostViewModel> = {
+                pagesCount: 0,
+                page: 0,
+                pageSize: 0,
+                totalCount: 0,
+                items: [],
+            };
             res.json(output);
             return;
         }
 
-        const foundPosts = await postsQueryRepository.findPosts(
+        const output = await postsQueryRepository.findPosts(
             sortBy, sortDirection, pageNumber, pageSize
-        );
-        const totalCount = await postsQueryRepository.countPosts();
-        const pagesCount = Math.ceil(totalCount / pageSize);
-
-        const output = await createPostsPaginator(
-            foundPosts, pageNumber, pageSize, pagesCount, totalCount
         );
 
         res.json(output);
@@ -71,8 +69,7 @@ export const postsController = {
             return;
         }
 
-        const postToSend = await postsQueryRepository.mapToOutput(foundPost);
-        res.json(postToSend);
+        res.json(foundPost);
     },
     deletePost: async (req: RequestWithParams<URIParamsPostIdModel>, res: Response) => {
         const isDeleted = await postsService.deletePost(req.params.id);
@@ -93,7 +90,7 @@ export const postsController = {
             return;
         }
 
-        const postToSend = await postsQueryRepository.mapToOutput(createdPost);
+        const postToSend = await postsQueryRepository._mapToOutput(createdPost);
         res
             .status(HTTP_STATUSES.CREATED_201)
             .json(postToSend);

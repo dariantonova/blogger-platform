@@ -164,7 +164,7 @@ export const blogsController = {
             return;
         }
 
-        const output = await postsQueryRepository.mapToOutput(createdPost);
+        const output = await postsQueryRepository._mapToOutput(createdPost);
         res
             .status(HTTP_STATUSES.CREATED_201)
             .json(output);
