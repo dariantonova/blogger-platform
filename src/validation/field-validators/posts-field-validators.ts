@@ -1,5 +1,5 @@
 import {body} from "express-validator";
-import {blogsQueryRepository} from "../../features/blogs/repositories/blogs.query-repository";
+import {blogsQueryRepository} from "../../features/blogs/repositories/blogs.query.repository";
 
 export const titleFieldValidator = body('title')
     .exists().withMessage('Title is required')

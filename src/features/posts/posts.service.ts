@@ -1,6 +1,6 @@
 import {PostDBType} from "../../types";
 import {postsRepository} from "./repositories/posts.repository";
-import {blogsQueryRepository} from "../blogs/repositories/blogs.query-repository";
+import {blogsQueryRepository} from "../blogs/repositories/blogs.query.repository";
 
 export const postsService = {
     async deletePost(id: string): Promise<boolean> {

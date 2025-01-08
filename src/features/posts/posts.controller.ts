@@ -14,7 +14,7 @@ import {CreatePostInputModel} from "./models/CreatePostInputModel";
 import {UpdatePostInputModel} from "./models/UpdatePostInputModel";
 import {postsService} from "./posts.service";
 import {QueryPostsModel} from "./models/QueryPostsModel";
-import {postsQueryRepository} from "./repositories/posts.query-repository";
+import {postsQueryRepository} from "./repositories/posts.query.repository";
 import {getPostsQueryParamsValues} from "../../helpers/query-params-values";
 import {validationResult} from "express-validator";
 

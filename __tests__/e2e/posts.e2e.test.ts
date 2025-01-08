@@ -14,7 +14,7 @@ import {validPostFieldInput} from "../datasets/validation/posts-validation-data"
 import {createPostsPaginator} from "../../src/features/posts/posts.controller";
 import {DEFAULT_QUERY_VALUES} from "../../src/helpers/query-params-values";
 import {invalidPageNumbers, invalidPageSizes} from "../datasets/validation/query-validation-data";
-import {postsQueryRepository} from "../../src/features/posts/repositories/posts.query-repository";
+import {postsQueryRepository} from "../../src/features/posts/repositories/posts.query.repository";
 
 describe('tests for /posts', () => {
     let server: MongoMemoryServer;

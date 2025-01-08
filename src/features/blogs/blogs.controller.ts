@@ -15,14 +15,14 @@ import {CreateBlogInputModel} from "./models/CreateBlogInputModel";
 import {UpdateBlogInputModel} from "./models/UpdateBlogInputModel";
 import {blogsService} from "./blogs.service";
 import {QueryBlogsModel} from "./models/QueryBlogsModel";
-import {blogsQueryRepository} from "./repositories/blogs.query-repository";
+import {blogsQueryRepository} from "./repositories/blogs.query.repository";
 import {getBlogsQueryParamsValues, getPostsQueryParamsValues} from "../../helpers/query-params-values";
 import {validationResult} from "express-validator";
 import {QueryPostsModel} from "../posts/models/QueryPostsModel";
 import {PostViewModel} from "../posts/models/PostViewModel";
 import {URIParamsPostBlogIdModel} from "./models/URIParamsPostBlogIdModel";
 import {createPostsPaginator} from "../posts/posts.controller";
-import {postsQueryRepository} from "../posts/repositories/posts.query-repository";
+import {postsQueryRepository} from "../posts/repositories/posts.query.repository";
 import {postsService} from "../posts/posts.service";
 import {CreateBlogPostInputModel} from "./models/CreateBlogPostInputModel";
 
