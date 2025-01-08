@@ -1,11 +1,24 @@
-import {BlogDBType, SortDirections} from "../../../types";
+import {BlogDBType, Paginator, SortDirections} from "../../../types";
 import {blogsCollection} from "../../../db/db";
 import {BlogViewModel} from "../models/BlogViewModel";
+
+const createBlogsPaginator = (items: BlogDBType[], page: number, pageSize: number,
+                              pagesCount: number, totalCount: number): Paginator<BlogViewModel> => {
+    const itemsViewModels: BlogViewModel[] = items.map(blogsQueryRepository._mapToOutput);
+
+    return {
+        pagesCount,
+        page,
+        pageSize,
+        totalCount,
+        items: itemsViewModels,
+    };
+};
 
 export const blogsQueryRepository = {
     async findBlogs(searchNameTerm: string | null,
                     sortBy: string, sortDirection: SortDirections,
-                    pageNumber: number, pageSize: number): Promise<BlogDBType[]> {
+                    pageNumber: number, pageSize: number): Promise<Paginator<BlogViewModel>> {
         const filterObj: any = { isDeleted: false };
 
         if (searchNameTerm) {
@@ -17,15 +30,25 @@ export const blogsQueryRepository = {
             _id: 1,
         };
 
-        return await blogsCollection
+        const foundBlogs = await blogsCollection
             .find(filterObj, { projection: { _id: 0 } })
             .sort(sortObj)
             .skip((pageNumber - 1) * pageSize)
             .limit(pageSize)
             .toArray() as BlogDBType[];
+        const totalCount = await this.countBlogs(searchNameTerm);
+        const pagesCount = Math.ceil(totalCount / pageSize);
+
+        return createBlogsPaginator(foundBlogs, pageNumber, pageSize, pagesCount, totalCount);
     },
-    async findBlogById(id: string): Promise<BlogDBType | null> {
-        return blogsCollection.findOne({ isDeleted: false, id: id }, { projection: { _id: 0 } });
+    async findBlogById(id: string): Promise<BlogViewModel | null> {
+        const foundBlog = await blogsCollection
+            .findOne({ isDeleted: false, id: id }, { projection: { _id: 0 } });
+        if (!foundBlog) {
+            return null;
+        }
+
+        return this._mapToOutput(foundBlog);
     },
     async countBlogs(searchNameTerm: string | null): Promise<number> {
         const filterObj: any = { isDeleted: false };
@@ -36,7 +59,7 @@ export const blogsQueryRepository = {
 
         return blogsCollection.countDocuments(filterObj);
     },
-    mapToOutput(dbBlog: BlogDBType): BlogViewModel {
+    _mapToOutput(dbBlog: BlogDBType): BlogViewModel {
         return {
             id: dbBlog.id,
             name: dbBlog.name,

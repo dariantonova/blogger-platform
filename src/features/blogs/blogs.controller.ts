@@ -28,7 +28,7 @@ import {CreateBlogPostInputModel} from "./models/CreateBlogPostInputModel";
 
 export const createBlogsPaginator = (items: BlogDBType[], page: number, pageSize: number,
                                      pagesCount: number, totalCount: number): Paginator<BlogViewModel> => {
-    const itemsViewModels: BlogViewModel[] = items.map(blogsQueryRepository.mapToOutput);
+    const itemsViewModels: BlogViewModel[] = items.map(blogsQueryRepository._mapToOutput);
 
     return {
         pagesCount,
@@ -44,9 +44,14 @@ export const blogsController = {
                      res: Response<Paginator<BlogViewModel>>) => {
         const validationErrors = validationResult(req);
         if (!validationErrors.isEmpty()) {
-            const output = createBlogsPaginator(
-                [], 0, 0, 0, 0
-            );
+            const output: Paginator<BlogViewModel> = {
+                pagesCount: 0,
+                page: 0,
+                pageSize: 0,
+                totalCount: 0,
+                items: [],
+            };
+
             res.json(output);
             return;
         }
@@ -59,14 +64,8 @@ export const blogsController = {
             pageNumber
         } = getBlogsQueryParamsValues(req);
 
-        const foundBlogs =  await blogsQueryRepository.findBlogs(
+        const output = await blogsQueryRepository.findBlogs(
             searchNameTerm, sortBy, sortDirection, pageNumber, pageSize
-        );
-        const totalCount = await blogsQueryRepository.countBlogs(searchNameTerm);
-        const pagesCount = Math.ceil(totalCount / pageSize);
-
-        const output = createBlogsPaginator(
-            foundBlogs, pageNumber, pageSize, pagesCount, totalCount
         );
 
         res.json(output);
@@ -79,7 +78,7 @@ export const blogsController = {
             return;
         }
 
-        res.json(blogsQueryRepository.mapToOutput(foundBlog));
+        res.json(foundBlog);
     },
     deleteBlog: async (req: RequestWithParams<URIParamsBlogIdModel>, res: Response) => {
         const isDeleted = await blogsService.deleteBlog(req.params.id);
@@ -98,7 +97,7 @@ export const blogsController = {
 
         res
             .status(HTTP_STATUSES.CREATED_201)
-            .json(blogsQueryRepository.mapToOutput(createdBlog));
+            .json(blogsQueryRepository._mapToOutput(createdBlog));
     },
     updateBlog: async (req: RequestWithParamsAndBody<URIParamsBlogIdModel, UpdateBlogInputModel>,
                  res: Response) => {
