@@ -91,20 +91,25 @@ export const blogsController = {
     },
     createBlog: async (req: RequestWithBody<CreateBlogInputModel>,
                  res: Response<BlogViewModel>) => {
-        const createdBlog = await blogsService.createBlog(
+        const createdBlogId = await blogsService.createBlog(
             req.body.name, req.body.description, req.body.websiteUrl
         );
 
+        const createdBlog = await blogsQueryRepository.findBlogById(createdBlogId);
+        if (!createdBlog) {
+            res.sendStatus(HTTP_STATUSES.INTERNAL_SERVER_ERROR_500);
+            return;
+        }
+
         res
             .status(HTTP_STATUSES.CREATED_201)
-            .json(blogsQueryRepository._mapToOutput(createdBlog));
+            .json(createdBlog);
     },
     updateBlog: async (req: RequestWithParamsAndBody<URIParamsBlogIdModel, UpdateBlogInputModel>,
                  res: Response) => {
         const isUpdated = await blogsService.updateBlog(
             req.params.id, req.body.name, req.body.description, req.body.websiteUrl
         );
-
         if (!isUpdated) {
             res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
             return;

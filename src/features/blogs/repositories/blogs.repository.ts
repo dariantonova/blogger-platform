@@ -10,10 +10,8 @@ export const blogsRepository = {
 
         return updateBlogInfo.modifiedCount === 1;
     },
-    async createBlog(createdBlog: BlogDBType): Promise<BlogDBType> {
+    async createBlog(createdBlog: BlogDBType) {
         await blogsCollection.insertOne(createdBlog);
-
-        return createdBlog;
     },
     async updateBlog(id: string, name: string, description: string, websiteUrl: string): Promise<boolean> {
         const updateBlogInfo = await blogsCollection.updateOne(

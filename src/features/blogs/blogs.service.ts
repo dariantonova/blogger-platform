@@ -12,7 +12,7 @@ export const blogsService = {
 
         return isBlogDeleted;
     },
-    async createBlog(name: string, description: string, websiteUrl: string): Promise<BlogDBType> {
+    async createBlog(name: string, description: string, websiteUrl: string): Promise<string> {
         const createdBlog: BlogDBType = {
             id: String(+new Date()),
             name,
@@ -25,7 +25,7 @@ export const blogsService = {
 
         await blogsRepository.createBlog(createdBlog);
 
-        return createdBlog;
+        return createdBlog.id;
     },
     async updateBlog(id: string, name: string, description: string, websiteUrl: string): Promise<boolean> {
         const isBlogUpdated = await blogsRepository.updateBlog(id, name, description, websiteUrl);
