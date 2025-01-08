@@ -2,19 +2,6 @@ import {BlogDBType, Paginator, SortDirections} from "../../../types";
 import {blogsCollection} from "../../../db/db";
 import {BlogViewModel} from "../models/BlogViewModel";
 
-const createBlogsPaginator = (items: BlogDBType[], page: number, pageSize: number,
-                              pagesCount: number, totalCount: number): Paginator<BlogViewModel> => {
-    const itemsViewModels: BlogViewModel[] = items.map(blogsQueryRepository._mapToOutput);
-
-    return {
-        pagesCount,
-        page,
-        pageSize,
-        totalCount,
-        items: itemsViewModels,
-    };
-};
-
 export const blogsQueryRepository = {
     async findBlogs(searchNameTerm: string | null,
                     sortBy: string, sortDirection: SortDirections,
@@ -39,7 +26,7 @@ export const blogsQueryRepository = {
         const totalCount = await this.countBlogs(searchNameTerm);
         const pagesCount = Math.ceil(totalCount / pageSize);
 
-        return createBlogsPaginator(foundBlogs, pageNumber, pageSize, pagesCount, totalCount);
+        return this.createBlogsPaginator(foundBlogs, pageNumber, pageSize, pagesCount, totalCount);
     },
     async findBlogById(id: string): Promise<BlogViewModel | null> {
         const foundBlog = await blogsCollection
@@ -48,7 +35,7 @@ export const blogsQueryRepository = {
             return null;
         }
 
-        return this._mapToOutput(foundBlog);
+        return this.mapToOutput(foundBlog);
     },
     async countBlogs(searchNameTerm: string | null): Promise<number> {
         const filterObj: any = { isDeleted: false };
@@ -59,7 +46,7 @@ export const blogsQueryRepository = {
 
         return blogsCollection.countDocuments(filterObj);
     },
-    _mapToOutput(dbBlog: BlogDBType): BlogViewModel {
+    mapToOutput(dbBlog: BlogDBType): BlogViewModel {
         return {
             id: dbBlog.id,
             name: dbBlog.name,
@@ -68,5 +55,17 @@ export const blogsQueryRepository = {
             createdAt: dbBlog.createdAt,
             isMembership: dbBlog.isMembership,
         };
-    }
+    },
+    createBlogsPaginator (items: BlogDBType[], page: number, pageSize: number,
+           pagesCount: number, totalCount: number): Paginator<BlogViewModel> {
+        const itemsViewModels: BlogViewModel[] = items.map(blogsQueryRepository.mapToOutput);
+
+        return {
+            pagesCount,
+            page,
+            pageSize,
+            totalCount,
+            items: itemsViewModels,
+        };
+    },
 };

@@ -21,14 +21,13 @@ import {validationResult} from "express-validator";
 import {QueryPostsModel} from "../posts/models/QueryPostsModel";
 import {PostViewModel} from "../posts/models/PostViewModel";
 import {URIParamsPostBlogIdModel} from "./models/URIParamsPostBlogIdModel";
-import {createPostsPaginator} from "../posts/posts.controller";
 import {postsQueryRepository} from "../posts/repositories/posts.query.repository";
 import {postsService} from "../posts/posts.service";
 import {CreateBlogPostInputModel} from "./models/CreateBlogPostInputModel";
 
 export const createBlogsPaginator = (items: BlogDBType[], page: number, pageSize: number,
                                      pagesCount: number, totalCount: number): Paginator<BlogViewModel> => {
-    const itemsViewModels: BlogViewModel[] = items.map(blogsQueryRepository._mapToOutput);
+    const itemsViewModels: BlogViewModel[] = items.map(blogsQueryRepository.mapToOutput);
 
     return {
         pagesCount,
@@ -121,20 +120,19 @@ export const blogsController = {
                          res: Response<Paginator<PostViewModel>>) => {
         const validationErrors = validationResult(req);
         if (!validationErrors.isEmpty()) {
-            const output = await createPostsPaginator(
-                [], 0, 0, 0, 0
-            );
+            const output: Paginator<PostViewModel> = {
+                pagesCount: 0,
+                page: 0,
+                pageSize: 0,
+                totalCount: 0,
+                items: [],
+            };
+
             res.json(output);
             return;
         }
 
         const blogId = req.params.blogId;
-        const foundBlog = await blogsQueryRepository.findBlogById(blogId);
-        if (!foundBlog) {
-            res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
-            return;
-        }
-
         const {
             sortBy,
             sortDirection,
@@ -142,13 +140,18 @@ export const blogsController = {
             pageNumber
         } = getPostsQueryParamsValues(req);
 
-        const foundPosts = await postsQueryRepository.findPostsByBlogId(
+        const foundPosts = await postsService.findBlogPosts(
             blogId, sortBy, sortDirection, pageNumber, pageSize
         );
+        if (!foundPosts) {
+            res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
+            return;
+        }
+
         const totalCount = await postsQueryRepository.countPostsOfBlog(blogId);
         const pagesCount = Math.ceil(totalCount / pageSize);
 
-        const output = await createPostsPaginator(
+        const output = await postsQueryRepository.createPostsPaginator(
             foundPosts, pageNumber, pageSize, pagesCount, totalCount
         );
 

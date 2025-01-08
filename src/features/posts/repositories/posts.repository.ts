@@ -1,5 +1,5 @@
 import {postsCollection} from "../../../db/db";
-import {PostDBType} from "../../../types";
+import {PostDBType, SortDirections} from "../../../types";
 
 export const postsRepository = {
     async deletePost(id: string): Promise<boolean> {
@@ -36,5 +36,21 @@ export const postsRepository = {
             { isDeleted: false, blogId: blogId },
             { $set: { isDeleted: true } }
         );
+    },
+    async findPostsByBlogId(blogId: string, sortBy: string, sortDirection: SortDirections,
+                            pageNumber: number, pageSize: number): Promise<PostDBType[]> {
+        const filterObj: any = { isDeleted: false, blogId: blogId };
+
+        const sortObj: any = {
+            [sortBy]: sortDirection === SortDirections.ASC ? 1 : -1,
+            _id: 1,
+        };
+
+        return await postsCollection
+            .find(filterObj, { projection: { _id: 0 } })
+            .sort(sortObj)
+            .skip((pageNumber - 1) * pageSize)
+            .limit(pageSize)
+            .toArray() as PostDBType[];
     },
 };

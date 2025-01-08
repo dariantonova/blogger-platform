@@ -1,4 +1,4 @@
-import {PostDBType} from "../../types";
+import {PostDBType, SortDirections} from "../../types";
 import {postsRepository} from "./repositories/posts.repository";
 import {blogsRepository} from "../blogs/repositories/blogs.repository";
 
@@ -38,5 +38,16 @@ export const postsService = {
     },
     async deleteAllPosts() {
         return postsRepository.deleteAllPosts();
+    },
+    async findBlogPosts(blogId: string, sortBy: string, sortDirection: SortDirections,
+                        pageNumber: number, pageSize: number): Promise<PostDBType[] | null> {
+        const blog = await blogsRepository.findBlogById(blogId);
+        if (!blog) {
+            return null;
+        }
+
+        return postsRepository.findPostsByBlogId(
+            blogId, sortBy, sortDirection, pageNumber, pageSize
+        );
     },
 };

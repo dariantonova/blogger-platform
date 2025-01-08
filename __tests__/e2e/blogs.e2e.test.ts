@@ -885,7 +885,7 @@ describe('tests for /blogs', () => {
 
             await req
                 .get(SETTINGS.PATH.BLOGS + '/' + blogToGet.id)
-                .expect(HTTP_STATUSES.OK_200, blogsQueryRepository._mapToOutput(blogToGet));
+                .expect(HTTP_STATUSES.OK_200, blogsQueryRepository.mapToOutput(blogToGet));
         });
     });
 

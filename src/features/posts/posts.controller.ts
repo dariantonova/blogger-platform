@@ -22,7 +22,7 @@ import {validationResult} from "express-validator";
 export const createPostsPaginator = async (items: PostDBType[], page: number, pageSize: number,
                                      pagesCount: number, totalCount: number): Promise<Paginator<PostViewModel>> => {
     const itemsViewModels: PostViewModel[] = await Promise.all(
-        items.map(postsQueryRepository._mapToOutput)
+        items.map(postsQueryRepository.mapToOutput)
     );
 
     return {
