@@ -36,9 +36,18 @@ export type PostDBType = {
     createdAt: string,
 };
 
+export type UserDBType = {
+    id: string,
+    login: string,
+    email: string,
+    createdAt: string,
+    passwordHash: string,
+};
+
 export type DBType = {
     blogs: BlogDBType[],
     posts: PostDBType[],
+    users: UserDBType[],
 };
 
 export enum SortDirections {

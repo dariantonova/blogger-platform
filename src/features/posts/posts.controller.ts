@@ -63,7 +63,8 @@ export const postsController = {
 
         res.json(output);
     },
-    getPost: async (req: RequestWithParams<URIParamsPostIdModel>, res: Response<PostViewModel>) => {
+    getPost: async (req: RequestWithParams<URIParamsPostIdModel>,
+                    res: Response<PostViewModel>) => {
         const foundPost = await postsQueryRepository.findPostById(req.params.id);
         if (!foundPost) {
             res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);

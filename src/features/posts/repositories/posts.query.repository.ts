@@ -18,7 +18,7 @@ export const postsQueryRepository = {
             .skip((pageNumber - 1) * pageSize)
             .limit(pageSize)
             .toArray() as PostDBType[];
-        const totalCount = await postsQueryRepository.countPosts();
+        const totalCount = await this.countPosts();
         const pagesCount = Math.ceil(totalCount / pageSize);
 
         return this.createPostsPaginator(foundPosts, pageNumber, pageSize, pagesCount, totalCount);
@@ -54,7 +54,7 @@ export const postsQueryRepository = {
     async createPostsPaginator (items: PostDBType[], page: number, pageSize: number,
                                      pagesCount: number, totalCount: number): Promise<Paginator<PostViewModel>> {
         const itemsViewModels: PostViewModel[] = await Promise.all(
-            items.map(postsQueryRepository.mapToOutput)
+            items.map(this.mapToOutput)
         );
 
         return {

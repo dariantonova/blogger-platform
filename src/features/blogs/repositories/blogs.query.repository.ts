@@ -58,7 +58,7 @@ export const blogsQueryRepository = {
     },
     createBlogsPaginator (items: BlogDBType[], page: number, pageSize: number,
            pagesCount: number, totalCount: number): Paginator<BlogViewModel> {
-        const itemsViewModels: BlogViewModel[] = items.map(blogsQueryRepository.mapToOutput);
+        const itemsViewModels: BlogViewModel[] = items.map(this.mapToOutput);
 
         return {
             pagesCount,
