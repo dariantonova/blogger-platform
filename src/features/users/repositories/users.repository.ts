@@ -1,3 +1,24 @@
-export const usersRepository = {
+import {UserDBType} from "../../../types";
+import {usersCollection} from "../../../db/db";
 
+export const usersRepository = {
+    async createUser(createdUser: UserDBType) {
+        await usersCollection.insertOne(createdUser);
+    },
+    async findUserByLogin(login: string): Promise<UserDBType | null> {
+        const filterObj: any = { isDeleted: false, login: login };
+        return usersCollection.findOne(filterObj, { projection: { _id: 0 } });
+    },
+    async findUserByEmail(email: string): Promise<UserDBType | null> {
+        const filterObj: any = { isDeleted: false, email: email };
+        return usersCollection.findOne(filterObj, { projection: { _id: 0 } });
+    },
+    async deleteUser(id: string): Promise<boolean> {
+        const updateUserInfo = await usersCollection.updateOne(
+            { isDeleted: false, id: id },
+            { $set: { isDeleted: true } }
+        );
+
+        return updateUserInfo.modifiedCount === 1;
+    },
 };

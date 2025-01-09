@@ -1,10 +1,14 @@
-import {Paginator, RequestWithQuery} from "../../types";
+import {APIErrorResult, Paginator, RequestWithBody, RequestWithParams, RequestWithQuery} from "../../types";
 import {QueryUsersModel} from "./models/QueryUsersModel";
 import {UserViewModel} from "./models/UserViewModel";
 import {Response} from "express";
 import {validationResult} from "express-validator";
 import {getUsersQueryParamsValues} from "../../helpers/query-params-values";
 import {usersQueryRepository} from "./repositories/users.query.repository";
+import {CreateUserInputModel} from "./models/CreateUserInputModel";
+import {usersService} from "./users.service";
+import {HTTP_STATUSES} from "../../utils";
+import {URIParamsUserIdModel} from "./models/URIParamsUserIdModel";
 
 export const usersController = {
     getUsers: async (req: RequestWithQuery<QueryUsersModel>,
@@ -36,5 +40,42 @@ export const usersController = {
         );
 
         res.json(foundUsers);
+    },
+    createUser: async (req: RequestWithBody<CreateUserInputModel>,
+                       res: Response<UserViewModel | APIErrorResult>) => {
+        const createUserResult = await usersService.createUser(
+            req.body.login, req.body.password, req.body.email
+        );
+        if (typeof createUserResult !== 'string') {
+            const error: APIErrorResult = {
+                errorsMessages: [createUserResult]
+            };
+
+            res
+                .status(HTTP_STATUSES.BAD_REQUEST_400)
+                .json(error);
+
+            return;
+        }
+
+        const createdUserId = createUserResult;
+        const createdUser = await usersQueryRepository.findUserById(createdUserId);
+        if (!createdUser) {
+            res.sendStatus(HTTP_STATUSES.INTERNAL_SERVER_ERROR_500);
+            return;
+        }
+
+        res
+            .status(HTTP_STATUSES.CREATED_201)
+            .json(createdUser);
+    },
+    deleteUser: async (req: RequestWithParams<URIParamsUserIdModel>, res: Response) => {
+        const isDeleted = await usersService.deleteUser(req.params.id);
+        if (!isDeleted) {
+            res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
+            return;
+        }
+
+        res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
     },
 };

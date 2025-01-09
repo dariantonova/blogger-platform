@@ -4,7 +4,7 @@ import {HTTP_STATUSES} from "../../src/utils";
 import {BlogDBType, PostDBType} from "../../src/types";
 import {CreateBlogInputModel} from "../../src/features/blogs/models/CreateBlogInputModel";
 import {blogTestManager} from "../test-managers/blog-test-manager";
-import {WEBSITE_URL_PATTERN} from "../../src/validation/field-validators/blogs-field-validators";
+import {websiteUrlPattern} from "../../src/validation/field-validators/blogs-field-validators";
 import {blogsCollection, client, postsCollection, runDb, setDb} from "../../src/db/db";
 import {MongoMemoryServer} from "mongodb-memory-server";
 import {UpdateBlogInputModel} from "../../src/features/blogs/models/UpdateBlogInputModel";
@@ -1348,7 +1348,7 @@ describe('tests for /blogs', () => {
                     errorsMessages: [
                         {
                             field: 'websiteUrl',
-                            message: 'Website url must match the following pattern: ' + WEBSITE_URL_PATTERN,
+                            message: 'Website url must match the following pattern: ' + websiteUrlPattern,
                         }
                     ],
                 });
@@ -1784,7 +1784,7 @@ describe('tests for /blogs', () => {
                     errorsMessages: [
                         {
                             field: 'websiteUrl',
-                            message: 'Website url must match the following pattern: ' + WEBSITE_URL_PATTERN,
+                            message: 'Website url must match the following pattern: ' + websiteUrlPattern,
                         }
                     ],
                 });

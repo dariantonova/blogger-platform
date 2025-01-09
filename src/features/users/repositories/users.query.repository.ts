@@ -65,6 +65,10 @@ export const usersQueryRepository = {
 
         return usersCollection.countDocuments(filterObj);
     },
+    async findUserById(id: string): Promise<UserViewModel | null> {
+        const filterObj: any = { isDeleted: false, id: id };
+        return usersCollection.findOne(filterObj, { projection: { _id: 0 } });
+    },
     async mapToOutput(dbUser: UserDBType): Promise<UserViewModel> {
         return {
             id: dbUser.id,

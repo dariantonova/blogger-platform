@@ -1,6 +1,6 @@
 import {body} from "express-validator";
 
-export const WEBSITE_URL_PATTERN = '^https:\\/\\/([a-zA-Z0-9_-]+\\.)+[a-zA-Z0-9_-]+(\\/[a-zA-Z0-9_-]+)*\\/?$';
+export const websiteUrlPattern = '^https:\\/\\/([a-zA-Z0-9_-]+\\.)+[a-zA-Z0-9_-]+(\\/[a-zA-Z0-9_-]+)*\\/?$';
 
 export const nameFieldValidator = body('name')
     .exists().withMessage('Name is required')
@@ -19,4 +19,4 @@ export const websiteUrlFieldValidator = body('websiteUrl')
     .isString().withMessage('Website url must be a string')
     .trim().notEmpty().withMessage('Website url must not be empty')
     .isLength({ max: 100 }).withMessage('Website url length must be between 1 and 100 symbols')
-    .matches(WEBSITE_URL_PATTERN).withMessage('Website url must match the following pattern: ' + WEBSITE_URL_PATTERN);
+    .matches(websiteUrlPattern).withMessage('Website url must match the following pattern: ' + websiteUrlPattern);
