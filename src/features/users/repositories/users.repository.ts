@@ -13,6 +13,15 @@ export const usersRepository = {
         const filterObj: any = { isDeleted: false, email: email };
         return usersCollection.findOne(filterObj, { projection: { _id: 0 } });
     },
+    async findUserByLoginOrEmail(loginOrEmail: string): Promise<UserDBType | null> {
+        const filterObj: any = {
+            $and: [
+                { isDeleted: false },
+                { $or: [ { login: loginOrEmail }, { email: loginOrEmail } ] }
+            ]
+        };
+        return usersCollection.findOne(filterObj, { projection: { _id: 0 } });
+    },
     async deleteUser(id: string): Promise<boolean> {
         const updateUserInfo = await usersCollection.updateOne(
             { isDeleted: false, id: id },

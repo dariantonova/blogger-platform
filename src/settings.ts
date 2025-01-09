@@ -9,6 +9,7 @@ export const SETTINGS = {
         POSTS: '/api/posts',
         TESTING: '/api/testing',
         USERS: '/api/users',
+        AUTH: '/api/auth',
     },
     CREDENTIALS: {
         LOGIN: 'admin',

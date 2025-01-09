@@ -37,6 +37,14 @@ export const usersService = {
         const saltRounds = 10;
         return bcrypt.hash(password, saltRounds);
     },
+    async checkCredentials(loginOrEmail: string, password: string): Promise<boolean> {
+        const user = await usersRepository.findUserByLoginOrEmail(loginOrEmail);
+        if (!user) {
+            return false;
+        }
+
+        return bcrypt.compare(password, user.passwordHash);
+    },
     async deleteUser(id: string): Promise<boolean> {
         return usersRepository.deleteUser(id);
     },
