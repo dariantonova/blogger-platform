@@ -42,6 +42,7 @@ export type UserDBType = {
     email: string,
     createdAt: string,
     passwordHash: string,
+    isDeleted: boolean,
 };
 
 export type DBType = {

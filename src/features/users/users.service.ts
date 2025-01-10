@@ -27,6 +27,7 @@ export const usersService = {
             email,
             createdAt: new Date().toISOString(),
             passwordHash,
+            isDeleted: false,
         }
 
         await usersRepository.createUser(createdUser);
@@ -47,5 +48,8 @@ export const usersService = {
     },
     async deleteUser(id: string): Promise<boolean> {
         return usersRepository.deleteUser(id);
+    },
+    async deleteAllUsers() {
+        await usersRepository.deleteAllUsers();
     },
 };

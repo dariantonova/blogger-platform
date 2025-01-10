@@ -7,12 +7,15 @@ export const usersQueryRepository = {
                     pageNumber: number, pageSize: number,
                     searchLoginTerm: string | null,
                     searchEmailTerm: string | null): Promise<Paginator<UserViewModel>> {
-        const searchTerms: any[] = [];
         const filterConditions: any[] = [
-            { isDeleted: false },
-            { $or: searchTerms }
+            { isDeleted: false }
         ];
         const filterObj: any = { $and: filterConditions };
+
+        const searchTerms: any[] = [];
+        if (searchLoginTerm || searchEmailTerm) {
+            filterConditions.push({ $or: searchTerms });
+        }
 
         if (searchLoginTerm) {
            searchTerms.push({
@@ -44,12 +47,15 @@ export const usersQueryRepository = {
     },
     async countUsers(searchLoginTerm: string | null,
                      searchEmailTerm: string | null): Promise<number> {
-        const searchTerms: any[] = [];
         const filterConditions: any[] = [
-            { isDeleted: false },
-            { $or: searchTerms }
+            { isDeleted: false }
         ];
         const filterObj: any = { $and: filterConditions };
+
+        const searchTerms: any[] = [];
+        if (searchLoginTerm || searchEmailTerm) {
+            filterConditions.push({ $or: searchTerms });
+        }
 
         if (searchLoginTerm) {
             searchTerms.push({

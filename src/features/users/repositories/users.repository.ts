@@ -30,4 +30,7 @@ export const usersRepository = {
 
         return updateUserInfo.modifiedCount === 1;
     },
+    async deleteAllUsers() {
+        await usersCollection.drop();
+    },
 };

@@ -102,6 +102,7 @@ describe('tests for /blogs', () => {
                     isMembership: false,
                 },
             ];
+
             await setDb({ blogs: initialDbBlogs } );
 
             const expectedBlogs = initialDbBlogs.filter(b => !b.isDeleted);
@@ -429,7 +430,8 @@ describe('tests for /blogs', () => {
         });
 
         // bad sort field
-        it(`should return blogs ordered by _id if sort field doesn't exist`, async () => {
+        it(`should return blogs in the order of creation if sort field doesn't exist`,
+            async () => {
             const expectedBlogs = initialDbBlogs.slice(1);
             const expected = createBlogsPaginator(
                 expectedBlogs,
