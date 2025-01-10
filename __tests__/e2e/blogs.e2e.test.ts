@@ -670,11 +670,10 @@ describe('tests for /blogs', () => {
 
             await setDb({ blogs: initialDbBlogs });
 
+            const expected = createBlogsPaginator(
+                [], 0, 0, 0, 0,
+            );
             for (const invalidPageNumber of invalidPageNumbers) {
-                const expected = createBlogsPaginator(
-                    [], 0, 0, 0, 0,
-                );
-
                 await req
                     .get(SETTINGS.PATH.BLOGS + '?pageNumber=' + invalidPageNumber)
                     .expect(HTTP_STATUSES.OK_200, expected);
@@ -683,11 +682,10 @@ describe('tests for /blogs', () => {
 
         // invalid pageSize
         it('should return empty array if page size is invalid', async () => {
+            const expected = createBlogsPaginator(
+                [], 0, 0, 0, 0,
+            );
             for (const invalidPageSize of invalidPageSizes) {
-                const expected = createBlogsPaginator(
-                    [], 0, 0, 0, 0,
-                );
-
                 await req
                     .get(SETTINGS.PATH.BLOGS + '?pageSize=' + invalidPageSize)
                     .expect(HTTP_STATUSES.OK_200, expected);
@@ -734,13 +732,14 @@ describe('tests for /blogs', () => {
         it('should return correct part of blogs array if page number is non-default',
             async () => {
             const pageNumber = 2;
+            const pageSize = DEFAULT_QUERY_VALUES.BLOGS.pageSize;
 
-            const expectedBlogs = initialDbBlogs.slice(10, 20);
+            const expectedBlogs = initialDbBlogs.slice(pageSize, 2 * pageSize);
             const expected = createBlogsPaginator(
                 expectedBlogs,
                 pageNumber,
-                DEFAULT_QUERY_VALUES.BLOGS.pageSize,
-                Math.ceil(initialDbBlogs.length / DEFAULT_QUERY_VALUES.BLOGS.pageSize),
+                pageSize,
+                Math.ceil(initialDbBlogs.length / pageSize),
                 initialDbBlogs.length,
             );
 
@@ -774,8 +773,9 @@ describe('tests for /blogs', () => {
             const pageNumber = 3;
             const pageSize = 5;
 
-            const expectedBlogs = initialDbBlogs.slice((pageNumber - 1) * pageSize,
-                (pageNumber - 1) * pageSize + pageSize);
+            const expectedBlogs = initialDbBlogs.slice(
+                (pageNumber - 1) * pageSize, pageNumber * pageSize
+            );
             const expected = createBlogsPaginator(
                 expectedBlogs,
                 pageNumber,
@@ -794,16 +794,18 @@ describe('tests for /blogs', () => {
         // pageNumber exceeds total number of pages
         it('should return empty array if page number exceeds total number of pages',
             async () => {
-            const pagesCount = Math.ceil(initialDbBlogs.length / DEFAULT_QUERY_VALUES.BLOGS.pageSize);
+            const pageSize = DEFAULT_QUERY_VALUES.BLOGS.pageSize;
+            const totalCount = initialDbBlogs.length;
+            const pagesCount = Math.ceil(totalCount / pageSize);
             const pageNumber = pagesCount + 5;
 
             const expectedBlogs: BlogDBType[] = [];
             const expected = createBlogsPaginator(
                 expectedBlogs,
                 pageNumber,
-                DEFAULT_QUERY_VALUES.BLOGS.pageSize,
+                pageSize,
                 pagesCount,
-                initialDbBlogs.length,
+                totalCount,
             );
 
             await req
@@ -812,16 +814,18 @@ describe('tests for /blogs', () => {
         });
 
         // pageSize is greater than total number of items *
-        it('should return all blogs if page size is greater than total number of items',
+        it('should return all blogs if page size is greater than total number of blogs',
             async () => {
-            const pageSize = initialDbBlogs.length + 10;
+            const expectedBlogs = initialDbBlogs;
+            const totalCount = initialDbBlogs.length;
+            const pageSize = totalCount + 5;
 
             const expected = createBlogsPaginator(
-                initialDbBlogs,
+                expectedBlogs,
                 DEFAULT_QUERY_VALUES.BLOGS.pageNumber,
                 pageSize,
-                Math.ceil(initialDbBlogs.length / pageSize),
-                initialDbBlogs.length,
+                Math.ceil(totalCount / pageSize),
+                totalCount,
             );
 
             await req
