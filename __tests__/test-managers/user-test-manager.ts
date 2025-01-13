@@ -6,6 +6,7 @@ import {UserViewModel} from "../../src/features/users/models/UserViewModel";
 import {authTestManager} from "./auth-test-manager";
 import {LoginInputModel} from "../../src/routes/auth.router";
 import {Paginator} from "../../src/types";
+import {usersTestRepository} from "../repositories/usersTestRepository";
 
 export const userTestManager = {
     async getUsers(expectedStatusCode: number, query: string = '', auth: string = VALID_AUTH) {
@@ -46,5 +47,16 @@ export const userTestManager = {
         const getUsersResponse = await this.getUsers(HTTP_STATUSES.OK_200);
         const usersPaginator: Paginator<UserViewModel> = getUsersResponse.body;
         expect(usersPaginator.totalCount).toEqual(quantity);
+    },
+    async deleteUser(userId: string, expectedStatusCode: number, auth: string = VALID_AUTH) {
+        await req
+            .delete(SETTINGS.PATH.USERS + '/' + userId)
+            .set('Authorization', auth)
+            .expect(expectedStatusCode);
+
+        if (expectedStatusCode === HTTP_STATUSES.NO_CONTENT_204) {
+            const dbDeletedUser = await usersTestRepository.findUserById(userId);
+            expect(dbDeletedUser).toBeNull();
+        }
     },
 };

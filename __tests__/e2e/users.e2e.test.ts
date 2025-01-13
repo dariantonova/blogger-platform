@@ -11,6 +11,7 @@ import {UserDBType} from "../../src/types";
 import {invalidPageNumbers, invalidPageSizes} from "../datasets/validation/query-validation-data";
 import {CreateUserInputModel} from "../../src/features/users/models/CreateUserInputModel";
 import {validUserFieldInput} from "../datasets/validation/users-validation-data";
+import {usersTestRepository} from "../repositories/usersTestRepository";
 
 
 describe('tests for /users', () => {
@@ -1317,4 +1318,77 @@ describe('tests for /users', () => {
         });
     });
 
+    describe('delete user', () => {
+        let initialDbUsers: UserDBType[];
+
+        beforeAll(async () => {
+            initialDbUsers = initialDbUsers = [
+                {
+                    id: '1',
+                    login: 'user1',
+                    email: 'user1@example.com',
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                    passwordHash: 'hash1',
+                    isDeleted: false,
+                },
+                {
+                    id: '2',
+                    login: 'user2',
+                    email: 'user2@example.com',
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                    passwordHash: 'hash2',
+                    isDeleted: true,
+                },
+                {
+                    id: '3',
+                    login: 'user3',
+                    email: 'user3@example.com',
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                    passwordHash: 'hash3',
+                    isDeleted: false,
+                },
+            ];
+
+            await setDb({ users: initialDbUsers });
+        });
+
+        afterAll(async () => {
+            await req
+                .delete(SETTINGS.PATH.TESTING + '/all-data');
+        });
+
+        it('should forbid deleting users for non-admin users', async () => {
+            const userToDelete = initialDbUsers[0];
+
+            // no auth
+            await req
+                .delete(SETTINGS.PATH.USERS + '/' + userToDelete.id)
+                .expect(HTTP_STATUSES.UNAUTHORIZED_401);
+
+            for (const invalidAuthValue of invalidAuthValues) {
+                await userTestManager.deleteUser(userToDelete.id,
+                    HTTP_STATUSES.UNAUTHORIZED_401, invalidAuthValue);
+            }
+
+            const dbDeletedUser = await usersTestRepository.findUserById(userToDelete.id);
+            expect(dbDeletedUser).not.toBeNull();
+        });
+
+        it('should return 404 when deleting non-existing user', async () => {
+            await userTestManager.deleteUser('-100',
+                HTTP_STATUSES.NOT_FOUND_404);
+
+            // deleted
+            const userToDelete = initialDbUsers[1];
+            await userTestManager.deleteUser(userToDelete.id,
+                HTTP_STATUSES.NOT_FOUND_404);
+        });
+
+        it('should delete the first user', async () => {
+            const userToDelete = initialDbUsers[0];
+
+            await userTestManager.deleteUser(userToDelete.id,
+                HTTP_STATUSES.NO_CONTENT_204);
+        });
+    });
 });
