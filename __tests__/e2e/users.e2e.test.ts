@@ -11,7 +11,7 @@ import {UserDBType} from "../../src/types";
 import {invalidPageNumbers, invalidPageSizes} from "../datasets/validation/query-validation-data";
 import {CreateUserInputModel} from "../../src/features/users/models/CreateUserInputModel";
 import {validUserFieldInput} from "../datasets/validation/users-validation-data";
-import {usersTestRepository} from "../repositories/usersTestRepository";
+import {usersTestRepository} from "../repositories/users.test.repository";
 
 
 describe('tests for /users', () => {
@@ -1290,6 +1290,26 @@ describe('tests for /users', () => {
             });
 
             await userTestManager.checkUsersQuantity(initialDbUsers.length);
+        });
+
+        // both login and email are not unique
+        it('should return one error if both login and email are not unique', async () => {
+            const data = {
+                login: initialDbUsers[0].login,
+                email: initialDbUsers[0].email,
+                password: validUserFieldInput.password,
+            };
+
+            const response = await userTestManager.createUser(data,
+                HTTP_STATUSES.BAD_REQUEST_400);
+            expect(response.body).toEqual({
+                errorsMessages: [
+                    {
+                        field: 'login',
+                        message: 'Login must be unique',
+                    }
+                ],
+            });
         });
 
         // correct input
