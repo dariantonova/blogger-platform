@@ -9,6 +9,8 @@ import {usersQueryRepository} from "../../src/features/users/repositories/users.
 import {DEFAULT_QUERY_VALUES} from "../../src/helpers/query-params-values";
 import {UserDBType} from "../../src/types";
 import {invalidPageNumbers, invalidPageSizes} from "../datasets/validation/query-validation-data";
+import {CreateUserInputModel} from "../../src/features/users/models/CreateUserInputModel";
+import {validUserFieldInput} from "../datasets/validation/users-validation-data";
 
 
 describe('tests for /users', () => {
@@ -844,6 +846,474 @@ describe('tests for /users', () => {
             const response = await userTestManager.getUsers(HTTP_STATUSES.OK_200,
                 'pageSize=' + pageSize);
             expect(response.body).toEqual(expected);
+        });
+    });
+
+    describe('create user', () => {
+        let initialDbUsers: UserDBType[];
+
+        beforeAll(async () => {
+            initialDbUsers = [
+                {
+                    id: '1',
+                    login: 'user1',
+                    email: 'user1@example.com',
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                    passwordHash: 'hash1',
+                    isDeleted: false,
+                }
+            ];
+
+            await setDb({ users: initialDbUsers });
+        });
+
+        afterAll(async () => {
+            await req
+                .delete(SETTINGS.PATH.TESTING + '/all-data');
+        });
+
+        // authorization
+        it('should forbid creating users for non-admin users', async () => {
+            const data: CreateUserInputModel = {
+                login: validUserFieldInput.login,
+                email: validUserFieldInput.email,
+                password: validUserFieldInput.password,
+            };
+
+            // no auth
+            await req
+                .post(SETTINGS.PATH.USERS)
+                .send(data)
+                .expect(HTTP_STATUSES.UNAUTHORIZED_401);
+
+            for (const invalidAuthValue of invalidAuthValues) {
+                await userTestManager.createUser(data, HTTP_STATUSES.UNAUTHORIZED_401,
+                    invalidAuthValue);
+            }
+
+            await userTestManager.checkUsersQuantity(initialDbUsers.length);
+        });
+
+        // validation
+        // missing required fields
+        it(`shouldn't create user if required fields are missing`, async () => {
+            const data1 = {
+                email: validUserFieldInput.email,
+                password: validUserFieldInput.password,
+            };
+
+            const response1 = await userTestManager.createUser(data1,
+                HTTP_STATUSES.BAD_REQUEST_400);
+            expect(response1.body).toEqual({
+                errorsMessages: [
+                    {
+                        field: 'login',
+                        message: 'Login is required',
+                    }
+                ],
+            });
+
+            const data2 = {
+                login: validUserFieldInput.login,
+                password: validUserFieldInput.password,
+            };
+
+            const response2 = await userTestManager.createUser(data2,
+                HTTP_STATUSES.BAD_REQUEST_400);
+            expect(response2.body).toEqual({
+                errorsMessages: [
+                    {
+                        field: 'email',
+                        message: 'Email is required',
+                    }
+                ],
+            });
+
+            const data3 = {
+                login: validUserFieldInput.login,
+                email: validUserFieldInput.email,
+            };
+
+            const response3 = await userTestManager.createUser(data3,
+                HTTP_STATUSES.BAD_REQUEST_400);
+            expect(response3.body).toEqual({
+                errorsMessages: [
+                    {
+                        field: 'password',
+                        message: 'Password is required',
+                    }
+                ],
+            });
+
+            await userTestManager.checkUsersQuantity(initialDbUsers.length);
+        });
+
+        // login
+        it(`shouldn't create user if login is invalid`, async () => {
+            // not string
+            const data1 = {
+                login: 4,
+                email: validUserFieldInput.email,
+                password: validUserFieldInput.password,
+            };
+
+            const response1 = await userTestManager.createUser(data1,
+                HTTP_STATUSES.BAD_REQUEST_400);
+            expect(response1.body).toEqual({
+                errorsMessages: [
+                    {
+                        field: 'login',
+                        message: 'Login must be a string',
+                    }
+                ],
+            });
+
+            // empty string
+            const data2 = {
+                login: '',
+                email: validUserFieldInput.email,
+                password: validUserFieldInput.password,
+            };
+
+            const response2 = await userTestManager.createUser(data2,
+                HTTP_STATUSES.BAD_REQUEST_400);
+            expect(response2.body).toEqual({
+                errorsMessages: [
+                    {
+                        field: 'login',
+                        message: 'Login must not be empty',
+                    }
+                ],
+            });
+
+            // empty string with spaces
+            const data3 = {
+                login: '  ',
+                email: validUserFieldInput.email,
+                password: validUserFieldInput.password,
+            };
+
+            const response3 = await userTestManager.createUser(data3,
+                HTTP_STATUSES.BAD_REQUEST_400);
+            expect(response3.body).toEqual({
+                errorsMessages: [
+                    {
+                        field: 'login',
+                        message: 'Login must not be empty',
+                    }
+                ],
+            });
+
+            // too short
+            const data4 = {
+                login: 'aa',
+                email: validUserFieldInput.email,
+                password: validUserFieldInput.password,
+            };
+
+            const response4 = await userTestManager.createUser(data4,
+                HTTP_STATUSES.BAD_REQUEST_400);
+            expect(response4.body).toEqual({
+                errorsMessages: [
+                    {
+                        field: 'login',
+                        message: 'Login length must be between 3 and 10 symbols',
+                    }
+                ],
+            });
+
+            // too long
+            const data5 = {
+                login: 'a'.repeat(11),
+                email: validUserFieldInput.email,
+                password: validUserFieldInput.password,
+            };
+
+            const response5 = await userTestManager.createUser(data5,
+                HTTP_STATUSES.BAD_REQUEST_400);
+            expect(response5.body).toEqual({
+                errorsMessages: [
+                    {
+                        field: 'login',
+                        message: 'Login length must be between 3 and 10 symbols',
+                    }
+                ],
+            });
+
+            // wrong format
+            const loginPattern = '^[a-zA-Z0-9_-]*$';
+            const data6 = {
+                login: 'user !',
+                email: validUserFieldInput.email,
+                password: validUserFieldInput.password,
+            };
+
+            const response6 = await userTestManager.createUser(data6,
+                HTTP_STATUSES.BAD_REQUEST_400);
+            expect(response6.body).toEqual({
+                errorsMessages: [
+                    {
+                        field: 'login',
+                        message: 'Login must match the following pattern: ' + loginPattern,
+                    }
+                ],
+            });
+
+            // not unique
+            const data7 = {
+                login: initialDbUsers[0].login,
+                email: validUserFieldInput.email,
+                password: validUserFieldInput.password,
+            };
+
+            const response7 = await userTestManager.createUser(data7,
+                HTTP_STATUSES.BAD_REQUEST_400);
+            expect(response7.body).toEqual({
+                errorsMessages: [
+                    {
+                        field: 'login',
+                        message: 'Login must be unique',
+                    }
+                ],
+            });
+
+            await userTestManager.checkUsersQuantity(initialDbUsers.length);
+        });
+
+        // email
+        it(`shouldn't create user if email is invalid`, async () => {
+            // not string
+            const data1 = {
+                login: validUserFieldInput.login,
+                email: 4,
+                password: validUserFieldInput.password,
+            };
+
+            const response1 = await userTestManager.createUser(data1,
+                HTTP_STATUSES.BAD_REQUEST_400);
+            expect(response1.body).toEqual({
+                errorsMessages: [
+                    {
+                        field: 'email',
+                        message: 'Email must be a string',
+                    }
+                ],
+            });
+
+            // empty string
+            const data2 = {
+                login: validUserFieldInput.login,
+                email: '',
+                password: validUserFieldInput.password,
+            };
+
+            const response2 = await userTestManager.createUser(data2,
+                HTTP_STATUSES.BAD_REQUEST_400);
+            expect(response2.body).toEqual({
+                errorsMessages: [
+                    {
+                        field: 'email',
+                        message: 'Email must not be empty',
+                    }
+                ],
+            });
+
+            // empty string with spaces
+            const data3 = {
+                login: validUserFieldInput.login,
+                email: '  ',
+                password: validUserFieldInput.password,
+            };
+
+            const response3 = await userTestManager.createUser(data3,
+                HTTP_STATUSES.BAD_REQUEST_400);
+            expect(response3.body).toEqual({
+                errorsMessages: [
+                    {
+                        field: 'email',
+                        message: 'Email must not be empty',
+                    }
+                ],
+            });
+
+            // wrong format
+            const emailPattern = '^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$';
+            const data4 = {
+                login: validUserFieldInput.login,
+                email: 'example',
+                password: validUserFieldInput.password,
+            };
+
+            const response4 = await userTestManager.createUser(data4,
+                HTTP_STATUSES.BAD_REQUEST_400);
+            expect(response4.body).toEqual({
+                errorsMessages: [
+                    {
+                        field: 'email',
+                        message: 'Email must match the following pattern: ' + emailPattern,
+                    }
+                ],
+            });
+
+            // not unique
+            const data5 = {
+                login: validUserFieldInput.login,
+                email: initialDbUsers[0].email,
+                password: validUserFieldInput.password,
+            };
+
+            const response5 = await userTestManager.createUser(data5,
+                HTTP_STATUSES.BAD_REQUEST_400);
+            expect(response5.body).toEqual({
+                errorsMessages: [
+                    {
+                        field: 'email',
+                        message: 'Email must be unique',
+                    }
+                ],
+            });
+
+            await userTestManager.checkUsersQuantity(initialDbUsers.length);
+        });
+
+        // password
+        it(`shouldn't create user if password is invalid`, async () => {
+            // not string
+            const data1 = {
+                login: validUserFieldInput.login,
+                email: validUserFieldInput.email,
+                password: 4,
+            };
+
+            const response1 = await userTestManager.createUser(data1,
+                HTTP_STATUSES.BAD_REQUEST_400);
+            expect(response1.body).toEqual({
+                errorsMessages: [
+                    {
+                        field: 'password',
+                        message: 'Password must be a string',
+                    }
+                ],
+            });
+
+            // empty string
+            const data2 = {
+                login: validUserFieldInput.login,
+                email: validUserFieldInput.email,
+                password: '',
+            };
+
+            const response2 = await userTestManager.createUser(data2,
+                HTTP_STATUSES.BAD_REQUEST_400);
+            expect(response2.body).toEqual({
+                errorsMessages: [
+                    {
+                        field: 'password',
+                        message: 'Password must not be empty',
+                    }
+                ],
+            });
+
+            // empty string with spaces
+            const data3 = {
+                login: validUserFieldInput.login,
+                email: validUserFieldInput.email,
+                password: '  ',
+            };
+
+            const response3 = await userTestManager.createUser(data3,
+                HTTP_STATUSES.BAD_REQUEST_400);
+            expect(response3.body).toEqual({
+                errorsMessages: [
+                    {
+                        field: 'password',
+                        message: 'Password must not be empty',
+                    }
+                ],
+            });
+
+            // too short
+            const data4 = {
+                login: validUserFieldInput.login,
+                email: validUserFieldInput.email,
+                password: 'a'.repeat(5),
+            };
+
+            const response4 = await userTestManager.createUser(data4,
+                HTTP_STATUSES.BAD_REQUEST_400);
+            expect(response4.body).toEqual({
+                errorsMessages: [
+                    {
+                        field: 'password',
+                        message: 'Password length must be between 6 and 20 symbols',
+                    }
+                ],
+            });
+
+            // too long
+            const data5 = {
+                login: validUserFieldInput.login,
+                email: validUserFieldInput.email,
+                password: 'a'.repeat(21),
+            };
+
+            const response5 = await userTestManager.createUser(data5,
+                HTTP_STATUSES.BAD_REQUEST_400);
+            expect(response5.body).toEqual({
+                errorsMessages: [
+                    {
+                        field: 'password',
+                        message: 'Password length must be between 6 and 20 symbols',
+                    }
+                ],
+            });
+
+            await userTestManager.checkUsersQuantity(initialDbUsers.length);
+        });
+
+        // multiple fields
+        it(`shouldn't create user if multiple fields are invalid`, async () => {
+            const data = {
+                login: 'a'.repeat(11),
+                password: '  ',
+            };
+
+            const response = await userTestManager.createUser(data,
+                HTTP_STATUSES.BAD_REQUEST_400);
+            expect(response.body).toEqual({
+                errorsMessages: expect.arrayContaining([
+                    { message: expect.any(String), field: 'login' },
+                    { message: expect.any(String), field: 'email' },
+                    { message: expect.any(String), field: 'password' },
+                ]),
+            });
+
+            await userTestManager.checkUsersQuantity(initialDbUsers.length);
+        });
+
+        // correct input
+        it('should create user if input data is correct', async () => {
+            const data: CreateUserInputModel = {
+                login: 'user2',
+                email: 'user2@example.com',
+                password: 'qwerty',
+            };
+
+            await userTestManager.createUser(data, HTTP_STATUSES.CREATED_201);
+
+            await userTestManager.checkUsersQuantity(initialDbUsers.length + 1);
+        });
+
+        it('should create one more user', async () => {
+            const data: CreateUserInputModel = {
+                login: 'user3',
+                email: 'user3@example.com',
+                password: '1234qwerty',
+            };
+
+            await userTestManager.createUser(data, HTTP_STATUSES.CREATED_201);
+
+            await userTestManager.checkUsersQuantity(initialDbUsers.length + 2);
         });
     });
 

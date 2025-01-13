@@ -73,7 +73,9 @@ export const usersQueryRepository = {
     },
     async findUserById(id: string): Promise<UserViewModel | null> {
         const filterObj: any = { isDeleted: false, id: id };
-        return usersCollection.findOne(filterObj, { projection: { _id: 0 } });
+        const foundUser = await usersCollection
+            .findOne(filterObj, { projection: { _id: 0 } });
+        return foundUser ? this.mapToOutput(foundUser) : null;
     },
     async mapToOutput(dbUser: UserDBType): Promise<UserViewModel> {
         return {

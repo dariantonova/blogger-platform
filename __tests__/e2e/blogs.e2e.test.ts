@@ -1039,9 +1039,9 @@ describe('tests for /blogs', () => {
         // authorization
         it('should forbid creating blogs for non-admin users', async () => {
             const data: CreateBlogInputModel = {
-                name: 'blog 1',
-                description: 'superblog 1',
-                websiteUrl: 'https://superblog.com/1',
+                name: validBlogFieldInput.name,
+                description: validBlogFieldInput.description,
+                websiteUrl: validBlogFieldInput.websiteUrl,
             }
 
             // no auth

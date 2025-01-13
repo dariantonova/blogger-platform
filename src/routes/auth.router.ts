@@ -5,7 +5,7 @@ import {HTTP_STATUSES} from "../utils";
 import {loginOrEmailAuthValidator, passwordAuthValidator} from "../validation/auth-login-validators";
 import {errorsResultMiddleware} from "../validation/errors-result-middleware";
 
-type LoginInputModel = {
+export type LoginInputModel = {
     loginOrEmail: string,
     password: string,
 };
