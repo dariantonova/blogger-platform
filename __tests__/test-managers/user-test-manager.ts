@@ -4,9 +4,9 @@ import {SETTINGS} from "../../src/settings";
 import {HTTP_STATUSES} from "../../src/utils";
 import {UserViewModel} from "../../src/features/users/models/UserViewModel";
 import {authTestManager} from "./auth-test-manager";
-import {LoginInputModel} from "../../src/routes/auth.router";
 import {Paginator} from "../../src/types";
 import {usersTestRepository} from "../repositories/users.test.repository";
+import {LoginInputModel} from "../../src/features/auth/models/LoginInputModel";
 
 export const userTestManager = {
     async getUsers(expectedStatusCode: number, query: string = '', auth: string = VALID_AUTH) {

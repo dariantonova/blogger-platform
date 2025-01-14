@@ -4,7 +4,7 @@ import {blogsRouter} from "./features/blogs/blogs.router";
 import {testsRouter} from "./routes/tests.router";
 import {postsRouter} from "./features/posts/posts.router";
 import {usersRouter} from "./features/users/users.router";
-import {authRouter} from "./routes/auth.router";
+import {authRouter} from "./features/auth/auth.router";
 
 const app = express();
 

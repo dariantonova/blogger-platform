@@ -1,6 +1,6 @@
 import {FieldError, UserDBType} from "../../types";
 import {usersRepository} from "./repositories/users.repository";
-import bcrypt from 'bcrypt';
+import {cryptoService} from "../../services/crypto.service";
 
 export const usersService = {
     async createUser(login: string, password: string, email: string): Promise<string | FieldError> {
@@ -20,7 +20,7 @@ export const usersService = {
             };
         }
 
-        const passwordHash = await this.generateHash(password);
+        const passwordHash = await cryptoService.generateHash(password);
         const createdUser: UserDBType = {
             id: String(+new Date()),
             login,
@@ -33,18 +33,6 @@ export const usersService = {
         await usersRepository.createUser(createdUser);
 
         return createdUser.id;
-    },
-    async generateHash(password: string): Promise<string> {
-        const saltRounds = 10;
-        return bcrypt.hash(password, saltRounds);
-    },
-    async checkCredentials(loginOrEmail: string, password: string): Promise<boolean> {
-        const user = await usersRepository.findUserByLoginOrEmail(loginOrEmail);
-        if (!user) {
-            return false;
-        }
-
-        return bcrypt.compare(password, user.passwordHash);
     },
     async deleteUser(id: string): Promise<boolean> {
         return usersRepository.deleteUser(id);
