@@ -1,11 +1,13 @@
 import {BlogDBType, DBType, PostDBType, UserDBType} from "../types/types";
 import {Collection, MongoClient} from "mongodb";
 import {SETTINGS} from "../settings";
+import {CommentType} from "../features/comments/comments.types";
 
 export let client: MongoClient;
 export let blogsCollection: Collection<BlogDBType>;
 export let postsCollection: Collection<PostDBType>;
 export let usersCollection: Collection<UserDBType>;
+export let commentsCollection: Collection<CommentType>;
 
 export const runDb = async (url: string): Promise<boolean> => {
     try {
@@ -15,6 +17,7 @@ export const runDb = async (url: string): Promise<boolean> => {
         blogsCollection = db.collection<BlogDBType>('blogs');
         postsCollection = db.collection<PostDBType>('posts');
         usersCollection = db.collection<UserDBType>('users');
+        commentsCollection = db.collection<CommentType>('comments');
 
         await client.connect();
         await db.command({ ping: 1 });
@@ -33,6 +36,7 @@ export const setDb = async (dataset?: Partial<DBType>) => {
         await blogsCollection.drop();
         await postsCollection.drop();
         await usersCollection.drop();
+        await commentsCollection.drop();
         return;
     }
 
@@ -54,6 +58,13 @@ export const setDb = async (dataset?: Partial<DBType>) => {
         await usersCollection.drop();
         if (dataset.users.length > 0) {
             await usersCollection.insertMany(structuredClone(dataset.users));
+        }
+    }
+
+    if (dataset.comments) {
+        await commentsCollection.drop();
+        if (dataset.comments.length > 0) {
+            await commentsCollection.insertMany(structuredClone(dataset.comments));
         }
     }
 };
@@ -103,9 +114,11 @@ const posts: PostDBType[] = [
 ];
 
 const users: UserDBType[] = [];
+const comments: CommentType[] = [];
 
 export const initialDb: DBType = {
     blogs,
     posts,
     users,
+    comments,
 };
