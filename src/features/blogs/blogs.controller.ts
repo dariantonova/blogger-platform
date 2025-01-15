@@ -6,7 +6,7 @@ import {
     RequestWithParamsAndBody,
     RequestWithParamsAndQuery,
     RequestWithQuery
-} from "../../types";
+} from "../../types/types";
 import {BlogViewModel} from "./models/BlogViewModel";
 import {Response} from "express";
 import {URIParamsBlogIdModel} from "./models/URIParamsBlogIdModel";

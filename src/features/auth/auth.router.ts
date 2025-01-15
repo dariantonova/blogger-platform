@@ -12,6 +12,6 @@ router.post('/login',
     loginOrEmailAuthValidator,
     passwordAuthValidator,
     errorsResultMiddleware,
-    authController.login);
+    authController.loginUser);
 
 export { router as authRouter };

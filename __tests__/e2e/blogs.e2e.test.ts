@@ -1,7 +1,7 @@
 import {req} from "../test-helpers";
 import {SETTINGS} from "../../src/settings";
 import {HTTP_STATUSES} from "../../src/utils";
-import {BlogDBType, PostDBType} from "../../src/types";
+import {BlogDBType, PostDBType} from "../../src/types/types";
 import {CreateBlogInputModel} from "../../src/features/blogs/models/CreateBlogInputModel";
 import {blogTestManager} from "../test-managers/blog-test-manager";
 import {websiteUrlPattern} from "../../src/validation/field-validators/blogs-field-validators";

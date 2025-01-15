@@ -1,4 +1,4 @@
-import {APIErrorResult, Paginator, RequestWithBody, RequestWithParams, RequestWithQuery} from "../../types";
+import {APIErrorResult, Paginator, RequestWithBody, RequestWithParams, RequestWithQuery} from "../../types/types";
 import {QueryUsersModel} from "./models/QueryUsersModel";
 import {UserViewModel} from "./models/UserViewModel";
 import {Response} from "express";

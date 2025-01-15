@@ -1,4 +1,4 @@
-import {FieldError, UserDBType} from "../../types";
+import {FieldError, UserDBType} from "../../types/types";
 import {usersRepository} from "./repositories/users.repository";
 import {cryptoService} from "../../services/crypto.service";
 
@@ -39,5 +39,8 @@ export const usersService = {
     },
     async deleteAllUsers() {
         await usersRepository.deleteAllUsers();
+    },
+    async findUserById(id: string) {
+        return usersRepository.findUserById(id);
     },
 };

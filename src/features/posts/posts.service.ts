@@ -1,4 +1,4 @@
-import {PostDBType, SortDirections} from "../../types";
+import {PostDBType, SortDirections} from "../../types/types";
 import {postsRepository} from "./repositories/posts.repository";
 import {blogsRepository} from "../blogs/repositories/blogs.repository";
 

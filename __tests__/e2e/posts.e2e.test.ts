@@ -2,7 +2,7 @@ import {req} from "../test-helpers";
 import {SETTINGS} from "../../src/settings";
 import {client, postsCollection, runDb, setDb} from "../../src/db/db";
 import {HTTP_STATUSES} from "../../src/utils";
-import {BlogDBType, PostDBType} from "../../src/types";
+import {BlogDBType, PostDBType} from "../../src/types/types";
 import {CreatePostInputModel} from "../../src/features/posts/models/CreatePostInputModel";
 import {postTestManager} from "../test-managers/post-test-manager";
 import {MongoMemoryServer} from "mongodb-memory-server";

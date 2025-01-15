@@ -1,4 +1,4 @@
-import {BlogDBType} from "../../../types";
+import {BlogDBType} from "../../../types/types";
 import {blogsCollection} from "../../../db/db";
 
 export const blogsRepository = {

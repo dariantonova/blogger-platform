@@ -2,7 +2,7 @@ import {blogsCollection, client, postsCollection, runDb, setDb} from "../../src/
 import {MongoMemoryServer} from "mongodb-memory-server";
 import {req} from "../test-helpers";
 import {SETTINGS} from "../../src/settings";
-import {BlogDBType, PostDBType} from "../../src/types";
+import {BlogDBType, PostDBType} from "../../src/types/types";
 
 describe('tests for /testing', () => {
     let server: MongoMemoryServer;

@@ -1,5 +1,5 @@
 import {Router} from 'express';
-import {authorizationMiddleware} from "../../middlewares/authorization-middleware";
+import {basicAuthorizationMiddleware} from "../../middlewares/basic-authorization-middleware";
 import {blogsController} from "./blogs.controller";
 import {
     descriptionFieldValidator,
@@ -26,17 +26,17 @@ router.get('/',
 router.get('/:id',
     blogsController.getBlog);
 router.delete('/:id',
-    authorizationMiddleware,
+    basicAuthorizationMiddleware,
     blogsController.deleteBlog);
 router.post('/',
-    authorizationMiddleware,
+    basicAuthorizationMiddleware,
     nameFieldValidator,
     descriptionFieldValidator,
     websiteUrlFieldValidator,
     errorsResultMiddleware,
     blogsController.createBlog);
 router.put('/:id',
-    authorizationMiddleware,
+    basicAuthorizationMiddleware,
     nameFieldValidator,
     descriptionFieldValidator,
     websiteUrlFieldValidator,
@@ -47,7 +47,7 @@ router.get('/:blogId/posts',
     pageSizeQueryParamValidator,
     blogsController.getBlogPosts);
 router.post('/:blogId/posts',
-    authorizationMiddleware,
+    basicAuthorizationMiddleware,
     titleFieldValidator,
     shortDescriptionFieldValidator,
     contentFieldValidator,

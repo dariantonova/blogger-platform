@@ -1,4 +1,4 @@
-import {UserDBType} from "../../../types";
+import {UserDBType} from "../../../types/types";
 import {usersCollection} from "../../../db/db";
 
 export const usersRepository = {
@@ -20,6 +20,10 @@ export const usersRepository = {
                 { $or: [ { login: loginOrEmail }, { email: loginOrEmail } ] }
             ]
         };
+        return usersCollection.findOne(filterObj, { projection: { _id: 0 } });
+    },
+    async findUserById(id: string): Promise<UserDBType | null> {
+        const filterObj: any = { isDeleted: false, id: id };
         return usersCollection.findOne(filterObj, { projection: { _id: 0 } });
     },
     async deleteUser(id: string): Promise<boolean> {

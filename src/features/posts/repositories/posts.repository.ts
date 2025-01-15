@@ -1,5 +1,5 @@
 import {postsCollection} from "../../../db/db";
-import {PostDBType, SortDirections} from "../../../types";
+import {PostDBType, SortDirections} from "../../../types/types";
 
 export const postsRepository = {
     async deletePost(id: string): Promise<boolean> {

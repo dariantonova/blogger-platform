@@ -7,7 +7,7 @@ import {invalidAuthValues} from "../datasets/authorization-data";
 import {userTestManager} from "../test-managers/user-test-manager";
 import {usersQueryRepository} from "../../src/features/users/repositories/users.query.repository";
 import {DEFAULT_QUERY_VALUES} from "../../src/helpers/query-params-values";
-import {UserDBType} from "../../src/types";
+import {UserDBType} from "../../src/types/types";
 import {invalidPageNumbers, invalidPageSizes} from "../datasets/validation/query-validation-data";
 import {CreateUserInputModel} from "../../src/features/users/models/CreateUserInputModel";
 import {validUserFieldInput} from "../datasets/validation/users-validation-data";

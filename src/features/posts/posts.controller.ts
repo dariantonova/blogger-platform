@@ -8,7 +8,7 @@ import {
     RequestWithParams,
     RequestWithParamsAndBody,
     RequestWithQuery
-} from "../../types";
+} from "../../types/types";
 import {URIParamsPostIdModel} from "./models/URIParamsPostIdModel";
 import {HTTP_STATUSES} from "../../utils";
 import {CreatePostInputModel} from "./models/CreatePostInputModel";

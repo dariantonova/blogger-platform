@@ -1,4 +1,4 @@
-import {BlogDBType, DBType, PostDBType, UserDBType} from "../types";
+import {BlogDBType, DBType, PostDBType, UserDBType} from "../types/types";
 import {Collection, MongoClient} from "mongodb";
 import {SETTINGS} from "../settings";
 

@@ -1,4 +1,4 @@
-import {RequestWithQuery, SortDirections} from "../types";
+import {RequestWithQuery, SortDirections} from "../types/types";
 import {QueryBlogsModel} from "../features/blogs/models/QueryBlogsModel";
 import {QueryPostsModel} from "../features/posts/models/QueryPostsModel";
 import {QueryUsersModel} from "../features/users/models/QueryUsersModel";

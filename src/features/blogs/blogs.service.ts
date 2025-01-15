@@ -1,4 +1,4 @@
-import {BlogDBType} from "../../types";
+import {BlogDBType} from "../../types/types";
 import {blogsRepository} from "./repositories/blogs.repository";
 import {postsRepository} from "../posts/repositories/posts.repository";
 

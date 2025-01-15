@@ -1,4 +1,4 @@
-import {BlogDBType, Paginator, SortDirections} from "../../../types";
+import {BlogDBType, Paginator, SortDirections} from "../../../types/types";
 import {blogsCollection} from "../../../db/db";
 import {BlogViewModel} from "../models/BlogViewModel";
 

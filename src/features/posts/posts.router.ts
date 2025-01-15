@@ -1,6 +1,6 @@
 import {Router} from "express";
 import {postsController} from "./posts.controller";
-import {authorizationMiddleware} from "../../middlewares/authorization-middleware";
+import {basicAuthorizationMiddleware} from "../../middlewares/basic-authorization-middleware";
 import {
     blogIdFieldValidator,
     contentFieldValidator,
@@ -19,10 +19,10 @@ router.get('/',
 router.get('/:id',
     postsController.getPost);
 router.delete('/:id',
-    authorizationMiddleware,
+    basicAuthorizationMiddleware,
     postsController.deletePost);
 router.post('/',
-    authorizationMiddleware,
+    basicAuthorizationMiddleware,
     titleFieldValidator,
     shortDescriptionFieldValidator,
     contentFieldValidator,
@@ -30,7 +30,7 @@ router.post('/',
     errorsResultMiddleware,
     postsController.createPost);
 router.put('/:id',
-    authorizationMiddleware,
+    basicAuthorizationMiddleware,
     titleFieldValidator,
     shortDescriptionFieldValidator,
     contentFieldValidator,

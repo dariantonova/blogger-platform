@@ -1,4 +1,4 @@
-import {Paginator, SortDirections, UserDBType} from "../../../types";
+import {Paginator, SortDirections, UserDBType} from "../../../types/types";
 import {UserViewModel} from "../models/UserViewModel";
 import {usersCollection} from "../../../db/db";
 

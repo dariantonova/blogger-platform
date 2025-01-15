@@ -8,7 +8,8 @@ import {req} from "../test-helpers";
 import {SETTINGS} from "../../src/settings";
 import {validAuthLoginInput} from "../datasets/validation/auth-login-validation-data";
 
-import {LoginInputModel} from "../../src/features/auth/models/LoginInputModel";
+
+import {LoginInputModel} from "../../src/features/auth/types/auth.types";
 
 describe('tests for /auth', () => {
     let server: MongoMemoryServer;

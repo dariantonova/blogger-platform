@@ -1,4 +1,4 @@
-import {Paginator, PostDBType, SortDirections} from "../../../types";
+import {Paginator, PostDBType, SortDirections} from "../../../types/types";
 import {postsCollection} from "../../../db/db";
 import {PostViewModel} from "../models/PostViewModel";
 
