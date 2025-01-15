@@ -37,8 +37,8 @@ export const postsRepository = {
             { $set: { isDeleted: true } }
         );
     },
-    async findPostsByBlogId(blogId: string, sortBy: string, sortDirection: SortDirections,
-                            pageNumber: number, pageSize: number): Promise<PostDBType[]> {
+    async findBlogPosts(blogId: string, sortBy: string, sortDirection: SortDirections,
+                        pageNumber: number, pageSize: number): Promise<PostDBType[]> {
         const filterObj: any = { isDeleted: false, blogId: blogId };
 
         const sortObj: any = {
@@ -52,5 +52,9 @@ export const postsRepository = {
             .skip((pageNumber - 1) * pageSize)
             .limit(pageSize)
             .toArray() as PostDBType[];
+    },
+    async findPostById(id: string): Promise<PostDBType | null> {
+        const filterObj: any = { idDeleted: false, id };
+        return postsCollection.findOne(filterObj, { projection: { _id: 0 } });
     },
 };

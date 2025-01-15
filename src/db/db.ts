@@ -1,13 +1,13 @@
 import {BlogDBType, DBType, PostDBType, UserDBType} from "../types/types";
 import {Collection, MongoClient} from "mongodb";
 import {SETTINGS} from "../settings";
-import {CommentType} from "../features/comments/comments.types";
+import {CommentDBType} from "../features/comments/comments.types";
 
 export let client: MongoClient;
 export let blogsCollection: Collection<BlogDBType>;
 export let postsCollection: Collection<PostDBType>;
 export let usersCollection: Collection<UserDBType>;
-export let commentsCollection: Collection<CommentType>;
+export let commentsCollection: Collection<CommentDBType>;
 
 export const runDb = async (url: string): Promise<boolean> => {
     try {
@@ -17,7 +17,7 @@ export const runDb = async (url: string): Promise<boolean> => {
         blogsCollection = db.collection<BlogDBType>('blogs');
         postsCollection = db.collection<PostDBType>('posts');
         usersCollection = db.collection<UserDBType>('users');
-        commentsCollection = db.collection<CommentType>('comments');
+        commentsCollection = db.collection<CommentDBType>('comments');
 
         await client.connect();
         await db.command({ ping: 1 });
@@ -114,7 +114,7 @@ const posts: PostDBType[] = [
 ];
 
 const users: UserDBType[] = [];
-const comments: CommentType[] = [];
+const comments: CommentDBType[] = [];
 
 export const initialDb: DBType = {
     blogs,

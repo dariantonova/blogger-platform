@@ -6,7 +6,7 @@ import {
     PostDBType,
     RequestWithBody,
     RequestWithParams,
-    RequestWithParamsAndBody,
+    RequestWithParamsAndBody, RequestWithParamsAndQuery,
     RequestWithQuery
 } from "../../types/types";
 import {URIParamsPostIdModel} from "./models/URIParamsPostIdModel";
@@ -18,6 +18,12 @@ import {QueryPostsModel} from "./models/QueryPostsModel";
 import {postsQueryRepository} from "./repositories/posts.query.repository";
 import {getPostsQueryParamsValues} from "../../helpers/query-params-values";
 import {validationResult} from "express-validator";
+import {CommentViewModel, CreateCommentInputModel} from "../comments/comments.types";
+import {commentsService} from "../comments/comments.service";
+import {ResultStatus} from "../../common/result/resultStatus";
+import {resultStatusToHttp} from "../../common/result/resultStatusToHttp";
+import {commentsQueryRepository} from "../comments/comments.query.repository";
+import {QueryCommentsModel} from "./models/QueryCommentsModel";
 
 export const createPostsPaginator = async (items: PostDBType[], page: number, pageSize: number,
                                      pagesCount: number, totalCount: number): Promise<Paginator<PostViewModel>> => {
@@ -140,5 +146,31 @@ export const postsController = {
                 .status(HTTP_STATUSES.BAD_REQUEST_400)
                 .json(error);
         }
+    },
+    createPostComment: async (req: RequestWithParamsAndBody<{ postId: string }, CreateCommentInputModel>,
+                              res: Response<CommentViewModel>) => {
+        const result = await commentsService.createComment(
+            req.params.postId, req.user!.id, req.body.content
+        );
+
+        if (result.status !== ResultStatus.SUCCESS) {
+            res.sendStatus(resultStatusToHttp(result.status));
+            return;
+        }
+
+        const createdCommentId = result.data as string;
+        const createdComment = await commentsQueryRepository.findCommentById(createdCommentId);
+        if (!createdComment) {
+            res.sendStatus(HTTP_STATUSES.INTERNAL_SERVER_ERROR_500);
+            return;
+        }
+
+        res
+            .status(HTTP_STATUSES.CREATED_201)
+            .json(createdComment);
+    },
+    getPostComments: async (req: RequestWithParamsAndQuery<{ postId: string }, QueryCommentsModel>,
+                            res: Response<Paginator<CommentViewModel>>) => {
+        // get post comments from comments service
     },
 };

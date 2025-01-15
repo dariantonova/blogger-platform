@@ -46,8 +46,11 @@ export const postsService = {
             return null;
         }
 
-        return postsRepository.findPostsByBlogId(
+        return postsRepository.findBlogPosts(
             blogId, sortBy, sortDirection, pageNumber, pageSize
         );
+    },
+    async findPostById(id: string): Promise<PostDBType | null> {
+        return postsRepository.findPostById(id);
     },
 };

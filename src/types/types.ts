@@ -1,5 +1,5 @@
 import {Request} from 'express';
-import {CommentType} from "../features/comments/comments.types";
+import {CommentDBType} from "../features/comments/comments.types";
 
 export type RequestWithBody<T> = Request<{}, {}, T>;
 export type RequestWithParams<T> = Request<T>;
@@ -50,7 +50,7 @@ export type DBType = {
     blogs: BlogDBType[],
     posts: PostDBType[],
     users: UserDBType[],
-    comments: CommentType[],
+    comments: CommentDBType[],
 };
 
 export enum SortDirections {

@@ -9,6 +9,8 @@ import {
 } from "../../validation/field-validators/posts-field-validators";
 import {errorsResultMiddleware} from "../../validation/errors-result-middleware";
 import {pageNumberQueryParamValidator, pageSizeQueryParamValidator} from "../../validation/query-params-validators";
+import {bearerAuthorizationMiddleware} from "../../middlewares/bearer-authorization-middleware";
+import {contentCommentFieldValidator} from "../../validation/field-validators/comments-field-validators";
 
 const router = Router();
 
@@ -37,5 +39,10 @@ router.put('/:id',
     blogIdFieldValidator,
     errorsResultMiddleware,
     postsController.updatePost);
+router.post('/:postId/comments',
+    bearerAuthorizationMiddleware,
+    contentCommentFieldValidator,
+    errorsResultMiddleware,
+    postsController.createPostComment);
 
 export { router as postsRouter };

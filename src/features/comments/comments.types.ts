@@ -1,10 +1,18 @@
-export type CommentInputModel = {
+export type CreateCommentInputModel = {
     content: string,
 };
 
 export type CommentatorInfo = {
     userId: string,
     userLogin: string,
+};
+
+export type CommentDBType = {
+    content: string,
+    postId: string,
+    commentatorInfo: CommentatorInfo,
+    createdAt: string,
+    isDeleted: boolean,
 };
 
 export type CommentType = {
