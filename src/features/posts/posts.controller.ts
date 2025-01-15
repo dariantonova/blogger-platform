@@ -16,9 +16,9 @@ import {UpdatePostInputModel} from "./models/UpdatePostInputModel";
 import {postsService} from "./posts.service";
 import {QueryPostsModel} from "./models/QueryPostsModel";
 import {postsQueryRepository} from "./repositories/posts.query.repository";
-import {getPostsQueryParamsValues} from "../../helpers/query-params-values";
+import {getPostsQueryParamsValues, getQueryParamsValues} from "../../helpers/query-params-values";
 import {validationResult} from "express-validator";
-import {CommentViewModel, CreateCommentInputModel} from "../comments/comments.types";
+import {CommentType, CommentViewModel, CreateCommentInputModel} from "../comments/comments.types";
 import {commentsService} from "../comments/comments.service";
 import {ResultStatus} from "../../common/result/resultStatus";
 import {resultStatusToHttp} from "../../common/result/resultStatusToHttp";
@@ -171,6 +171,37 @@ export const postsController = {
     },
     getPostComments: async (req: RequestWithParamsAndQuery<{ postId: string }, QueryCommentsModel>,
                             res: Response<Paginator<CommentViewModel>>) => {
-        // get post comments from comments service
+        const postId = req.params.postId;
+        const {
+            sortBy,
+            sortDirection,
+            pageNumber,
+            pageSize,
+        } = getQueryParamsValues(req);
+
+        const result = await commentsService.getPostComments(
+            postId, sortBy, sortDirection, pageNumber, pageSize
+        );
+
+        if (result.status !== ResultStatus.SUCCESS) {
+            res.sendStatus(resultStatusToHttp(result.status));
+            return;
+        }
+
+        const foundComments = result.data as CommentType[];
+        const commentsOutput = await Promise.all(
+            foundComments.map(commentsQueryRepository.mapBusinessEntityToOutput));
+
+        const totalCount = await commentsQueryRepository.countPostComments(postId);
+        const pagesCount = Math.ceil(totalCount / pageSize);
+
+        const output: Paginator<CommentViewModel> = {
+            pagesCount,
+            page: pageNumber,
+            pageSize,
+            totalCount,
+            items: commentsOutput,
+        };
+        res.json(output);
     },
 };

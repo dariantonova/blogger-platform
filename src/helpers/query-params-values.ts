@@ -25,6 +25,12 @@ export const DEFAULT_QUERY_VALUES = {
         searchLoginTerm: null,
         searchEmailTerm: null,
     },
+    COMMON: {
+        sortBy: 'createdAt',
+        sortDirection: SortDirections.DESC,
+        pageSize: 10,
+        pageNumber: 1,
+    },
 };
 
 export const getBlogsQueryParamsValues = (req: RequestWithQuery<QueryBlogsModel>) => {
@@ -82,6 +88,31 @@ export const getUsersQueryParamsValues = (req: RequestWithQuery<QueryUsersModel>
     return {
         searchLoginTerm,
         searchEmailTerm,
+        sortBy,
+        sortDirection,
+        pageSize,
+        pageNumber
+    };
+};
+
+type CommonQueryModel = {
+    sortBy?: string,
+    sortDirection?: string,
+    pageNumber?: string,
+    pageSize?: string,
+};
+
+export const getQueryParamsValues = (req: RequestWithQuery<CommonQueryModel>) => {
+    const sortBy = req.query.sortBy || DEFAULT_QUERY_VALUES.COMMON.sortBy;
+    const sortDirection =
+        req.query.sortDirection && req.query.sortDirection === SortDirections.ASC
+            ? SortDirections.ASC
+            : SortDirections.DESC;
+
+    const pageSize = req.query.pageSize ? +req.query.pageSize : DEFAULT_QUERY_VALUES.COMMON.pageSize;
+    const pageNumber = req.query.pageNumber ? +req.query.pageNumber : DEFAULT_QUERY_VALUES.COMMON.pageNumber;
+
+    return {
         sortBy,
         sortDirection,
         pageSize,

@@ -11,6 +11,7 @@ import {errorsResultMiddleware} from "../../validation/errors-result-middleware"
 import {pageNumberQueryParamValidator, pageSizeQueryParamValidator} from "../../validation/query-params-validators";
 import {bearerAuthorizationMiddleware} from "../../middlewares/bearer-authorization-middleware";
 import {contentCommentFieldValidator} from "../../validation/field-validators/comments-field-validators";
+import {queryValidationErrorMiddleware} from "../../validation/query-validation-error-middleware";
 
 const router = Router();
 
@@ -44,5 +45,10 @@ router.post('/:postId/comments',
     contentCommentFieldValidator,
     errorsResultMiddleware,
     postsController.createPostComment);
+router.get('/:postId/comments',
+    pageNumberQueryParamValidator,
+    pageSizeQueryParamValidator,
+    queryValidationErrorMiddleware,
+    postsController.getPostComments);
 
 export { router as postsRouter };

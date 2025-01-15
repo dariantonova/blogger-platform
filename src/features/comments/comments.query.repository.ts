@@ -1,4 +1,4 @@
-import {CommentDBType, CommentViewModel} from "./comments.types";
+import {CommentDBType, CommentType, CommentViewModel} from "./comments.types";
 import {commentsCollection} from "../../db/db";
 import {WithId} from "mongodb";
 
@@ -15,5 +15,17 @@ export const commentsQueryRepository = {
             commentatorInfo: dbComment.commentatorInfo,
             createdAt: dbComment.createdAt,
         };
+    },
+    async mapBusinessEntityToOutput(comment: CommentType): Promise<CommentViewModel> {
+        return {
+            id: comment.id,
+            content: comment.content,
+            commentatorInfo: comment.commentatorInfo,
+            createdAt: comment.createdAt,
+        };
+    },
+    async countPostComments(postId: string): Promise<number> {
+        const filterObj = { isDeleted: false, postId };
+        return commentsCollection.countDocuments(filterObj);
     },
 };
