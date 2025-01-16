@@ -42,4 +42,7 @@ export const commentsRepository = {
             createdAt: dbComment.createdAt,
         };
     },
+    async deleteAllComments() {
+        await commentsCollection.drop();
+    },
 };

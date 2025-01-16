@@ -62,4 +62,7 @@ export const commentsService = {
             data: foundComments,
         }
     },
+    async deleteAllComments() {
+        await commentsRepository.deleteAllComments();
+    },
 };
