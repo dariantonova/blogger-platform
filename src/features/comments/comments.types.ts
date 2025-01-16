@@ -29,3 +29,7 @@ export type CommentViewModel = {
     commentatorInfo: CommentatorInfo,
     createdAt: string,
 };
+
+export type URIParamsCommentIdModel = {
+    id: string,
+};

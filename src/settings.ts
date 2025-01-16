@@ -10,6 +10,7 @@ export const SETTINGS = {
         TESTING: '/api/testing',
         USERS: '/api/users',
         AUTH: '/api/auth',
+        COMMENTS: '/api/comments',
     },
     CREDENTIALS: {
         LOGIN: 'admin',
