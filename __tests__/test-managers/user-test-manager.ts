@@ -39,7 +39,7 @@ export const userTestManager = {
                 loginOrEmail: data.login,
                 password: data.password,
             };
-            await authTestManager.login(loginData, HTTP_STATUSES.NO_CONTENT_204);
+            await authTestManager.login(loginData, HTTP_STATUSES.OK_200);
         }
 
         return response;

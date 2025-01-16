@@ -247,23 +247,27 @@ describe('tests for /auth', () => {
         });
 
         // login by login
-        it('should return 204 if login and password are correct', async () => {
+        it('should return 200 if login and password are correct', async () => {
             const data: LoginInputModel = {
                 loginOrEmail: createUsersData[0].login,
                 password: createUsersData[0].password,
             };
 
-            await authTestManager.login(data, HTTP_STATUSES.NO_CONTENT_204);
+            await authTestManager.login(data, HTTP_STATUSES.OK_200);
         });
 
         // login by email
-        it('should return 204 if email and password are correct', async () => {
+        it('should return 200 if email and password are correct', async () => {
             const data: LoginInputModel = {
                 loginOrEmail: createUsersData[0].email,
                 password: createUsersData[0].password,
             };
 
-            await authTestManager.login(data, HTTP_STATUSES.NO_CONTENT_204);
+            await authTestManager.login(data, HTTP_STATUSES.OK_200);
         });
+    });
+
+    describe('get current user info', () => {
+
     });
 });
