@@ -95,4 +95,34 @@ export const commentsService = {
             data: null,
         };
     },
+    async updateComment(commentId: string, currentUserId: string, content: string): Promise<Result<null>> {
+        const comment = await commentsRepository.findCommentById(commentId);
+
+        if (!comment) {
+            return {
+                status: ResultStatus.NOT_FOUND,
+                data: null,
+            };
+        }
+
+        if (comment.commentatorInfo.userId !== currentUserId) {
+            return {
+                status: ResultStatus.FORBIDDEN,
+                data: null,
+            }
+        }
+
+        const isUpdated = await commentsRepository.updateComment(commentId, content);
+        if (!isUpdated) {
+            return {
+                status: ResultStatus.INTERNAL_SERVER_ERROR,
+                data: null,
+            };
+        }
+
+        return {
+            status: ResultStatus.SUCCESS,
+            data: null,
+        };
+    },
 };

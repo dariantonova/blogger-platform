@@ -1,5 +1,5 @@
-import {RequestWithParams} from "../../types/types";
-import {CommentViewModel, URIParamsCommentIdModel} from "./comments.types";
+import {RequestWithParams, RequestWithParamsAndBody} from "../../types/types";
+import {CommentViewModel, UpdateCommentInputModel, URIParamsCommentIdModel} from "./comments.types";
 import {Response} from 'express';
 import {commentsQueryRepository} from "./comments.query.repository";
 import {HTTP_STATUSES} from "../../utils";
@@ -20,6 +20,19 @@ export const commentsController = {
     },
     deleteComment: async (req: RequestWithParams<URIParamsCommentIdModel>, res: Response) => {
         const result = await commentsService.deleteComment(req.params.id, req.user!.id);
+
+        if (result.status !== ResultStatus.SUCCESS) {
+            res.sendStatus(resultStatusToHttp(result.status));
+            return;
+        }
+
+        res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
+    },
+    updateComment: async (req: RequestWithParamsAndBody<URIParamsCommentIdModel, UpdateCommentInputModel>,
+                          res: Response) => {
+        const result = await commentsService.updateComment(
+            req.params.id, req.user!.id, req.body.content
+        );
 
         if (result.status !== ResultStatus.SUCCESS) {
             res.sendStatus(resultStatusToHttp(result.status));

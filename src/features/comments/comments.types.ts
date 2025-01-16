@@ -2,6 +2,10 @@ export type CreateCommentInputModel = {
     content: string,
 };
 
+export type UpdateCommentInputModel = {
+    content: string,
+};
+
 export type CommentatorInfo = {
     userId: string,
     userLogin: string,
