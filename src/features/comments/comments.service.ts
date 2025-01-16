@@ -65,4 +65,34 @@ export const commentsService = {
     async deleteAllComments() {
         await commentsRepository.deleteAllComments();
     },
+    async deleteComment(commentId: string, currentUserId: string): Promise<Result<null>> {
+        const comment = await commentsRepository.findCommentById(commentId);
+
+        if (!comment) {
+            return {
+                status: ResultStatus.NOT_FOUND,
+                data: null,
+            };
+        }
+
+        if (comment.commentatorInfo.userId !== currentUserId) {
+            return {
+                status: ResultStatus.FORBIDDEN,
+                data: null,
+            };
+        }
+
+        const isDeleted = await commentsRepository.deleteComment(commentId);
+        if (!isDeleted) {
+            return {
+                status: ResultStatus.INTERNAL_SERVER_ERROR,
+                data: null,
+            };
+        }
+
+        return {
+            status: ResultStatus.SUCCESS,
+            data: null,
+        };
+    },
 };

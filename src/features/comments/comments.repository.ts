@@ -45,4 +45,17 @@ export const commentsRepository = {
     async deleteAllComments() {
         await commentsCollection.drop();
     },
+    async findCommentById(id: string): Promise<CommentType | null> {
+        const filterObj = { isDeleted: false, id };
+        const foundComment = await commentsCollection.findOne(filterObj);
+        return foundComment ? this.mapToBusinessEntity(foundComment) : null;
+    },
+    async deleteComment(id: string): Promise<boolean> {
+        const updateInfo = await commentsCollection.updateOne(
+            { isDeleted: false, id },
+            { $set: { isDeleted: true } }
+        );
+
+        return updateInfo.modifiedCount === 1;
+    },
 };
