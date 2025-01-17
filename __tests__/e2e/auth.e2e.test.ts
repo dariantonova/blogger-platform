@@ -9,7 +9,8 @@ import {SETTINGS} from "../../src/settings";
 import {validAuthLoginInput} from "../datasets/validation/auth-login-validation-data";
 
 
-import {LoginInputModel} from "../../src/features/auth/types/auth.types";
+import {LoginInputModel, MeViewModel} from "../../src/features/auth/types/auth.types";
+import {jwtSignOptions} from "../../src/application/jwt.service";
 
 describe('tests for /auth', () => {
     let server: MongoMemoryServer;
@@ -268,6 +269,118 @@ describe('tests for /auth', () => {
     });
 
     describe('get current user info', () => {
+        let createUsersData: CreateUserInputModel[];
+        let createdUserIds: string[];
 
+        beforeAll(async () => {
+            await req
+                .delete(SETTINGS.PATH.TESTING + '/all-data');
+        });
+
+        beforeEach(async () => {
+            createUsersData = [
+                {
+                    login: 'user1',
+                    email: 'user1@example.com',
+                    password: 'qwerty',
+                },
+                {
+                    login: 'user2',
+                    email: 'user2@example.com',
+                    password: 'qwerty1234',
+                },
+                {
+                    login: 'user3',
+                    email: 'user3@example.com',
+                    password: '1234qwerty',
+                },
+            ];
+
+            createdUserIds = [];
+            for (const createUserData of createUsersData) {
+                const createUserResponse = await userTestManager.createUser(createUserData,
+                    HTTP_STATUSES.CREATED_201);
+                createdUserIds.push(createUserResponse.body.id);
+            }
+        });
+
+        afterEach(async () =>{
+            await req
+                .delete(SETTINGS.PATH.TESTING + '/all-data');
+        });
+
+        const getAccessTokenForUser = async (userIndex: number) => {
+            const loginData: LoginInputModel = {
+                loginOrEmail: createUsersData[userIndex].login,
+                password: createUsersData[userIndex].password,
+            };
+            const loginResponse = await authTestManager.login(loginData, HTTP_STATUSES.OK_200);
+            return loginResponse.body.accessToken;
+        };
+
+        it('should return 401 if authorization header is not present', async () => {
+            await req
+                .get(SETTINGS.PATH.AUTH + '/me')
+                .expect(HTTP_STATUSES.UNAUTHORIZED_401);
+        });
+
+        it('should return 401 if access token is invalid', async () => {
+            // never existed, weird
+            await authTestManager.getCurrentUserInfo('Bearer somethingWeird',
+                HTTP_STATUSES.UNAUTHORIZED_401);
+
+            // existed, but user was deleted
+            const userIndex = 0;
+            const token = await getAccessTokenForUser(userIndex);
+
+            await userTestManager.deleteUser(createdUserIds[userIndex],
+                HTTP_STATUSES.NO_CONTENT_204);
+
+            await authTestManager.getCurrentUserInfo('Bearer ' + token,
+                HTTP_STATUSES.UNAUTHORIZED_401);
+        });
+
+        const timeout = async (ms: number) => {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        };
+
+        it('should return 401 if token is expired', async () => {
+            jwtSignOptions.expiresIn = '10ms';
+            const userIndex = 0;
+            const token = await getAccessTokenForUser(userIndex);
+
+            await timeout(10);
+
+            await authTestManager.getCurrentUserInfo('Bearer ' + token,
+                HTTP_STATUSES.UNAUTHORIZED_401);
+
+            jwtSignOptions.expiresIn = '7d';
+        });
+
+        it('should return 401 if auth header format is invalid', async () => {
+            const userIndex = 0;
+            const token = await getAccessTokenForUser(userIndex);
+
+            await authTestManager.getCurrentUserInfo(token,
+                HTTP_STATUSES.UNAUTHORIZED_401);
+
+            await authTestManager.getCurrentUserInfo(token + ' Bearer',
+                HTTP_STATUSES.UNAUTHORIZED_401);
+        });
+
+        it('should return current user info if access token is valid', async () => {
+            const userIndex = 0;
+            const token = await getAccessTokenForUser(userIndex);
+
+            const response = await authTestManager.getCurrentUserInfo('Bearer ' + token,
+                HTTP_STATUSES.OK_200);
+
+            const currentUserInfo: MeViewModel = response.body;
+            expect(currentUserInfo).toEqual({
+                login: createUsersData[userIndex].login,
+                email: createUsersData[userIndex].email,
+                userId: createdUserIds[userIndex],
+            });
+        });
     });
 });

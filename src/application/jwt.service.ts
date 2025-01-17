@@ -2,12 +2,13 @@ import {UserDBType} from "../types/types";
 import jwt from 'jsonwebtoken';
 import {SETTINGS} from "../settings";
 
+export const jwtSignOptions: jwt.SignOptions = { expiresIn: '7d' };
+
 export const jwtService = {
     async createJwt(user: UserDBType): Promise<string> {
         const payload = { userId: user.id };
         const secret = SETTINGS.JWT_SECRET;
-        const options = { expiresIn: '7d' };
-        return jwt.sign(payload, secret, options);
+        return jwt.sign(payload, secret, jwtSignOptions);
     },
     async getUserIdByToken(token: string): Promise<string | null> {
         try {

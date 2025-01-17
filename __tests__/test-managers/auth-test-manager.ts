@@ -17,4 +17,10 @@ export const authTestManager = {
 
         return response;
     },
+    async getCurrentUserInfo(auth: string, expectedStatusCode: number) {
+        return req
+            .get(SETTINGS.PATH.AUTH + '/me')
+            .set('Authorization', auth)
+            .expect(expectedStatusCode);
+    },
 }

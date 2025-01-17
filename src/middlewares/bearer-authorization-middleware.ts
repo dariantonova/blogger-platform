@@ -19,6 +19,10 @@ export const bearerAuthorizationMiddleware = async (req: Request, res: Response,
     }
 
     const user = await usersService.findUserById(userId);
+    if (!user) {
+        res.sendStatus(HTTP_STATUSES.UNAUTHORIZED_401);
+        return;
+    }
     req.user = user;
 
     next();
