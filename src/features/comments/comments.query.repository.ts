@@ -1,10 +1,10 @@
 import {CommentDBType, CommentType, CommentViewModel} from "./comments.types";
 import {commentsCollection} from "../../db/db";
-import {WithId} from "mongodb";
+import {ObjectId, WithId} from "mongodb";
 
 export const commentsQueryRepository = {
     async findCommentById(id: string): Promise<CommentViewModel | null> {
-        const filterObj = { idDeleted: false, id };
+        const filterObj: any = { isDeleted: false, _id: new ObjectId(id) };
         const comment = await commentsCollection.findOne(filterObj);
         return comment ? this.mapToOutput(comment) : null;
     },

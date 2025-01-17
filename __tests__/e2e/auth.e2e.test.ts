@@ -289,11 +289,6 @@ describe('tests for /auth', () => {
                     email: 'user2@example.com',
                     password: 'qwerty1234',
                 },
-                {
-                    login: 'user3',
-                    email: 'user3@example.com',
-                    password: '1234qwerty',
-                },
             ];
 
             createdUserIds = [];

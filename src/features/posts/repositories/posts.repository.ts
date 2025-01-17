@@ -54,7 +54,7 @@ export const postsRepository = {
             .toArray() as PostDBType[];
     },
     async findPostById(id: string): Promise<PostDBType | null> {
-        const filterObj: any = { idDeleted: false, id };
+        const filterObj: any = { isDeleted: false, id };
         return postsCollection.findOne(filterObj, { projection: { _id: 0 } });
     },
 };

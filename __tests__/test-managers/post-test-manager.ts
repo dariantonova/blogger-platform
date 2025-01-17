@@ -95,4 +95,16 @@ export const postTestManager = {
 
         return response;
     },
+    async createPostComment(postId: string, data: any, auth: string, expectedStatusCode: number) {
+        return req
+            .post(SETTINGS.PATH.POSTS + '/' + postId + '/comments')
+            .set('Authorization', auth)
+            .send(data)
+            .expect(expectedStatusCode);
+    },
+    async getPostComments(postId: string, expectedStatusCode: number, query: string = '') {
+        return req
+            .get(SETTINGS.PATH.POSTS + '/' + postId + '/comments' + '?' + query)
+            .expect(expectedStatusCode);
+    },
 };
