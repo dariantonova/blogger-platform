@@ -14,9 +14,13 @@ router.get('/:id',
     commentsController.getComment);
 router.delete('/:id',
     bearerAuthorizationMiddleware,
+    idUriParamValidator,
+    paramsValidationErrorMiddleware,
     commentsController.deleteComment);
 router.put('/:id',
     bearerAuthorizationMiddleware,
+    idUriParamValidator,
+    paramsValidationErrorMiddleware,
     contentCommentFieldValidator,
     errorsResultMiddleware,
     commentsController.updateComment);

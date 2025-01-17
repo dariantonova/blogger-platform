@@ -117,6 +117,9 @@ describe('tests for create comments endpoint', () => {
             .post(SETTINGS.PATH.POSTS + '/' + postId + '/comments')
             .send(data)
             .expect(HTTP_STATUSES.UNAUTHORIZED_401);
+
+        const getPostCommentsResponse = await postTestManager.getPostComments(postId, HTTP_STATUSES.OK_200);
+        expect(getPostCommentsResponse.body.items.length).toBe(0);
     });
 
     // - invalid token
@@ -141,6 +144,9 @@ describe('tests for create comments endpoint', () => {
         await postTestManager.createPostComment(postId, data,
             'Bearer ' + token,
             HTTP_STATUSES.UNAUTHORIZED_401);
+
+        const getPostCommentsResponse = await postTestManager.getPostComments(postId, HTTP_STATUSES.OK_200);
+        expect(getPostCommentsResponse.body.items.length).toBe(0);
     });
 
     // - expired token
@@ -164,6 +170,9 @@ describe('tests for create comments endpoint', () => {
             'Bearer ' + token,
             HTTP_STATUSES.UNAUTHORIZED_401);
 
+        const getPostCommentsResponse = await postTestManager.getPostComments(postId, HTTP_STATUSES.OK_200);
+        expect(getPostCommentsResponse.body.items.length).toBe(0);
+
         jwtSignOptions.expiresIn = '7d';
     });
 
@@ -184,6 +193,9 @@ describe('tests for create comments endpoint', () => {
         await postTestManager.createPostComment(postId, data,
             token + ' Bearer',
             HTTP_STATUSES.UNAUTHORIZED_401);
+
+        const getPostCommentsResponse = await postTestManager.getPostComments(postId, HTTP_STATUSES.OK_200);
+        expect(getPostCommentsResponse.body.items.length).toBe(0);
     });
 
     // validation
@@ -206,6 +218,9 @@ describe('tests for create comments endpoint', () => {
                 }
             ],
         });
+
+        const getPostCommentsResponse = await postTestManager.getPostComments(postId, HTTP_STATUSES.OK_200);
+        expect(getPostCommentsResponse.body.items.length).toBe(0);
     });
 
     it(`shouldn't create comment if content is invalid`, async () => {
@@ -298,6 +313,9 @@ describe('tests for create comments endpoint', () => {
                 }
             ],
         });
+
+        const getPostCommentsResponse = await postTestManager.getPostComments(postId, HTTP_STATUSES.OK_200);
+        expect(getPostCommentsResponse.body.items.length).toBe(0);
     });
 
     // non-existing post

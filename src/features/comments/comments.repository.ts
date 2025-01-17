@@ -1,7 +1,7 @@
 import {CommentDBType, CommentType} from "./comments.types";
 import {commentsCollection, usersCollection} from "../../db/db";
 import {SortDirections} from "../../types/types";
-import {WithId} from "mongodb";
+import {ObjectId, WithId} from "mongodb";
 
 export const commentsRepository = {
     async createComment(comment: Omit<CommentType, 'id'>): Promise<string> {
@@ -46,13 +46,13 @@ export const commentsRepository = {
         await commentsCollection.drop();
     },
     async findCommentById(id: string): Promise<CommentType | null> {
-        const filterObj = { isDeleted: false, id };
+        const filterObj = { isDeleted: false, _id: new ObjectId(id) };
         const foundComment = await commentsCollection.findOne(filterObj);
         return foundComment ? this.mapToBusinessEntity(foundComment) : null;
     },
     async deleteComment(id: string): Promise<boolean> {
         const updateInfo = await commentsCollection.updateOne(
-            { isDeleted: false, id },
+            { isDeleted: false, _id: new ObjectId(id) },
             { $set: { isDeleted: true } }
         );
 
@@ -60,7 +60,7 @@ export const commentsRepository = {
     },
     async updateComment(id: string, content: string): Promise<boolean> {
         const updateInfo = await usersCollection.updateOne(
-            { isDeleted: false, id },
+            { isDeleted: false, _id: new ObjectId(id) },
             { $set: { content } }
         );
 
