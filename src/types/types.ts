@@ -1,5 +1,6 @@
 import {Request} from 'express';
 import {CommentDBType} from "../features/comments/comments.types";
+import {OptionalId} from "mongodb";
 
 export type RequestWithBody<T> = Request<{}, {}, T>;
 export type RequestWithParams<T> = Request<T>;
@@ -47,10 +48,10 @@ export type UserDBType = {
 };
 
 export type DBType = {
-    blogs: BlogDBType[],
-    posts: PostDBType[],
-    users: UserDBType[],
-    comments: CommentDBType[],
+    blogs: OptionalId<BlogDBType>[],
+    posts: OptionalId<PostDBType>[],
+    users: OptionalId<UserDBType>[],
+    comments: OptionalId<CommentDBType>[],
 };
 
 export enum SortDirections {

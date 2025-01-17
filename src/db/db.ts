@@ -64,7 +64,9 @@ export const setDb = async (dataset?: Partial<DBType>) => {
     if (dataset.comments) {
         await commentsCollection.drop();
         if (dataset.comments.length > 0) {
-            await commentsCollection.insertMany(structuredClone(dataset.comments));
+            const commentsToInsert = dataset.comments[0]._id ?
+                dataset.comments : structuredClone(dataset.comments);
+            await commentsCollection.insertMany(commentsToInsert);
         }
     }
 };

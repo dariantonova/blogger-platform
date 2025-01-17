@@ -350,10 +350,10 @@ describe('tests for create comments endpoint', () => {
         const initialDbComments: CommentDBType[] = [
             {
                 content: 'The very first comment.',
-                postId: '1',
+                postId: initialDbPosts[0].id,
                 commentatorInfo: {
                     userId: '1',
-                    userLogin: '1',
+                    userLogin: 'user',
                 },
                 createdAt: '2024-12-16T05:32:26.882Z',
                 isDeleted: false,
