@@ -1,25 +1,27 @@
 import {MongoMemoryServer} from "mongodb-memory-server";
+import {BlogDBType, PostDBType} from "../../src/types/types";
+import {CreateUserInputModel} from "../../src/features/users/models/CreateUserInputModel";
+import {ObjectId, WithId} from "mongodb";
+import {CommentDBType, CommentViewModel, UpdateCommentInputModel} from "../../src/features/comments/comments.types";
 import {client, runDb, setDb} from "../../src/db/db";
 import {req} from "../test-helpers";
 import {SETTINGS} from "../../src/settings";
-import {BlogDBType, PostDBType} from "../../src/types/types";
-import {CreateUserInputModel} from "../../src/features/users/models/CreateUserInputModel";
 import {userTestManager} from "../test-managers/user-test-manager";
 import {HTTP_STATUSES} from "../../src/utils";
 import {LoginInputModel} from "../../src/features/auth/types/auth.types";
 import {authTestManager} from "../test-managers/auth-test-manager";
-import {CommentDBType, CommentViewModel, CreateCommentInputModel} from "../../src/features/comments/comments.types";
 import {validCommentFieldInput} from "../datasets/validation/comments-validation-data";
-import {postTestManager} from "../test-managers/post-test-manager";
+import {commentTestManager} from "../test-managers/comment-test-manager";
 import {jwtSignOptions} from "../../src/application/jwt.service";
 
 
-describe('tests for create comments endpoint', () => {
+describe('tests for update comment endpoint', () => {
     let server: MongoMemoryServer;
     let initialDbBlogs: BlogDBType[];
     let initialDbPosts: PostDBType[];
     let createUsersData: CreateUserInputModel[];
     let createdUserIds: string[];
+    let initialDbComments: WithId<CommentDBType>[];
 
     beforeAll(async () => {
         server = await MongoMemoryServer.create();
@@ -61,16 +63,6 @@ describe('tests for create comments endpoint', () => {
                 isDeleted: false,
                 createdAt: '2024-12-16T05:32:26.882Z',
             },
-            {
-                id: '2',
-                title: 'post 2',
-                shortDescription: 'superpost 2',
-                content: 'content of superpost 2',
-                blogId: '1',
-                blogName: 'blog 1',
-                isDeleted: true,
-                createdAt: '2024-12-16T05:32:26.882Z',
-            },
         ];
 
         await setDb({ blogs: initialDbBlogs, posts: initialDbPosts });
@@ -89,6 +81,43 @@ describe('tests for create comments endpoint', () => {
                 HTTP_STATUSES.CREATED_201);
             createdUserIds.push(createUserResponse.body.id);
         }
+
+        initialDbComments = [
+            {
+                _id: new ObjectId(),
+                content: 'The very first comment.',
+                postId: initialDbPosts[0].id,
+                commentatorInfo: {
+                    userId: createdUserIds[0],
+                    userLogin: createUsersData[0].login,
+                },
+                createdAt: '2024-12-16T05:32:26.882Z',
+                isDeleted: false,
+            },
+            {
+                _id: new ObjectId(),
+                content: 'Another comment. Wow!',
+                postId: initialDbPosts[0].id,
+                commentatorInfo: {
+                    userId: createdUserIds[0],
+                    userLogin: createUsersData[0].login,
+                },
+                createdAt: '2024-12-16T05:32:26.882Z',
+                isDeleted: true,
+            },
+            {
+                _id: new ObjectId(),
+                content: 'Comment number 3. Wow!',
+                postId: initialDbPosts[0].id,
+                commentatorInfo: {
+                    userId: createdUserIds[0],
+                    userLogin: createUsersData[0].login,
+                },
+                createdAt: '2024-12-16T05:32:26.882Z',
+                isDeleted: false,
+            },
+        ];
+        await setDb({ comments: initialDbComments });
     });
 
     afterEach(async () => {
@@ -108,28 +137,30 @@ describe('tests for create comments endpoint', () => {
     // auth problems
     // - no auth
     it('should return 401 if authorization header is not present', async () => {
-        const postId = initialDbPosts[0].id;
-        const data: CreateCommentInputModel = {
+        const commentToUpdate = initialDbComments[0];
+        const commentId = commentToUpdate._id.toString();
+        const data: UpdateCommentInputModel = {
             content: validCommentFieldInput.content,
         };
 
         await req
-            .post(SETTINGS.PATH.POSTS + '/' + postId + '/comments')
+            .put(SETTINGS.PATH.COMMENTS + '/' + commentId)
             .send(data)
             .expect(HTTP_STATUSES.UNAUTHORIZED_401);
 
-        await postTestManager.checkPostCommentsQuantity(postId, 0);
+        await commentTestManager.checkCommentIsTheSame(commentToUpdate);
     });
 
     // - invalid token
     it('should return 401 if access token is invalid', async () => {
-        const postId = initialDbPosts[0].id;
-        const data: CreateCommentInputModel = {
+        const commentToUpdate = initialDbComments[0];
+        const commentId = commentToUpdate._id.toString();
+        const data: UpdateCommentInputModel = {
             content: validCommentFieldInput.content,
         };
 
         // never existed, weird
-        await postTestManager.createPostComment(postId, data,
+        await commentTestManager.updateComment(commentId, data,
             'Bearer somethingWeird',
             HTTP_STATUSES.UNAUTHORIZED_401);
 
@@ -140,11 +171,11 @@ describe('tests for create comments endpoint', () => {
         await userTestManager.deleteUser(createdUserIds[userIndex],
             HTTP_STATUSES.NO_CONTENT_204);
 
-        await postTestManager.createPostComment(postId, data,
+        await commentTestManager.updateComment(commentId, data,
             'Bearer ' + token,
             HTTP_STATUSES.UNAUTHORIZED_401);
 
-        await postTestManager.checkPostCommentsQuantity(postId, 0);
+        await commentTestManager.checkCommentIsTheSame(commentToUpdate);
     });
 
     // - expired token
@@ -153,57 +184,110 @@ describe('tests for create comments endpoint', () => {
     };
 
     it('should return 401 if token is expired', async () => {
-        const postId = initialDbPosts[0].id;
-        const data: CreateCommentInputModel = {
+        const commentToUpdate = initialDbComments[0];
+        const commentId = commentToUpdate._id.toString();
+        const data: UpdateCommentInputModel = {
             content: validCommentFieldInput.content,
         };
 
-        jwtSignOptions.expiresIn = '10ms';
+        const expiresIn = 10;
+        jwtSignOptions.expiresIn = expiresIn + 'ms';
         const userIndex = 0;
         const token = await getAccessTokenForUser(userIndex);
 
-        await timeout(10);
+        await timeout(expiresIn);
 
-        await postTestManager.createPostComment(postId, data,
+        await commentTestManager.updateComment(commentId, data,
             'Bearer ' + token,
             HTTP_STATUSES.UNAUTHORIZED_401);
 
-        await postTestManager.checkPostCommentsQuantity(postId, 0);
+        await commentTestManager.checkCommentIsTheSame(commentToUpdate);
 
         jwtSignOptions.expiresIn = '7d';
     });
 
     // - invalid auth format
     it('should return 401 if auth header format is invalid', async () => {
-        const postId = initialDbPosts[0].id;
-        const data: CreateCommentInputModel = {
+        const commentToUpdate = initialDbComments[0];
+        const commentId = commentToUpdate._id.toString();
+        const data: UpdateCommentInputModel = {
             content: validCommentFieldInput.content,
         };
 
         const userIndex = 0;
         const token = await getAccessTokenForUser(userIndex);
 
-        await postTestManager.createPostComment(postId, data,
+        await commentTestManager.updateComment(commentId, data,
             token,
             HTTP_STATUSES.UNAUTHORIZED_401);
 
-        await postTestManager.createPostComment(postId, data,
+        await commentTestManager.updateComment(commentId, data,
             token + ' Bearer',
             HTTP_STATUSES.UNAUTHORIZED_401);
 
-        await postTestManager.checkPostCommentsQuantity(postId, 0);
+        await commentTestManager.checkCommentIsTheSame(commentToUpdate);
+    });
+
+    it('should return 403 when user is trying to update a comment that is not their own',
+        async () => {
+        const createNewUserData = {
+            login: 'user2',
+            email: 'user2@example.com',
+            password: 'qwerty1234',
+        };
+        createUsersData.push(createNewUserData);
+
+        const createUserResponse = await userTestManager.createUser(createNewUserData,
+            HTTP_STATUSES.CREATED_201);
+        createdUserIds.push(createUserResponse.body.id);
+
+        const userIndex = 1;
+        const token = await getAccessTokenForUser(userIndex);
+
+        const commentToUpdate = initialDbComments[0];
+        const commentId = commentToUpdate._id.toString();
+        const data: UpdateCommentInputModel = {
+            content: validCommentFieldInput.content,
+        };
+
+        await commentTestManager.updateComment(commentId, data,
+            'Bearer ' + token,
+            HTTP_STATUSES.FORBIDDEN_403);
+
+        await commentTestManager.checkCommentIsTheSame(commentToUpdate);
+    });
+
+    it('should return 404 when deleting non-existing comment', async () => {
+        const userIndex = 0;
+        const token = await getAccessTokenForUser(userIndex);
+
+        const data: UpdateCommentInputModel = {
+            content: validCommentFieldInput.content,
+        };
+
+        await commentTestManager.updateComment('-100', data,
+            'Bearer ' + token,
+            HTTP_STATUSES.NOT_FOUND_404);
+
+        // deleted
+        const commentToUpdate = initialDbComments[1];
+        const commentId = commentToUpdate._id.toString();
+        await commentTestManager.updateComment(commentId, data,
+            'Bearer ' + token,
+            HTTP_STATUSES.NOT_FOUND_404);
     });
 
     // validation
     // - invalid content
     it(`shouldn't create comment if required fields are missing`, async () => {
-        const postId = initialDbPosts[0].id;
+        const commentToUpdate = initialDbComments[0];
+        const commentId = commentToUpdate._id.toString();
         const data = {};
 
         const userIndex = 0;
         const token = await getAccessTokenForUser(userIndex);
 
-        const response = await postTestManager.createPostComment(postId, data,
+        const response = await commentTestManager.updateComment(commentId, data,
             'Bearer ' + token,
             HTTP_STATUSES.BAD_REQUEST_400);
         expect(response.body).toEqual({
@@ -215,11 +299,12 @@ describe('tests for create comments endpoint', () => {
             ],
         });
 
-        await postTestManager.checkPostCommentsQuantity(postId, 0);
+        await commentTestManager.checkCommentIsTheSame(commentToUpdate);
     });
 
     it(`shouldn't create comment if content is invalid`, async () => {
-        const postId = initialDbPosts[0].id;
+        const commentToUpdate = initialDbComments[0];
+        const commentId = commentToUpdate._id.toString();
 
         const userIndex = 0;
         const token = await getAccessTokenForUser(userIndex);
@@ -229,7 +314,7 @@ describe('tests for create comments endpoint', () => {
             content: 4,
         };
 
-        const response1 = await postTestManager.createPostComment(postId, data1,
+        const response1 = await commentTestManager.updateComment(commentId, data1,
             'Bearer ' + token,
             HTTP_STATUSES.BAD_REQUEST_400);
         expect(response1.body).toEqual({
@@ -246,7 +331,7 @@ describe('tests for create comments endpoint', () => {
             content: '',
         };
 
-        const response2 = await postTestManager.createPostComment(postId, data2,
+        const response2 = await commentTestManager.updateComment(commentId, data2,
             'Bearer ' + token,
             HTTP_STATUSES.BAD_REQUEST_400);
         expect(response2.body).toEqual({
@@ -263,7 +348,7 @@ describe('tests for create comments endpoint', () => {
             content: '  ',
         };
 
-        const response3 = await postTestManager.createPostComment(postId, data3,
+        const response3 = await commentTestManager.updateComment(commentId, data3,
             'Bearer ' + token,
             HTTP_STATUSES.BAD_REQUEST_400);
         expect(response3.body).toEqual({
@@ -280,7 +365,7 @@ describe('tests for create comments endpoint', () => {
             content: 'a'.repeat(19),
         };
 
-        const response4 = await postTestManager.createPostComment(postId, data4,
+        const response4 = await commentTestManager.updateComment(commentId, data4,
             'Bearer ' + token,
             HTTP_STATUSES.BAD_REQUEST_400);
         expect(response4.body).toEqual({
@@ -297,7 +382,7 @@ describe('tests for create comments endpoint', () => {
             content: 'a'.repeat(301),
         };
 
-        const response5 = await postTestManager.createPostComment(postId, data5,
+        const response5 = await commentTestManager.updateComment(commentId, data5,
             'Bearer ' + token,
             HTTP_STATUSES.BAD_REQUEST_400);
         expect(response5.body).toEqual({
@@ -309,94 +394,31 @@ describe('tests for create comments endpoint', () => {
             ],
         });
 
-        await postTestManager.checkPostCommentsQuantity(postId, 0);
+        await commentTestManager.checkCommentIsTheSame(commentToUpdate);
     });
 
-    // non-existing post
-    it(`shouldn't create comment of non-existing post`, async () => {
-        const data: CreateCommentInputModel = {
+    // successful update
+    it('should update the first comment', async () => {
+        const dbCommentToUpdate = initialDbComments[0];
+        const commentId = dbCommentToUpdate._id.toString();
+        const data = {
             content: validCommentFieldInput.content,
         };
 
         const userIndex = 0;
         const token = await getAccessTokenForUser(userIndex);
 
-        await postTestManager.createPostComment('-100', data,
+        await commentTestManager.updateComment(commentId, data,
             'Bearer ' + token,
-            HTTP_STATUSES.NOT_FOUND_404);
+            HTTP_STATUSES.NO_CONTENT_204);
 
-        // deleted
-        const postId = initialDbPosts[1].id;
-        await postTestManager.createPostComment(postId, data,
-            'Bearer ' + token,
-            HTTP_STATUSES.NOT_FOUND_404);
-    });
+        const getCommentResponse = await req
+            .get(SETTINGS.PATH.COMMENTS + '/' + commentId)
+            .expect(HTTP_STATUSES.OK_200);
+        const updatedComment: CommentViewModel = getCommentResponse.body;
 
-    // successful create (2 times)
-    it('should create comment', async () => {
-        const postId = initialDbPosts[0].id;
-        const data: CreateCommentInputModel = {
-            content: 'The very first comment.',
-        };
-
-        const userIndex = 0;
-        const token = await getAccessTokenForUser(userIndex);
-
-        const response = await postTestManager.createPostComment(postId, data,
-            'Bearer ' + token,
-            HTTP_STATUSES.CREATED_201);
-
-        const createdComment: CommentViewModel = response.body;
-        expect(createdComment.id).toEqual(expect.any(String));
-        expect(createdComment.content).toBe(data.content);
-        expect(createdComment.commentatorInfo.userId).toBe(createdUserIds[userIndex]);
-        expect(createdComment.commentatorInfo.userLogin).toBe(createUsersData[userIndex].login);
-        expect(createdComment.createdAt).toEqual(expect.any(String));
-        expect(new Date(createdComment.createdAt).getTime()).not.toBeNaN();
-
-        const getCommentsResponse = await postTestManager.getPostComments(postId, HTTP_STATUSES.OK_200);
-        expect(getCommentsResponse.body.items).toEqual([createdComment]);
-    });
-
-    it('should create one more comment', async () => {
-        const initialDbComments: CommentDBType[] = [
-            {
-                content: 'The very first comment.',
-                postId: initialDbPosts[0].id,
-                commentatorInfo: {
-                    userId: '1',
-                    userLogin: 'user',
-                },
-                createdAt: '2024-12-16T05:32:26.882Z',
-                isDeleted: false,
-            },
-        ];
-        await setDb({ comments: initialDbComments });
-
-        const postId = initialDbPosts[0].id;
-
-        const userIndex = 0;
-        const token = await getAccessTokenForUser(userIndex);
-
-        const data: CreateCommentInputModel = {
-            content: 'Another comment. Wow!',
-        };
-        const response = await postTestManager.createPostComment(postId, data,
-            'Bearer ' + token,
-            HTTP_STATUSES.CREATED_201);
-
-        const createdComment: CommentViewModel = response.body;
-        expect(createdComment.id).toEqual(expect.any(String));
-        expect(createdComment.content).toBe(data.content);
-        expect(createdComment.commentatorInfo.userId).toBe(createdUserIds[userIndex]);
-        expect(createdComment.commentatorInfo.userLogin).toBe(createUsersData[userIndex].login);
-        expect(createdComment.createdAt).toEqual(expect.any(String));
-        expect(new Date(createdComment.createdAt).getTime()).not.toBeNaN();
-
-        await req
-            .get(SETTINGS.PATH.COMMENTS + '/' + createdComment.id)
-            .expect(HTTP_STATUSES.OK_200, createdComment);
-
-        await postTestManager.checkPostCommentsQuantity(postId, 2);
+        expect(updatedComment.content).toBe(data.content);
+        expect(updatedComment.commentatorInfo).toEqual(dbCommentToUpdate.commentatorInfo);
+        expect(updatedComment.createdAt).toEqual(dbCommentToUpdate.createdAt);
     });
 });

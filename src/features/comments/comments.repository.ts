@@ -1,5 +1,5 @@
 import {CommentDBType, CommentType} from "./comments.types";
-import {commentsCollection, usersCollection} from "../../db/db";
+import {commentsCollection} from "../../db/db";
 import {SortDirections} from "../../types/types";
 import {ObjectId, WithId} from "mongodb";
 
@@ -59,7 +59,7 @@ export const commentsRepository = {
         return updateInfo.modifiedCount === 1;
     },
     async updateComment(id: string, content: string): Promise<boolean> {
-        const updateInfo = await usersCollection.updateOne(
+        const updateInfo = await commentsCollection.updateOne(
             { isDeleted: false, _id: new ObjectId(id) },
             { $set: { content } }
         );

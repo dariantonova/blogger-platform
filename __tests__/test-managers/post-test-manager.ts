@@ -107,4 +107,8 @@ export const postTestManager = {
             .get(SETTINGS.PATH.POSTS + '/' + postId + '/comments' + '?' + query)
             .expect(expectedStatusCode);
     },
+    async checkPostCommentsQuantity(postId: string, quantity: number) {
+        const getPostCommentsResponse = await this.getPostComments(postId, HTTP_STATUSES.OK_200);
+        expect(getPostCommentsResponse.body.totalCount).toBe(quantity);
+    },
 };
