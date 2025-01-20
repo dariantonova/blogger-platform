@@ -74,4 +74,10 @@ export const commentsRepository = {
 
         return updateInfo.matchedCount === 1;
     },
+    async deletePostComments(postId: string) {
+        await commentsCollection.updateMany(
+            { isDeleted: false, postId },
+            { $set: { isDeleted: true } }
+        );
+    },
 };

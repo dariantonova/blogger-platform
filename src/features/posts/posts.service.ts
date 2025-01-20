@@ -1,10 +1,17 @@
 import {PostDBType, SortDirections} from "../../types/types";
 import {postsRepository} from "./repositories/posts.repository";
 import {blogsRepository} from "../blogs/repositories/blogs.repository";
+import {commentsRepository} from "../comments/comments.repository";
 
 export const postsService = {
     async deletePost(id: string): Promise<boolean> {
-        return postsRepository.deletePost(id);
+        const isDeleted = await postsRepository.deletePost(id);
+
+        if (isDeleted) {
+            await commentsRepository.deletePostComments(id);
+        }
+
+        return isDeleted;
     },
     async createPost(title: string, shortDescription: string, content: string, blogId: string): Promise<string | null> {
         const blog = await blogsRepository.findBlogById(blogId);

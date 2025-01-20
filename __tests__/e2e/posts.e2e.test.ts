@@ -15,6 +15,11 @@ import {createPostsPaginator} from "../../src/features/posts/posts.controller";
 import {DEFAULT_QUERY_VALUES} from "../../src/helpers/query-params-values";
 import {invalidPageNumbers, invalidPageSizes} from "../datasets/validation/query-validation-data";
 import {postsQueryRepository} from "../../src/features/posts/repositories/posts.query.repository";
+import {ObjectId, WithId} from "mongodb";
+import {CommentDBType} from "../../src/features/comments/comments.types";
+import {userTestManager} from "../test-managers/user-test-manager";
+import {CreateUserInputModel} from "../../src/features/users/models/CreateUserInputModel";
+import {commentsRepository} from "../../src/features/comments/comments.repository";
 
 describe('tests for /posts', () => {
     let server: MongoMemoryServer;
@@ -1048,6 +1053,7 @@ describe('tests for /posts', () => {
 
     describe('delete post', () => {
         let initialDbPosts: PostDBType[];
+        let initialDbComments: WithId<CommentDBType>[];
 
         beforeAll(async () => {
             const initialDbBlogs: BlogDBType[] =  [
@@ -1123,7 +1129,58 @@ describe('tests for /posts', () => {
                 },
             ];
 
-            await setDb({ blogs: initialDbBlogs, posts: initialDbPosts });
+            const createUsersData: CreateUserInputModel[] = [
+                {
+                    login: 'user1',
+                    email: 'user1@example.com',
+                    password: 'qwerty',
+                },
+            ];
+
+            const createdUserIds: string[] = [];
+            for (const createUserData of createUsersData) {
+                const createUserResponse = await userTestManager.createUser(createUserData,
+                    HTTP_STATUSES.CREATED_201);
+                createdUserIds.push(createUserResponse.body.id);
+            }
+
+            initialDbComments = [
+                {
+                    _id: new ObjectId(),
+                    content: 'Comment number 1. Wow!',
+                    postId: initialDbPosts[0].id,
+                    commentatorInfo: {
+                        userId: createdUserIds[0],
+                        userLogin: createUsersData[0].login,
+                    },
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                    isDeleted: false,
+                },
+                {
+                    _id: new ObjectId(),
+                    content: 'Comment number 2. Wow!',
+                    postId: initialDbPosts[0].id,
+                    commentatorInfo: {
+                        userId: createdUserIds[0],
+                        userLogin: createUsersData[0].login,
+                    },
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                    isDeleted: true,
+                },
+                {
+                    _id: new ObjectId(),
+                    content: 'Comment number 3. Wow!',
+                    postId: initialDbPosts[0].id,
+                    commentatorInfo: {
+                        userId: createdUserIds[0],
+                        userLogin: createUsersData[0].login,
+                    },
+                    createdAt: '2024-12-16T05:32:26.882Z',
+                    isDeleted: false,
+                },
+            ];
+
+            await setDb({ blogs: initialDbBlogs, posts: initialDbPosts, comments: initialDbComments });
         });
 
         afterAll(async () => {
@@ -1147,6 +1204,12 @@ describe('tests for /posts', () => {
             const dbPostToDelete = await postsCollection
                 .findOne({ id: postToDelete.id }, { projection: { _id: 0 } });
             expect(dbPostToDelete).toEqual(postToDelete);
+
+            const postComments = await commentsRepository.findPostComments(postToDelete.id,
+                DEFAULT_QUERY_VALUES.COMMON.sortBy, DEFAULT_QUERY_VALUES.COMMON.sortDirection,
+                DEFAULT_QUERY_VALUES.COMMON.pageNumber, DEFAULT_QUERY_VALUES.COMMON.pageSize);
+            expect(postComments.length).toBe(
+                initialDbComments.filter(c => !c.isDeleted).length);
         });
 
         it('should return 404 when deleting non-existing post', async () => {
@@ -1164,6 +1227,11 @@ describe('tests for /posts', () => {
 
             await postTestManager.deletePost(postToDelete.id,
                 HTTP_STATUSES.NO_CONTENT_204);
+
+            const postComments = await commentsRepository.findPostComments(postToDelete.id,
+                DEFAULT_QUERY_VALUES.COMMON.sortBy, DEFAULT_QUERY_VALUES.COMMON.sortDirection,
+                DEFAULT_QUERY_VALUES.COMMON.pageNumber, DEFAULT_QUERY_VALUES.COMMON.pageSize);
+            expect(postComments.length).toBe(0);
         });
     });
 
