@@ -51,7 +51,7 @@ export const postsQueryRepository = {
             createdAt: dbPost.createdAt,
         };
     },
-    async createPostsPaginator (items: PostDBType[], page: number, pageSize: number,
+    async createPostsPaginator(items: PostDBType[], page: number, pageSize: number,
                                      pagesCount: number, totalCount: number): Promise<Paginator<PostViewModel>> {
         const itemsViewModels: PostViewModel[] = await Promise.all(
             items.map(this.mapToOutput)

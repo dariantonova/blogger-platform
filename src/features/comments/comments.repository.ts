@@ -19,10 +19,18 @@ export const commentsRepository = {
                            pageNumber: number, pageSize: number): Promise<CommentType[]> {
         const filterObj = { isDeleted: false, postId };
 
+        if (sortBy.startsWith('user')) {
+            sortBy = 'commentatorInfo.' + sortBy;
+        }
+
         const sortObj: any = {
             [sortBy]: sortDirection === SortDirections.ASC ? 1 : -1,
             _id: 1,
         };
+
+        if (sortBy === 'id') {
+            sortObj._id = sortDirection === SortDirections.ASC ? 1 : -1;
+        }
 
         const foundComments = await commentsCollection
             .find(filterObj)

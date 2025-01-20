@@ -31,6 +31,12 @@ export const DEFAULT_QUERY_VALUES = {
         pageSize: 10,
         pageNumber: 1,
     },
+    COMMENTS: {
+        sortBy: 'createdAt',
+        sortDirection: SortDirections.DESC,
+        pageSize: 10,
+        pageNumber: 1,
+    },
 };
 
 export const getBlogsQueryParamsValues = (req: RequestWithQuery<QueryBlogsModel>) => {

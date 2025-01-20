@@ -1,6 +1,7 @@
 import {CommentDBType, CommentType, CommentViewModel} from "./comments.types";
 import {commentsCollection} from "../../db/db";
 import {ObjectId, WithId} from "mongodb";
+import {Paginator} from "../../types/types";
 
 export const commentsQueryRepository = {
     async findCommentById(id: string): Promise<CommentViewModel | null> {
@@ -14,6 +15,20 @@ export const commentsQueryRepository = {
             content: dbComment.content,
             commentatorInfo: dbComment.commentatorInfo,
             createdAt: dbComment.createdAt,
+        };
+    },
+    async createCommentsPaginator(items: WithId<CommentDBType>[], page: number, pageSize: number,
+                                   pagesCount: number, totalCount: number): Promise<Paginator<CommentViewModel>> {
+        const itemsViewModels: CommentViewModel[] = await Promise.all(
+            items.map(this.mapToOutput)
+        );
+
+        return {
+            pagesCount,
+            page,
+            pageSize,
+            totalCount,
+            items: itemsViewModels,
         };
     },
     async mapBusinessEntityToOutput(comment: CommentType): Promise<CommentViewModel> {
