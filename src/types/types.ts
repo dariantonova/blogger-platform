@@ -38,12 +38,19 @@ export type PostDBType = {
     createdAt: string,
 };
 
+export type ConfirmationInfoType = {
+    confirmationCode: string | null,
+    expirationDate: Date | null,
+    isConfirmed: boolean,
+};
+
 export type UserDBType = {
     id: string,
     login: string,
     email: string,
-    createdAt: string,
+    createdAt: Date,
     passwordHash: string,
+    confirmationInfo: ConfirmationInfoType,
     isDeleted: boolean,
 };
 

@@ -44,7 +44,7 @@ export const usersController = {
     createUser: async (req: RequestWithBody<CreateUserInputModel>,
                        res: Response<UserViewModel | APIErrorResult>) => {
         const createUserResult = await usersService.createUser(
-            req.body.login, req.body.password, req.body.email
+            req.body.login, req.body.password, req.body.email, true
         );
         if (typeof createUserResult !== 'string') {
             const error: APIErrorResult = {

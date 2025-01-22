@@ -14,6 +14,7 @@ export const commentsService = {
             return {
                 status: ResultStatus.NOT_FOUND,
                 data: null,
+                extensions: [],
             };
         }
 
@@ -23,6 +24,7 @@ export const commentsService = {
             return {
                 status: ResultStatus.UNAUTHORIZED,
                 data: null,
+                extensions: [],
             };
         }
 
@@ -41,6 +43,7 @@ export const commentsService = {
         return {
             status: ResultStatus.SUCCESS,
             data: newCommentId,
+            extensions: [],
         }
     },
     async getPostComments(postId: string, sortBy: string, sortDirection: SortDirections,
@@ -51,6 +54,7 @@ export const commentsService = {
             return {
                 status: ResultStatus.NOT_FOUND,
                 data: null,
+                extensions: [],
             };
         }
 
@@ -60,6 +64,7 @@ export const commentsService = {
         return {
             status: ResultStatus.SUCCESS,
             data: foundComments,
+            extensions: [],
         }
     },
     async deleteAllComments() {
@@ -72,6 +77,7 @@ export const commentsService = {
             return {
                 status: ResultStatus.NOT_FOUND,
                 data: null,
+                extensions: [],
             };
         }
 
@@ -79,6 +85,7 @@ export const commentsService = {
             return {
                 status: ResultStatus.FORBIDDEN,
                 data: null,
+                extensions: [],
             };
         }
 
@@ -87,12 +94,14 @@ export const commentsService = {
             return {
                 status: ResultStatus.INTERNAL_SERVER_ERROR,
                 data: null,
+                extensions: [],
             };
         }
 
         return {
             status: ResultStatus.SUCCESS,
             data: null,
+            extensions: [],
         };
     },
     async updateComment(commentId: string, currentUserId: string, content: string): Promise<Result<null>> {
@@ -102,6 +111,7 @@ export const commentsService = {
             return {
                 status: ResultStatus.NOT_FOUND,
                 data: null,
+                extensions: [],
             };
         }
 
@@ -109,6 +119,7 @@ export const commentsService = {
             return {
                 status: ResultStatus.FORBIDDEN,
                 data: null,
+                extensions: [],
             }
         }
 
@@ -117,12 +128,14 @@ export const commentsService = {
             return {
                 status: ResultStatus.INTERNAL_SERVER_ERROR,
                 data: null,
+                extensions: [],
             };
         }
 
         return {
             status: ResultStatus.SUCCESS,
             data: null,
+            extensions: [],
         };
     },
 };

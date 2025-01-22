@@ -11,12 +11,10 @@ import {LoginInputModel} from "../../src/features/auth/types/auth.types";
 
 export const userTestManager = {
     async getUsers(expectedStatusCode: number, query: string = '', auth: string = VALID_AUTH) {
-        const response = await req
+        return req
             .get(SETTINGS.PATH.USERS + '?' + query)
             .set('Authorization', auth)
             .expect(expectedStatusCode);
-
-        return response;
     },
     async createUser(data: any, expectedStatusCode: number, auth: string = VALID_AUTH) {
         const response = await req
@@ -34,6 +32,9 @@ export const userTestManager = {
                 email: data.email,
                 createdAt: expect.any(String),
             });
+
+            const dbCreatedUser = await usersTestRepository.findUserById(createdUser.id);
+            expect(dbCreatedUser?.confirmationInfo.isConfirmed).toBe(true);
 
             const loginData: LoginInputModel = {
                 loginOrEmail: data.login,

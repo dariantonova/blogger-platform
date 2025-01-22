@@ -82,7 +82,7 @@ export const usersQueryRepository = {
             id: dbUser.id,
             login: dbUser.login,
             email: dbUser.email,
-            createdAt: dbUser.createdAt,
+            createdAt: dbUser.createdAt.toISOString(),
         };
     },
     async createUsersPaginator(items: UserDBType[], page: number, pageSize: number,
