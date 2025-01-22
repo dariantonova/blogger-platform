@@ -1,32 +1,44 @@
 import {ConfirmationInfoType, FieldError, UserDBType} from "../../types/types";
 import {usersRepository} from "./repositories/users.repository";
-import {cryptoService} from "../../services/crypto.service";
+import {cryptoService} from "../../application/crypto.service";
 import {randomUUID} from "node:crypto";
 import {add} from "date-fns";
+import {Result} from "../../common/result/result.type";
+import {ResultStatus} from "../../common/result/resultStatus";
 
 export const usersService = {
-    async createUser(login: string, password: string, email: string, isConfirmed: boolean): Promise<string | FieldError> {
+    async createUser(login: string, email: string, password: string, isConfirmed: boolean): Promise<Result<string | null>> {
         const userWithLogin = await usersRepository.findUserByLogin(login);
         if (userWithLogin) {
-            return {
+            const error: FieldError = {
                 field: 'login',
                 message: 'Login must be unique',
+            };
+            return {
+                status: ResultStatus.BAD_REQUEST,
+                data: null,
+                extensions: [error],
             };
         }
 
         const userWithEmail = await usersRepository.findUserByEmail(email);
         if (userWithEmail) {
-            return {
+            const error: FieldError = {
                 field: 'email',
                 message: 'Email must be unique',
+            };
+            return {
+                status: ResultStatus.BAD_REQUEST,
+                data: null,
+                extensions: [error],
             };
         }
 
         const passwordHash = await cryptoService.generateHash(password);
 
         const confirmationInfo: ConfirmationInfoType = {
-            confirmationCode: null,
-            expirationDate: null,
+            confirmationCode: '',
+            expirationDate: new Date(),
             isConfirmed: true,
         };
         if (!isConfirmed) {
@@ -50,7 +62,11 @@ export const usersService = {
 
         await usersRepository.createUser(createdUser);
 
-        return createdUser.id;
+        return {
+            status: ResultStatus.SUCCESS,
+            data: createdUser.id,
+            extensions: [],
+        };
     },
     async deleteUser(id: string): Promise<boolean> {
         return usersRepository.deleteUser(id);

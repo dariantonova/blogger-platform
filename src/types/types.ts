@@ -39,8 +39,8 @@ export type PostDBType = {
 };
 
 export type ConfirmationInfoType = {
-    confirmationCode: string | null,
-    expirationDate: Date | null,
+    confirmationCode: string,
+    expirationDate: Date,
     isConfirmed: boolean,
 };
 

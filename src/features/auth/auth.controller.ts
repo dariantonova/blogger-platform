@@ -1,9 +1,12 @@
-import {RequestWithBody, UserDBType} from "../../types/types";
+import {APIErrorResult, RequestWithBody, UserDBType} from "../../types/types";
 import {Request, Response} from "express";
 import {authService} from "./auth.service";
 import {HTTP_STATUSES} from "../../utils";
 
 import {LoginInputModel, LoginSuccessViewModel, MeViewModel} from "./types/auth.types";
+import {CreateUserInputModel} from "../users/models/CreateUserInputModel";
+import {ResultStatus} from "../../common/result/resultStatus";
+import {resultStatusToHttp} from "../../common/result/resultStatusToHttp";
 
 export const authController = {
     loginUser: async (req: RequestWithBody<LoginInputModel>,
@@ -29,5 +32,23 @@ export const authController = {
             userId: user.id,
         };
         res.json(userInfo);
+    },
+    registerUser: async (req: RequestWithBody<CreateUserInputModel>,
+                         res: Response<APIErrorResult>) => {
+        const registerUserResult = await authService.registerUser(
+            req.body.login, req.body.email, req.body.password
+        );
+
+        if (registerUserResult.status !== ResultStatus.SUCCESS) {
+            const error: APIErrorResult = {
+                errorsMessages: registerUserResult.extensions,
+            };
+            res
+                .status(resultStatusToHttp(registerUserResult.status))
+                .json(error);
+            return;
+        }
+
+        res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
     },
 };

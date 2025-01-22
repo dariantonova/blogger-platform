@@ -6,6 +6,11 @@ import {
 import {errorsResultMiddleware} from "../../validation/errors-result-middleware";
 import {authController} from "./auth.controller";
 import {bearerAuthorizationMiddleware} from "../../middlewares/bearer-authorization-middleware";
+import {
+    emailFieldValidator,
+    loginFieldValidator,
+    passwordFieldValidator
+} from "../../validation/field-validators/users-field-validators";
 
 const router = Router();
 
@@ -17,5 +22,11 @@ router.post('/login',
 router.get('/me',
     bearerAuthorizationMiddleware,
     authController.getCurrentUserInfo);
+router.post('/registration',
+    loginFieldValidator,
+    passwordFieldValidator,
+    emailFieldValidator,
+    errorsResultMiddleware,
+    authController.registerUser);
 
 export { router as authRouter };

@@ -9,6 +9,8 @@ import {CreateUserInputModel} from "./models/CreateUserInputModel";
 import {usersService} from "./users.service";
 import {HTTP_STATUSES} from "../../utils";
 import {URIParamsUserIdModel} from "./models/URIParamsUserIdModel";
+import {ResultStatus} from "../../common/result/resultStatus";
+import {resultStatusToHttp} from "../../common/result/resultStatusToHttp";
 
 export const usersController = {
     getUsers: async (req: RequestWithQuery<QueryUsersModel>,
@@ -44,21 +46,20 @@ export const usersController = {
     createUser: async (req: RequestWithBody<CreateUserInputModel>,
                        res: Response<UserViewModel | APIErrorResult>) => {
         const createUserResult = await usersService.createUser(
-            req.body.login, req.body.password, req.body.email, true
+            req.body.login, req.body.email, req.body.password, true
         );
-        if (typeof createUserResult !== 'string') {
+
+        if (createUserResult.status !== ResultStatus.SUCCESS) {
             const error: APIErrorResult = {
-                errorsMessages: [createUserResult]
+                errorsMessages: createUserResult.extensions,
             };
-
             res
-                .status(HTTP_STATUSES.BAD_REQUEST_400)
+                .status(resultStatusToHttp(createUserResult.status))
                 .json(error);
-
             return;
         }
 
-        const createdUserId = createUserResult;
+        const createdUserId = createUserResult.data as string;
         const createdUser = await usersQueryRepository.findUserById(createdUserId);
         if (!createdUser) {
             res.sendStatus(HTTP_STATUSES.INTERNAL_SERVER_ERROR_500);
