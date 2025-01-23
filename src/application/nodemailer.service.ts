@@ -1,15 +1,14 @@
 import nodemailer from 'nodemailer';
-import {SETTINGS} from "../settings";
 
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: SETTINGS.EMAIL.USER,
-        pass: SETTINGS.EMAIL.PASS,
+        user: process.env.EMAIL,
+        pass: process.env.EMAIL_PASS,
     },
 });
 
-transporter.verify(function (error, success) {
+transporter.verify(function (error) {
     if (error) {
         console.log(error);
     } else {
@@ -20,7 +19,7 @@ transporter.verify(function (error, success) {
 export const nodemailerService = {
     async sendEmail(email: string, subject: string, message: string) {
         const mail = {
-            from: `DaricioDeveloper <${SETTINGS.EMAIL.USER}>`,
+            from: `DaricioDeveloper <${process.env.EMAIL}>`,
             to: email,
             subject,
             html: message,

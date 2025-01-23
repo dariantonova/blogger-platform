@@ -104,4 +104,60 @@ export const authService = {
             extensions: [],
         };
     },
+    async resendRegistrationEmail(email: string): Promise<Result<null>> {
+        const user = await usersRepository.findUserByEmail(email);
+        if (!user) {
+            const error: FieldError = {
+                field: 'email',
+                message: 'No user with such email',
+            };
+            return {
+                status: ResultStatus.BAD_REQUEST,
+                data: null,
+                extensions: [error],
+            };
+        }
+
+        if (user.confirmationInfo.isConfirmed) {
+            const error: FieldError = {
+                field: 'email',
+                message: 'Email is already confirmed',
+            };
+            return {
+                status: ResultStatus.BAD_REQUEST,
+                data: null,
+                extensions: [error],
+            };
+        }
+
+        const newConfirmationInfo = usersService.generateConfirmationInfo(false);
+        const isConfirmationInfoUpdated = await usersRepository.updateUserConfirmationInfo(
+            user.id, newConfirmationInfo
+        );
+        if (!isConfirmationInfoUpdated) {
+            return {
+                status: ResultStatus.INTERNAL_SERVER_ERROR,
+                data: null,
+                extensions: [],
+            };
+        }
+
+        try {
+            await emailManager.sendRegistrationMessage(email, newConfirmationInfo.confirmationCode);
+        }
+        catch (err) {
+            console.log('Email send error: ' + err);
+            return {
+                status: ResultStatus.INTERNAL_SERVER_ERROR,
+                data: null,
+                extensions: [],
+            };
+        }
+
+        return {
+            status: ResultStatus.SUCCESS,
+            data: null,
+            extensions: [],
+        };
+    },
 };

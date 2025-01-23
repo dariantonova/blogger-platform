@@ -1,8 +1,9 @@
 import {Router} from "express";
 import {
+    confirmationCodeValidator,
     loginOrEmailAuthValidator,
     passwordAuthValidator
-} from "../../validation/field-validators/auth-login-field-validators";
+} from "../../validation/field-validators/auth-field-validators";
 import {errorsResultMiddleware} from "../../validation/errors-result-middleware";
 import {authController} from "./auth.controller";
 import {bearerAuthorizationMiddleware} from "../../middlewares/bearer-authorization-middleware";
@@ -29,6 +30,12 @@ router.post('/registration',
     errorsResultMiddleware,
     authController.registerUser);
 router.post('/registration-confirmation',
+    confirmationCodeValidator,
+    errorsResultMiddleware,
     authController.confirmRegistration);
+router.post('/registration-email-resending',
+    emailFieldValidator,
+    errorsResultMiddleware,
+    authController.resendRegistrationEmail);
 
 export { router as authRouter };

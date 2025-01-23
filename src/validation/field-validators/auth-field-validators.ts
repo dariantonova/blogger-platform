@@ -9,3 +9,8 @@ export const passwordAuthValidator = body('password')
     .exists().withMessage('Password is required')
     .isString().withMessage('Password must be a string')
     .trim().notEmpty().withMessage('Password must not be empty');
+
+export const confirmationCodeValidator = body('code')
+    .exists().withMessage('Code is required')
+    .isString().withMessage('Code must be a string')
+    .trim().notEmpty().withMessage('Code must not be empty');

@@ -6,6 +6,11 @@ import {add} from "date-fns";
 import {Result} from "../../common/result/result.type";
 import {ResultStatus} from "../../common/result/resultStatus";
 
+export const confirmationCodeLifetime = {
+    hours: 1,
+    minutes: 30,
+};
+
 export const usersService = {
     async createUser(login: string, email: string, password: string, isConfirmed: boolean): Promise<Result<string | null>> {
         const userWithLogin = await usersRepository.findUserByLogin(login);
@@ -36,19 +41,7 @@ export const usersService = {
 
         const passwordHash = await cryptoService.generateHash(password);
 
-        const confirmationInfo: ConfirmationInfoType = {
-            confirmationCode: '',
-            expirationDate: new Date(),
-            isConfirmed: true,
-        };
-        if (!isConfirmed) {
-            confirmationInfo.confirmationCode = randomUUID();
-            confirmationInfo.expirationDate = add(new Date(), {
-                hours: 1,
-                minutes: 30,
-            });
-            confirmationInfo.isConfirmed = false
-        }
+        const confirmationInfo = this.generateConfirmationInfo(isConfirmed);
 
         const createdUser: UserDBType = {
             id: String(+new Date()),
@@ -66,6 +59,20 @@ export const usersService = {
             status: ResultStatus.SUCCESS,
             data: createdUser.id,
             extensions: [],
+        };
+    },
+    generateConfirmationInfo(isConfirmed: boolean): ConfirmationInfoType {
+        if (isConfirmed) {
+            return {
+                confirmationCode: '',
+                expirationDate: new Date(),
+                isConfirmed: true,
+            };
+        }
+        return {
+            confirmationCode: randomUUID(),
+            expirationDate: add(new Date(), confirmationCodeLifetime),
+            isConfirmed: false,
         };
     },
     async deleteUser(id: string): Promise<boolean> {

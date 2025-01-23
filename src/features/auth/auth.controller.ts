@@ -7,7 +7,7 @@ import {
     LoginInputModel,
     LoginSuccessViewModel,
     MeViewModel,
-    RegistrationConfirmationCodeModel
+    RegistrationConfirmationCodeModel, RegistrationEmailResending
 } from "./types/auth.types";
 import {CreateUserInputModel} from "../users/models/CreateUserInputModel";
 import {ResultStatus} from "../../common/result/resultStatus";
@@ -56,7 +56,8 @@ export const authController = {
 
         res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
     },
-    confirmRegistration: async (req: RequestWithBody<RegistrationConfirmationCodeModel>, res: Response) => {
+    confirmRegistration: async (req: RequestWithBody<RegistrationConfirmationCodeModel>,
+                                res: Response<APIErrorResult>) => {
         const confirmRegistrationResult = await authService.confirmRegistration(req.body.code);
 
         if (confirmRegistrationResult.status !== ResultStatus.SUCCESS) {
@@ -65,6 +66,22 @@ export const authController = {
             };
             res
                 .status(resultStatusToHttp(confirmRegistrationResult.status))
+                .json(error);
+            return;
+        }
+
+        res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
+    },
+    resendRegistrationEmail: async (req: RequestWithBody<RegistrationEmailResending>,
+                                    res: Response<APIErrorResult>) => {
+        const resendRegistrationEmailResult = await authService.resendRegistrationEmail(req.body.email);
+
+        if (resendRegistrationEmailResult.status !== ResultStatus.SUCCESS) {
+            const error: APIErrorResult = {
+                errorsMessages: resendRegistrationEmailResult.extensions,
+            };
+            res
+                .status(resultStatusToHttp(resendRegistrationEmailResult.status))
                 .json(error);
             return;
         }

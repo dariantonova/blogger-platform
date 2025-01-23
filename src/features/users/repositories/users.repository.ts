@@ -1,4 +1,4 @@
-import {UserDBType} from "../../../types/types";
+import {ConfirmationInfoType, UserDBType} from "../../../types/types";
 import {usersCollection} from "../../../db/db";
 
 export const usersRepository = {
@@ -36,6 +36,14 @@ export const usersRepository = {
         const updateUserInfo = await usersCollection.updateOne(
             { isDeleted: false, id: id },
             { $set: { 'confirmationInfo.isConfirmed': true } }
+        );
+
+        return updateUserInfo.modifiedCount === 1;
+    },
+    async updateUserConfirmationInfo(id: string, confirmationInfo: ConfirmationInfoType) {
+        const updateUserInfo = await usersCollection.updateOne(
+            { isDeleted: false, id },
+            { $set: { confirmationInfo } }
         );
 
         return updateUserInfo.modifiedCount === 1;
