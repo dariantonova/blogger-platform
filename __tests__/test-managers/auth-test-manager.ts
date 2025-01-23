@@ -54,4 +54,10 @@ export const authTestManager = {
         expect(dbCreatedUser?.confirmationInfo.confirmationCode).toEqual(expect.any(String));
         expect(dbCreatedUser?.confirmationInfo.expirationDate).toEqual(expect.any(Date));
     },
+    async confirmRegistration(data: any, expectedStatusCode: number) {
+        return req
+            .post(SETTINGS.PATH.AUTH + '/registration-confirmation')
+            .send(data)
+            .expect(expectedStatusCode);
+    },
 };
