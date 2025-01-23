@@ -1,14 +1,14 @@
 import {MongoMemoryServer} from "mongodb-memory-server";
-import {BlogDBType, PostDBType} from "../../src/types/types";
-import {CreateUserInputModel} from "../../src/features/users/models/CreateUserInputModel";
-import {client, runDb, setDb} from "../../src/db/db";
-import {req} from "../test-helpers";
-import {SETTINGS} from "../../src/settings";
-import {userTestManager} from "../test-managers/user-test-manager";
-import {HTTP_STATUSES} from "../../src/utils";
-import {CommentDBType} from "../../src/features/comments/comments.types";
+import {BlogDBType, PostDBType} from "../../../src/types/types";
+import {CreateUserInputModel} from "../../../src/features/users/models/CreateUserInputModel";
+import {client, runDb, setDb} from "../../../src/db/db";
+import {req} from "../../test-helpers";
+import {SETTINGS} from "../../../src/settings";
+import {userTestManager} from "../../test-managers/user-test-manager";
+import {HTTP_STATUSES} from "../../../src/utils";
+import {CommentDBType} from "../../../src/features/comments/comments.types";
 import {ObjectId, WithId} from "mongodb";
-import {commentsQueryRepository} from "../../src/features/comments/comments.query.repository";
+import {commentsQueryRepository} from "../../../src/features/comments/comments.query.repository";
 
 describe('test for get comment endpoint', () => {
     let server: MongoMemoryServer;

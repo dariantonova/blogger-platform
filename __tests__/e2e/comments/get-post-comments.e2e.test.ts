@@ -1,15 +1,15 @@
 import {MongoMemoryServer} from "mongodb-memory-server";
-import {BlogDBType, PostDBType} from "../../src/types/types";
-import {CreateUserInputModel} from "../../src/features/users/models/CreateUserInputModel";
+import {BlogDBType, PostDBType} from "../../../src/types/types";
+import {CreateUserInputModel} from "../../../src/features/users/models/CreateUserInputModel";
 import {ObjectId, WithId} from "mongodb";
-import {CommentDBType} from "../../src/features/comments/comments.types";
-import {client, runDb, setDb} from "../../src/db/db";
-import {userTestManager} from "../test-managers/user-test-manager";
-import {HTTP_STATUSES} from "../../src/utils";
-import {DEFAULT_QUERY_VALUES} from "../../src/helpers/query-params-values";
-import {commentsQueryRepository} from "../../src/features/comments/comments.query.repository";
-import {postTestManager} from "../test-managers/post-test-manager";
-import {invalidPageNumbers, invalidPageSizes} from "../datasets/validation/query-validation-data";
+import {CommentDBType} from "../../../src/features/comments/comments.types";
+import {client, runDb, setDb} from "../../../src/db/db";
+import {userTestManager} from "../../test-managers/user-test-manager";
+import {HTTP_STATUSES} from "../../../src/utils";
+import {DEFAULT_QUERY_VALUES} from "../../../src/helpers/query-params-values";
+import {commentsQueryRepository} from "../../../src/features/comments/comments.query.repository";
+import {postTestManager} from "../../test-managers/post-test-manager";
+import {invalidPageNumbers, invalidPageSizes} from "../../datasets/validation/query-validation-data";
 
 describe('tests for get post comments endpoint', () => {
     let server: MongoMemoryServer;

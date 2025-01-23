@@ -1,17 +1,17 @@
 import {MongoMemoryServer} from "mongodb-memory-server";
-import {client, runDb, setDb} from "../../src/db/db";
-import {req} from "../test-helpers";
-import {SETTINGS} from "../../src/settings";
-import {BlogDBType, PostDBType} from "../../src/types/types";
-import {CreateUserInputModel} from "../../src/features/users/models/CreateUserInputModel";
-import {userTestManager} from "../test-managers/user-test-manager";
-import {HTTP_STATUSES} from "../../src/utils";
-import {LoginInputModel} from "../../src/features/auth/types/auth.types";
-import {authTestManager} from "../test-managers/auth-test-manager";
-import {CommentDBType, CommentViewModel, CreateCommentInputModel} from "../../src/features/comments/comments.types";
-import {validCommentFieldInput} from "../datasets/validation/comments-validation-data";
-import {postTestManager} from "../test-managers/post-test-manager";
-import {jwtSignOptions} from "../../src/application/jwt.service";
+import {client, runDb, setDb} from "../../../src/db/db";
+import {req} from "../../test-helpers";
+import {SETTINGS} from "../../../src/settings";
+import {BlogDBType, PostDBType} from "../../../src/types/types";
+import {CreateUserInputModel} from "../../../src/features/users/models/CreateUserInputModel";
+import {userTestManager} from "../../test-managers/user-test-manager";
+import {HTTP_STATUSES} from "../../../src/utils";
+import {LoginInputModel} from "../../../src/features/auth/types/auth.types";
+import {authTestManager} from "../../test-managers/auth-test-manager";
+import {CommentDBType, CommentViewModel, CreateCommentInputModel} from "../../../src/features/comments/comments.types";
+import {validCommentFieldInput} from "../../datasets/validation/comments-validation-data";
+import {postTestManager} from "../../test-managers/post-test-manager";
+import {jwtSignOptions} from "../../../src/application/jwt.service";
 
 
 describe('tests for create comments endpoint', () => {

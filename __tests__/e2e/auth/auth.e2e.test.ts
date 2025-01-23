@@ -1,16 +1,16 @@
 import {MongoMemoryServer} from "mongodb-memory-server";
-import {client, runDb} from "../../src/db/db";
-import {CreateUserInputModel} from "../../src/features/users/models/CreateUserInputModel";
-import {userTestManager} from "../test-managers/user-test-manager";
-import {HTTP_STATUSES} from "../../src/utils";
-import {authTestManager} from "../test-managers/auth-test-manager";
-import {req} from "../test-helpers";
-import {SETTINGS} from "../../src/settings";
-import {validAuthLoginInput} from "../datasets/validation/auth-login-validation-data";
+import {client, runDb} from "../../../src/db/db";
+import {CreateUserInputModel} from "../../../src/features/users/models/CreateUserInputModel";
+import {userTestManager} from "../../test-managers/user-test-manager";
+import {HTTP_STATUSES} from "../../../src/utils";
+import {authTestManager} from "../../test-managers/auth-test-manager";
+import {req} from "../../test-helpers";
+import {SETTINGS} from "../../../src/settings";
+import {validAuthLoginInput} from "../../datasets/validation/auth-login-validation-data";
 
 
-import {LoginInputModel, MeViewModel} from "../../src/features/auth/types/auth.types";
-import {jwtSignOptions} from "../../src/application/jwt.service";
+import {LoginInputModel, MeViewModel} from "../../../src/features/auth/types/auth.types";
+import {jwtSignOptions} from "../../../src/application/jwt.service";
 
 describe('tests for /auth', () => {
     let server: MongoMemoryServer;

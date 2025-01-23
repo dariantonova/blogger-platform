@@ -1,18 +1,18 @@
 import {MongoMemoryServer} from "mongodb-memory-server";
-import {BlogDBType, PostDBType} from "../../src/types/types";
-import {CreateUserInputModel} from "../../src/features/users/models/CreateUserInputModel";
+import {BlogDBType, PostDBType} from "../../../src/types/types";
+import {CreateUserInputModel} from "../../../src/features/users/models/CreateUserInputModel";
 import {ObjectId, WithId} from "mongodb";
-import {CommentDBType, CommentViewModel, UpdateCommentInputModel} from "../../src/features/comments/comments.types";
-import {client, runDb, setDb} from "../../src/db/db";
-import {req} from "../test-helpers";
-import {SETTINGS} from "../../src/settings";
-import {userTestManager} from "../test-managers/user-test-manager";
-import {HTTP_STATUSES} from "../../src/utils";
-import {LoginInputModel} from "../../src/features/auth/types/auth.types";
-import {authTestManager} from "../test-managers/auth-test-manager";
-import {validCommentFieldInput} from "../datasets/validation/comments-validation-data";
-import {commentTestManager} from "../test-managers/comment-test-manager";
-import {jwtSignOptions} from "../../src/application/jwt.service";
+import {CommentDBType, CommentViewModel, UpdateCommentInputModel} from "../../../src/features/comments/comments.types";
+import {client, runDb, setDb} from "../../../src/db/db";
+import {req} from "../../test-helpers";
+import {SETTINGS} from "../../../src/settings";
+import {userTestManager} from "../../test-managers/user-test-manager";
+import {HTTP_STATUSES} from "../../../src/utils";
+import {LoginInputModel} from "../../../src/features/auth/types/auth.types";
+import {authTestManager} from "../../test-managers/auth-test-manager";
+import {validCommentFieldInput} from "../../datasets/validation/comments-validation-data";
+import {commentTestManager} from "../../test-managers/comment-test-manager";
+import {jwtSignOptions} from "../../../src/application/jwt.service";
 
 
 describe('tests for update comment endpoint', () => {
