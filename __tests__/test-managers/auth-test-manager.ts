@@ -60,4 +60,10 @@ export const authTestManager = {
             .send(data)
             .expect(expectedStatusCode);
     },
+    async resendConfirmationEmail(data: any, expectedStatusCode: number) {
+        return req
+            .post(SETTINGS.PATH.AUTH + '/registration-email-resending')
+            .send(data)
+            .expect(expectedStatusCode);
+    },
 };
