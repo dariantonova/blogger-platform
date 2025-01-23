@@ -26,6 +26,20 @@ export const usersRepository = {
         const filterObj: any = { isDeleted: false, id: id };
         return usersCollection.findOne(filterObj, { projection: { _id: 0 } });
     },
+    async findUserByConfirmationCode(confirmationCode: string): Promise<UserDBType | null> {
+        const filterObj: any = {
+            isDeleted: false,
+            'confirmationInfo.confirmationCode': confirmationCode };
+        return usersCollection.findOne(filterObj, { projection: { _id: 0 } });
+    },
+    async confirmUserRegistration(id: string) {
+        const updateUserInfo = await usersCollection.updateOne(
+            { isDeleted: false, id: id },
+            { $set: { 'confirmationInfo.isConfirmed': true } }
+        );
+
+        return updateUserInfo.modifiedCount === 1;
+    },
     async deleteUser(id: string): Promise<boolean> {
         const updateUserInfo = await usersCollection.updateOne(
             { isDeleted: false, id: id },

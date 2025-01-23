@@ -12,3 +12,7 @@ export type MeViewModel = {
     login: string,
     userId: string,
 };
+
+export type RegistrationConfirmationCodeModel = {
+    code: string,
+};

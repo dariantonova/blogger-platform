@@ -28,5 +28,7 @@ router.post('/registration',
     emailFieldValidator,
     errorsResultMiddleware,
     authController.registerUser);
+router.post('/registration-confirmation',
+    authController.confirmRegistration);
 
 export { router as authRouter };
