@@ -7,11 +7,13 @@ import {
     LoginInputModel,
     LoginSuccessViewModel,
     MeViewModel,
-    RegistrationConfirmationCodeModel, RegistrationEmailResending
+    RegistrationConfirmationCodeModel,
+    RegistrationEmailResending
 } from "./types/auth.types";
 import {CreateUserInputModel} from "../users/models/CreateUserInputModel";
 import {ResultStatus} from "../../common/result/resultStatus";
 import {resultStatusToHttp} from "../../common/result/resultStatusToHttp";
+import {refreshSessionsQueryRepository} from "./refresh-sessions.query.repository";
 
 export const authController = {
     loginUser: async (req: RequestWithBody<LoginInputModel>,
@@ -25,9 +27,23 @@ export const authController = {
             return;
         }
 
-        res.json({
-            accessToken: result.accessToken,
+        const { refreshToken, accessToken } = result;
+
+        const createdRefreshSession = await refreshSessionsQueryRepository
+            .getRefreshSessionByRefToken(refreshToken);
+        if (!createdRefreshSession) {
+            res.sendStatus(HTTP_STATUSES.INTERNAL_SERVER_ERROR_500);
+            return;
+        }
+
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            secure: true,
+            maxAge: Math.trunc(createdRefreshSession.expirationDate.getTime() / 1000),
+            path: '/auth',
         });
+
+        res.json({ accessToken });
     },
     getCurrentUserInfo: async (req: Request, res: Response<MeViewModel>) => {
         const user = req.user as UserDBType;

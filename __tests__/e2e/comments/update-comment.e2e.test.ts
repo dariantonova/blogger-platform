@@ -12,7 +12,6 @@ import {LoginInputModel} from "../../../src/features/auth/types/auth.types";
 import {authTestManager} from "../../test-managers/auth-test-manager";
 import {validCommentFieldInput} from "../../datasets/validation/comments-validation-data";
 import {commentTestManager} from "../../test-managers/comment-test-manager";
-import {jwtSignOptions} from "../../../src/application/jwt.service";
 
 
 describe('tests for update comment endpoint', () => {
@@ -191,7 +190,7 @@ describe('tests for update comment endpoint', () => {
         };
 
         const expiresIn = 10;
-        jwtSignOptions.expiresIn = expiresIn + 'ms';
+        SETTINGS.ACCESS_JWT_LIFE = expiresIn + 'ms';
         const userIndex = 0;
         const token = await getAccessTokenForUser(userIndex);
 
@@ -203,7 +202,7 @@ describe('tests for update comment endpoint', () => {
 
         await commentTestManager.checkCommentIsTheSame(commentToUpdate);
 
-        jwtSignOptions.expiresIn = '7d';
+        SETTINGS.ACCESS_JWT_LIFE = '7d';
     });
 
     // - invalid auth format

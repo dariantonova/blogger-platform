@@ -7,10 +7,7 @@ import {authTestManager} from "../../test-managers/auth-test-manager";
 import {req} from "../../test-helpers";
 import {SETTINGS} from "../../../src/settings";
 import {validAuthLoginInput} from "../../datasets/validation/auth-login-validation-data";
-
-
 import {LoginInputModel, MeViewModel} from "../../../src/features/auth/types/auth.types";
-import {jwtSignOptions} from "../../../src/application/jwt.service";
 
 describe('tests for /auth', () => {
     let server: MongoMemoryServer;
@@ -340,7 +337,7 @@ describe('tests for /auth', () => {
         };
 
         it('should return 401 if token is expired', async () => {
-            jwtSignOptions.expiresIn = '10ms';
+            SETTINGS.ACCESS_JWT_LIFE = '10ms';
             const userIndex = 0;
             const token = await getAccessTokenForUser(userIndex);
 
@@ -349,7 +346,7 @@ describe('tests for /auth', () => {
             await authTestManager.getCurrentUserInfo('Bearer ' + token,
                 HTTP_STATUSES.UNAUTHORIZED_401);
 
-            jwtSignOptions.expiresIn = '7d';
+            SETTINGS.ACCESS_JWT_LIFE = '7d';
         });
 
         it('should return 401 if auth header format is invalid', async () => {

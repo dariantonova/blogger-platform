@@ -1,22 +1,37 @@
 import {UserDBType} from "../types/types";
-import jwt from 'jsonwebtoken';
+import jwt, {JwtPayload} from 'jsonwebtoken';
 import {SETTINGS} from "../settings";
 
-export const jwtSignOptions: jwt.SignOptions = { expiresIn: '7d' };
-
 export const jwtService = {
-    async createJwt(user: UserDBType): Promise<string> {
-        const payload = { userId: user.id };
-        const secret = SETTINGS.JWT_SECRET;
-        return jwt.sign(payload, secret, jwtSignOptions);
+    async createAccessToken(user: UserDBType): Promise<string> {
+        return jwt.sign({ userId: user.id }, SETTINGS.ACCESS_JWT_SECRET,
+            { expiresIn: SETTINGS.ACCESS_JWT_LIFE });
     },
-    async getUserIdByToken(token: string): Promise<string | null> {
+    async createRefreshToken(user: UserDBType): Promise<string> {
+        return jwt.sign({ userId: user.id }, SETTINGS.REFRESH_JWT_SECRET,
+            { expiresIn: SETTINGS.REFRESH_JWT_LIFE });
+    },
+    async verifyAccessToken(token: string): Promise<string | null> {
         try {
-            const payload: any = jwt.verify(token, SETTINGS.JWT_SECRET);
+            const payload: any = jwt.verify(token, SETTINGS.ACCESS_JWT_SECRET);
             return payload.userId;
         }
         catch (err) {
             return null;
         }
+    },
+    async verifyRefreshToken(token: string): Promise<string | null> {
+        try {
+            const payload: any = jwt.verify(token, SETTINGS.REFRESH_JWT_SECRET);
+            return payload.userId;
+        }
+        catch (err) {
+            return null;
+        }
+    },
+    async getRefreshTokenExpDate(token: string): Promise<Date> {
+        const payload: any = jwt.verify(token, SETTINGS.REFRESH_JWT_SECRET);
+        const refTokenExp = payload.exp;
+        return new Date(+refTokenExp * 1000);
     },
 };

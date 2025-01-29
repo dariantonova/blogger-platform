@@ -20,3 +20,15 @@ export type RegistrationConfirmationCodeModel = {
 export type RegistrationEmailResending = {
     email: string,
 };
+
+export type RefreshSessionDTO = {
+    userId: string,
+    refreshToken: string,
+    expirationDate: Date,
+};
+
+export type RefreshSessionDbType = {
+    userId: string,
+    refreshToken: string,
+    expirationDate: Date,
+};

@@ -6,15 +6,23 @@ import {Result} from "../../common/result/result.type";
 import {usersService} from "../users/users.service";
 import {ResultStatus} from "../../common/result/resultStatus";
 import {emailManager} from "../../application/email.manager";
+import {SETTINGS} from "../../settings";
+import ms from "ms";
+import {RefreshSessionDTO} from "./types/auth.types";
+import {refreshSessionsRepository} from "./refresh-sessions.repository";
 
 export const authService = {
-    async loginUser(loginOrEmail: string, password: string): Promise<{ accessToken: string } | null> {
+    async loginUser(loginOrEmail: string, password: string): Promise<{ accessToken: string, refreshToken: string } | null> {
         const user = await this.checkCredentials(loginOrEmail, password);
         if (!user) {
             return null;
         }
-        const token = await jwtService.createJwt(user);
-        return { accessToken: token };
+        const accessToken = await jwtService.createAccessToken(user);
+        const refreshToken = await jwtService.createRefreshToken(user);
+
+        await this.createRefreshSession(user.id, refreshToken);
+
+        return { accessToken, refreshToken };
     },
     async checkCredentials(loginOrEmail: string, password: string): Promise<UserDBType | null> {
         const user = await usersRepository.findUserByLoginOrEmail(loginOrEmail);
@@ -24,6 +32,16 @@ export const authService = {
 
         const isPasswordCorrect = await cryptoService.compareHash(password, user.passwordHash);
         return isPasswordCorrect ? user : null;
+    },
+    async createRefreshSession(userId: string, refreshToken: string) {
+        const refTokenExpDate = await jwtService.getRefreshTokenExpDate(refreshToken);
+        const refreshSession: RefreshSessionDTO = {
+            userId,
+            refreshToken,
+            expirationDate: refTokenExpDate,
+        };
+        
+        await refreshSessionsRepository.createRefreshSession(refreshSession);
     },
     async registerUser(login: string, email: string, password: string): Promise<Result<null>> {
         const createUserResult = await usersService.createUser(login, email, password, false);
@@ -159,5 +177,8 @@ export const authService = {
             data: null,
             extensions: [],
         };
+    },
+    async deleteAllRefreshSessions() {
+        return refreshSessionsRepository.deleteAllRefreshSessions();
     },
 };

@@ -11,7 +11,6 @@ import {authTestManager} from "../../test-managers/auth-test-manager";
 import {CommentDBType, CommentViewModel, CreateCommentInputModel} from "../../../src/features/comments/comments.types";
 import {validCommentFieldInput} from "../../datasets/validation/comments-validation-data";
 import {postTestManager} from "../../test-managers/post-test-manager";
-import {jwtSignOptions} from "../../../src/application/jwt.service";
 
 
 describe('tests for create comments endpoint', () => {
@@ -195,7 +194,7 @@ describe('tests for create comments endpoint', () => {
             content: validCommentFieldInput.content,
         };
 
-        jwtSignOptions.expiresIn = '10ms';
+        SETTINGS.ACCESS_JWT_LIFE = '10ms';
         const userIndex = 0;
         const token = await getAccessTokenForUser(userIndex);
 
@@ -207,7 +206,7 @@ describe('tests for create comments endpoint', () => {
 
         await postTestManager.checkPostCommentsQuantity(postId, 0);
 
-        jwtSignOptions.expiresIn = '7d';
+        SETTINGS.ACCESS_JWT_LIFE = '7d';
     });
 
     // - invalid auth format

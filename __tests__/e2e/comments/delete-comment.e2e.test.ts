@@ -11,7 +11,6 @@ import {HTTP_STATUSES} from "../../../src/utils";
 import {commentTestManager} from "../../test-managers/comment-test-manager";
 import {LoginInputModel} from "../../../src/features/auth/types/auth.types";
 import {authTestManager} from "../../test-managers/auth-test-manager";
-import {jwtSignOptions} from "../../../src/application/jwt.service";
 import {postTestManager} from "../../test-managers/post-test-manager";
 
 describe('tests for delete comment endpoint', () => {
@@ -179,7 +178,7 @@ describe('tests for delete comment endpoint', () => {
     it('should return 401 if token is expired', async () => {
         const commentId = initialDbComments[0]._id.toString();
 
-        jwtSignOptions.expiresIn = '10ms';
+        SETTINGS.ACCESS_JWT_LIFE = '10ms';
         const userIndex = 0;
         const token = await getAccessTokenForUser(userIndex);
 
@@ -193,7 +192,7 @@ describe('tests for delete comment endpoint', () => {
             .get(SETTINGS.PATH.COMMENTS + '/' + commentId)
             .expect(HTTP_STATUSES.OK_200);
 
-        jwtSignOptions.expiresIn = '7d';
+        SETTINGS.ACCESS_JWT_LIFE = '7d';
     });
 
     // - invalid auth format

@@ -2,12 +2,14 @@ import {BlogDBType, DBType, PostDBType, UserDBType} from "../types/types";
 import {Collection, MongoClient} from "mongodb";
 import {SETTINGS} from "../settings";
 import {CommentDBType} from "../features/comments/comments.types";
+import {RefreshSessionDbType} from "../features/auth/types/auth.types";
 
 export let client: MongoClient;
 export let blogsCollection: Collection<BlogDBType>;
 export let postsCollection: Collection<PostDBType>;
 export let usersCollection: Collection<UserDBType>;
 export let commentsCollection: Collection<CommentDBType>;
+export let refreshSessionsCollection: Collection<RefreshSessionDbType>;
 
 export const runDb = async (url: string): Promise<boolean> => {
     try {
@@ -18,6 +20,7 @@ export const runDb = async (url: string): Promise<boolean> => {
         postsCollection = db.collection<PostDBType>('posts');
         usersCollection = db.collection<UserDBType>('users');
         commentsCollection = db.collection<CommentDBType>('comments');
+        refreshSessionsCollection = db.collection<RefreshSessionDbType>('refresh-sessions');
 
         await client.connect();
         await db.command({ ping: 1 });
@@ -37,6 +40,7 @@ export const setDb = async (dataset?: Partial<DBType>) => {
         await postsCollection.drop();
         await usersCollection.drop();
         await commentsCollection.drop();
+        await refreshSessionsCollection.drop();
         return;
     }
 
@@ -67,6 +71,15 @@ export const setDb = async (dataset?: Partial<DBType>) => {
             const commentsToInsert = dataset.comments[0]._id ?
                 dataset.comments : structuredClone(dataset.comments);
             await commentsCollection.insertMany(commentsToInsert);
+        }
+    }
+
+    if (dataset.refreshSessions) {
+        await refreshSessionsCollection.drop();
+        if (dataset.refreshSessions.length > 0) {
+            const refreshSessionsToInsert = dataset.refreshSessions[0]._id ?
+                dataset.refreshSessions : structuredClone(dataset.refreshSessions);
+            await refreshSessionsCollection.insertMany(refreshSessionsToInsert);
         }
     }
 };
@@ -117,10 +130,12 @@ const posts: PostDBType[] = [
 
 const users: UserDBType[] = [];
 const comments: CommentDBType[] = [];
+const refreshSessions: RefreshSessionDbType[] = [];
 
 export const initialDb: DBType = {
     blogs,
     posts,
     users,
     comments,
+    refreshSessions,
 };

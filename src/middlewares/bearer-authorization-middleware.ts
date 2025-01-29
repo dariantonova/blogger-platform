@@ -12,7 +12,7 @@ export const bearerAuthorizationMiddleware = async (req: Request, res: Response,
 
     const token = authHeader.split(' ')[1];
 
-    const userId = await jwtService.getUserIdByToken(token);
+    const userId = await jwtService.verifyAccessToken(token);
     if (!userId) {
         res.sendStatus(HTTP_STATUSES.UNAUTHORIZED_401);
         return;
