@@ -112,7 +112,7 @@ export const authController = {
         res.cookie('refreshToken', refreshToken, {
             httpOnly: true,
             secure: true,
-            maxAge: Math.trunc(createdRefreshSession.expirationDate.getTime() / 1000),
+            expires: createdRefreshSession.expirationDate,
             path: '/auth',
         });
 

@@ -20,6 +20,6 @@ export const SETTINGS = {
     DB_NAME: process.env.DB_NAME || 'test',
     ACCESS_JWT_SECRET: process.env.JWT_SECRET || '123',
     REFRESH_JWT_SECRET: process.env.REFRESH_JWT_SECRET || '123',
-    ACCESS_JWT_LIFE: '10m',
-    REFRESH_JWT_LIFE: '20m',
+    ACCESS_JWT_LIFE: '10s',
+    REFRESH_JWT_LIFE: '20s',
 }

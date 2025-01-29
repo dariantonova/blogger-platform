@@ -251,7 +251,9 @@ describe('tests for /auth', () => {
                 password: createUsersData[0].password,
             };
 
-            await authTestManager.login(data, HTTP_STATUSES.OK_200);
+            const loginResponse = await authTestManager.login(data, HTTP_STATUSES.OK_200);
+            await authTestManager.checkAccessTokenIsPresent(loginResponse);
+            await authTestManager.verifyRefTokenCookie();
         });
 
         // login by email
@@ -261,7 +263,9 @@ describe('tests for /auth', () => {
                 password: createUsersData[0].password,
             };
 
-            await authTestManager.login(data, HTTP_STATUSES.OK_200);
+            const loginResponse = await authTestManager.login(data, HTTP_STATUSES.OK_200);
+            await authTestManager.checkAccessTokenIsPresent(loginResponse);
+            await authTestManager.verifyRefTokenCookie();
         });
     });
 

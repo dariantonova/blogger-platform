@@ -4,21 +4,28 @@ import {HTTP_STATUSES} from "../../src/utils";
 import {CreateUserInputModel} from "../../src/features/users/models/CreateUserInputModel";
 import {LoginInputModel, MeViewModel} from "../../src/features/auth/types/auth.types";
 import {usersTestRepository} from "../repositories/users.test.repository";
+import {Response} from 'supertest';
+import {Cookie, CookieAccessInfo} from "cookiejar";
 
 export const authTestManager = {
     async login(data: any, expectedStatusCode: number) {
-        const response = await req
+        return req
             .post(SETTINGS.PATH.AUTH + '/login')
             .send(data)
             .expect(expectedStatusCode);
-
-        if (expectedStatusCode === HTTP_STATUSES.OK_200) {
-            expect(response.body).toEqual({
-                accessToken: expect.any(String),
-            });
-        }
-
-        return response;
+    },
+    async checkAccessTokenIsPresent(response: Response) {
+        expect(response.body).toEqual({
+            accessToken: expect.any(String),
+        });
+    },
+    async verifyRefTokenCookie() {
+        const cookie = req.jar.getCookie('refreshToken', CookieAccessInfo.All) as Cookie;
+        expect(cookie).toBeDefined();
+        expect(cookie.value.length).toBeGreaterThan(0);
+        expect(cookie.path).toBe('/auth');
+        expect(cookie.secure).toBe(true);
+        expect(cookie.noscript).toBe(true);
     },
     async getCurrentUserInfo(auth: string, expectedStatusCode: number) {
         return req
