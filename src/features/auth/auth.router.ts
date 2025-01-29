@@ -12,6 +12,7 @@ import {
     loginFieldValidator,
     passwordFieldValidator
 } from "../../validation/field-validators/users-field-validators";
+import {refreshTokenVerification} from "./middlewares/refresh-token-verification";
 
 const router = Router();
 
@@ -37,5 +38,8 @@ router.post('/registration-email-resending',
     emailFieldValidator,
     errorsResultMiddleware,
     authController.resendRegistrationEmail);
+router.post('/refresh-token',
+    refreshTokenVerification,
+    authController.refreshToken);
 
 export { router as authRouter };

@@ -6,11 +6,13 @@ import {postsRouter} from "./features/posts/posts.router";
 import {usersRouter} from "./features/users/users.router";
 import {authRouter} from "./features/auth/auth.router";
 import {commentsRouter} from "./features/comments/comments.router";
+import cookieParser from "cookie-parser";
 
 const app = express();
 
 const jsonBodyMiddleware = express.json();
 app.use(jsonBodyMiddleware);
+app.use(cookieParser());
 
 app.use(SETTINGS.PATH.BLOGS, blogsRouter);
 app.use(SETTINGS.PATH.POSTS, postsRouter);

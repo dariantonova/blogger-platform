@@ -27,23 +27,7 @@ export const authController = {
             return;
         }
 
-        const { refreshToken, accessToken } = result;
-
-        const createdRefreshSession = await refreshSessionsQueryRepository
-            .getRefreshSessionByRefToken(refreshToken);
-        if (!createdRefreshSession) {
-            res.sendStatus(HTTP_STATUSES.INTERNAL_SERVER_ERROR_500);
-            return;
-        }
-
-        res.cookie('refreshToken', refreshToken, {
-            httpOnly: true,
-            secure: true,
-            maxAge: Math.trunc(createdRefreshSession.expirationDate.getTime() / 1000),
-            path: '/auth',
-        });
-
-        res.json({ accessToken });
+        await authController._sendTokenPair(res, result.accessToken, result.refreshToken);
     },
     getCurrentUserInfo: async (req: Request, res: Response<MeViewModel>) => {
         const user = req.user as UserDBType;
@@ -103,5 +87,35 @@ export const authController = {
         }
 
         res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
+    },
+    refreshToken: async (req: Request, res: Response<LoginSuccessViewModel>) => {
+        const tokenToRevoke = req.cookies.refreshToken;
+        const user = req.user as UserDBType;
+
+        const result = await authService.refreshToken(tokenToRevoke, user);
+        if (result.status !== ResultStatus.SUCCESS) {
+            res.sendStatus(resultStatusToHttp(result.status));
+            return;
+        }
+
+        await authController._sendTokenPair(res, result.data!.accessToken, result.data!.refreshToken);
+    },
+    _sendTokenPair: async (res: Response<LoginSuccessViewModel>,
+                           accessToken: string, refreshToken: string) => {
+        const createdRefreshSession = await refreshSessionsQueryRepository
+            .getRefreshSessionByRefToken(refreshToken);
+        if (!createdRefreshSession) {
+            res.sendStatus(HTTP_STATUSES.INTERNAL_SERVER_ERROR_500);
+            return;
+        }
+
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            secure: true,
+            maxAge: Math.trunc(createdRefreshSession.expirationDate.getTime() / 1000),
+            path: '/auth',
+        });
+
+        res.json({ accessToken });
     },
 };

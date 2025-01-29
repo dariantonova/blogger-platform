@@ -1,7 +1,7 @@
-import {Request, Response, NextFunction} from "express";
+import {NextFunction, Request, Response} from "express";
 import {HTTP_STATUSES} from "../utils";
-import {jwtService} from "../application/jwt.service";
-import {usersService} from "../features/users/users.service";
+import {authService} from "../features/auth/auth.service";
+import {ResultStatus} from "../common/result/resultStatus";
 
 export const bearerAuthorizationMiddleware = async (req: Request, res: Response, next: NextFunction) => {
     const authHeader = req.headers.authorization;
@@ -12,18 +12,13 @@ export const bearerAuthorizationMiddleware = async (req: Request, res: Response,
 
     const token = authHeader.split(' ')[1];
 
-    const userId = await jwtService.verifyAccessToken(token);
-    if (!userId) {
+    const verificationResult = await authService.verifyAccessToken(token);
+    if (verificationResult.status !== ResultStatus.SUCCESS) {
         res.sendStatus(HTTP_STATUSES.UNAUTHORIZED_401);
         return;
     }
 
-    const user = await usersService.findUserById(userId);
-    if (!user) {
-        res.sendStatus(HTTP_STATUSES.UNAUTHORIZED_401);
-        return;
-    }
-    req.user = user;
+    req.user = verificationResult.data;
 
     next();
 };
