@@ -118,4 +118,15 @@ export const authController = {
 
         res.json({ accessToken });
     },
+    logoutUser: async (req: Request, res: Response) => {
+        const tokenToRevoke = req.cookies.refreshToken;
+
+        const result = await authService.logoutUser(tokenToRevoke);
+        if (result.status !== ResultStatus.SUCCESS) {
+            res.sendStatus(resultStatusToHttp(result.status));
+            return;
+        }
+
+        res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
+    },
 };

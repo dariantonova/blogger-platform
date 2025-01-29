@@ -41,5 +41,8 @@ router.post('/registration-email-resending',
 router.post('/refresh-token',
     refreshTokenVerification,
     authController.refreshToken);
+router.post('/logout',
+    refreshTokenVerification,
+    authController.logoutUser);
 
 export { router as authRouter };

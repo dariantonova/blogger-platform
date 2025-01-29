@@ -11,22 +11,22 @@ import {refreshSessionsRepository} from "./refresh-sessions.repository";
 
 export const authService = {
     async loginUser(loginOrEmail: string, password: string): Promise<{ accessToken: string, refreshToken: string } | null> {
-        const user = await this.checkCredentials(loginOrEmail, password);
+        const user = await this._checkCredentials(loginOrEmail, password);
         if (!user) {
             return null;
         }
 
-        return this.createTokenPair(user);
+        return this._createTokenPair(user);
     },
-    async createTokenPair(user: UserDBType): Promise<{ accessToken: string, refreshToken: string }> {
+    async _createTokenPair(user: UserDBType): Promise<{ accessToken: string, refreshToken: string }> {
         const accessToken = await jwtService.createAccessToken(user);
         const refreshToken = await jwtService.createRefreshToken(user);
 
-        await this.createRefreshSession(user.id, refreshToken);
+        await this._createRefreshSession(user.id, refreshToken);
 
         return { accessToken, refreshToken };
     },
-    async checkCredentials(loginOrEmail: string, password: string): Promise<UserDBType | null> {
+    async _checkCredentials(loginOrEmail: string, password: string): Promise<UserDBType | null> {
         const user = await usersRepository.findUserByLoginOrEmail(loginOrEmail);
         if (!user) {
             return null;
@@ -35,7 +35,7 @@ export const authService = {
         const isPasswordCorrect = await cryptoService.compareHash(password, user.passwordHash);
         return isPasswordCorrect ? user : null;
     },
-    async createRefreshSession(userId: string, refreshToken: string) {
+    async _createRefreshSession(userId: string, refreshToken: string) {
         const refTokenExpDate = await jwtService.getRefreshTokenExpDate(refreshToken);
         const refreshSession: RefreshSessionDTO = {
             userId,
@@ -252,10 +252,26 @@ export const authService = {
             };
         }
 
-        const tokenPair = await this.createTokenPair(user);
+        const tokenPair = await this._createTokenPair(user);
         return {
             status: ResultStatus.SUCCESS,
             data: tokenPair,
+            extensions: [],
+        };
+    },
+    async logoutUser(tokenToRevoke: string): Promise<Result<null>> {
+        const isRefTokenRevoked = await refreshSessionsRepository.revokeRefreshToken(tokenToRevoke);
+        if (!isRefTokenRevoked) {
+            return {
+                status: ResultStatus.INTERNAL_SERVER_ERROR,
+                data: null,
+                extensions: [],
+            };
+        }
+
+        return {
+            status: ResultStatus.SUCCESS,
+            data: null,
             extensions: [],
         };
     },
