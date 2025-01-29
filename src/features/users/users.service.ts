@@ -5,6 +5,7 @@ import {randomUUID} from "node:crypto";
 import {add} from "date-fns";
 import {Result} from "../../common/result/result.type";
 import {ResultStatus} from "../../common/result/resultStatus";
+import {refreshSessionsRepository} from "../auth/refresh-sessions.repository";
 
 export const confirmationCodeLifetime = {
     hours: 1,
@@ -76,7 +77,13 @@ export const usersService = {
         };
     },
     async deleteUser(id: string): Promise<boolean> {
-        return usersRepository.deleteUser(id);
+        const isUserDeleted = await usersRepository.deleteUser(id);
+
+        if (isUserDeleted) {
+            await refreshSessionsRepository.deleteUserSessions(id);
+        }
+
+        return isUserDeleted;
     },
     async deleteAllUsers() {
         await usersRepository.deleteAllUsers();

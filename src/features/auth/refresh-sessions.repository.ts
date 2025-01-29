@@ -24,4 +24,8 @@ export const refreshSessionsRepository = {
         const deleteInfo = await refreshSessionsCollection.deleteOne(filterObj);
         return deleteInfo.deletedCount === 1;
     },
+    async deleteUserSessions(userId: string) {
+        const filterObj = { userId };
+        await refreshSessionsCollection.deleteMany(filterObj);
+    },
 };
