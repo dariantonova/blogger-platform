@@ -11,6 +11,7 @@ import {authTestManager} from "../../test-managers/auth-test-manager";
 import {CommentDBType, CommentViewModel, CreateCommentInputModel} from "../../../src/features/comments/comments.types";
 import {validCommentFieldInput} from "../../datasets/validation/comments-validation-data";
 import {postTestManager} from "../../test-managers/post-test-manager";
+import {defaultAccessTokenLife} from "../../datasets/authorization-data";
 
 
 describe('tests for create comments endpoint', () => {
@@ -184,21 +185,15 @@ describe('tests for create comments endpoint', () => {
     });
 
     // - expired token
-    const timeout = async (ms: number) => {
-        return new Promise(resolve => setTimeout(resolve, ms));
-    };
-
     it('should return 401 if token is expired', async () => {
         const postId = initialDbPosts[0].id;
         const data: CreateCommentInputModel = {
             content: validCommentFieldInput.content,
         };
 
-        SETTINGS.ACCESS_JWT_LIFE = '10ms';
+        SETTINGS.ACCESS_JWT_LIFE = '0';
         const userIndex = 0;
         const token = await getAccessTokenForUser(userIndex);
-
-        await timeout(10);
 
         await postTestManager.createPostComment(postId, data,
             'Bearer ' + token,
@@ -206,7 +201,7 @@ describe('tests for create comments endpoint', () => {
 
         await postTestManager.checkPostCommentsQuantity(postId, 0);
 
-        SETTINGS.ACCESS_JWT_LIFE = '7d';
+        SETTINGS.ACCESS_JWT_LIFE = defaultAccessTokenLife;
     });
 
     // - invalid auth format

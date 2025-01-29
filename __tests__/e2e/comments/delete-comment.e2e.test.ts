@@ -12,6 +12,7 @@ import {commentTestManager} from "../../test-managers/comment-test-manager";
 import {LoginInputModel} from "../../../src/features/auth/types/auth.types";
 import {authTestManager} from "../../test-managers/auth-test-manager";
 import {postTestManager} from "../../test-managers/post-test-manager";
+import {defaultAccessTokenLife} from "../../datasets/authorization-data";
 
 describe('tests for delete comment endpoint', () => {
     let server: MongoMemoryServer;
@@ -171,18 +172,12 @@ describe('tests for delete comment endpoint', () => {
     });
 
     // - expired token
-    const timeout = async (ms: number) => {
-        return new Promise(resolve => setTimeout(resolve, ms));
-    };
-
     it('should return 401 if token is expired', async () => {
         const commentId = initialDbComments[0]._id.toString();
 
-        SETTINGS.ACCESS_JWT_LIFE = '10ms';
+        SETTINGS.ACCESS_JWT_LIFE = '0';
         const userIndex = 0;
         const token = await getAccessTokenForUser(userIndex);
-
-        await timeout(10);
 
         await commentTestManager.deleteComment(commentId,
             'Bearer ' + token,
@@ -192,7 +187,7 @@ describe('tests for delete comment endpoint', () => {
             .get(SETTINGS.PATH.COMMENTS + '/' + commentId)
             .expect(HTTP_STATUSES.OK_200);
 
-        SETTINGS.ACCESS_JWT_LIFE = '7d';
+        SETTINGS.ACCESS_JWT_LIFE = defaultAccessTokenLife;
     });
 
     // - invalid auth format

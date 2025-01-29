@@ -12,6 +12,7 @@ import {LoginInputModel} from "../../../src/features/auth/types/auth.types";
 import {authTestManager} from "../../test-managers/auth-test-manager";
 import {validCommentFieldInput} from "../../datasets/validation/comments-validation-data";
 import {commentTestManager} from "../../test-managers/comment-test-manager";
+import {defaultAccessTokenLife} from "../../datasets/authorization-data";
 
 
 describe('tests for update comment endpoint', () => {
@@ -178,10 +179,6 @@ describe('tests for update comment endpoint', () => {
     });
 
     // - expired token
-    const timeout = async (ms: number) => {
-        return new Promise(resolve => setTimeout(resolve, ms));
-    };
-
     it('should return 401 if token is expired', async () => {
         const commentToUpdate = initialDbComments[0];
         const commentId = commentToUpdate._id.toString();
@@ -189,12 +186,9 @@ describe('tests for update comment endpoint', () => {
             content: validCommentFieldInput.content,
         };
 
-        const expiresIn = 10;
-        SETTINGS.ACCESS_JWT_LIFE = expiresIn + 'ms';
+        SETTINGS.ACCESS_JWT_LIFE = '0';
         const userIndex = 0;
         const token = await getAccessTokenForUser(userIndex);
-
-        await timeout(expiresIn);
 
         await commentTestManager.updateComment(commentId, data,
             'Bearer ' + token,
@@ -202,7 +196,7 @@ describe('tests for update comment endpoint', () => {
 
         await commentTestManager.checkCommentIsTheSame(commentToUpdate);
 
-        SETTINGS.ACCESS_JWT_LIFE = '7d';
+        SETTINGS.ACCESS_JWT_LIFE = defaultAccessTokenLife;
     });
 
     // - invalid auth format
