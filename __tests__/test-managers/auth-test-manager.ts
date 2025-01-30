@@ -19,13 +19,15 @@ export const authTestManager = {
             accessToken: expect.any(String),
         });
     },
-    async verifyRefTokenCookie() {
+    async verifyRefTokenCookie(): Promise<Cookie> {
         const cookie = req.jar.getCookie('refreshToken', CookieAccessInfo.All) as Cookie;
         expect(cookie).toBeDefined();
         expect(cookie.value.length).toBeGreaterThan(0);
         expect(cookie.path).toBe('/auth');
         expect(cookie.secure).toBe(true);
         expect(cookie.noscript).toBe(true);
+
+        return cookie;
     },
     async getCurrentUserInfo(auth: string, expectedStatusCode: number) {
         return req
@@ -72,5 +74,23 @@ export const authTestManager = {
             .post(SETTINGS.PATH.AUTH + '/registration-email-resending')
             .send(data)
             .expect(expectedStatusCode);
+    },
+    async refreshToken(refToken: string, expectedStatusCode: number) {
+        return req
+            .post(SETTINGS.PATH.AUTH + '/refresh-token')
+            .set('Cookie', 'refreshToken=' + refToken)
+            .expect(expectedStatusCode);
+    },
+    async getNewRefreshToken(loginOrEmail: string, password: string): Promise<string> {
+        const loginData: LoginInputModel = {
+            loginOrEmail,
+            password,
+        };
+        await authTestManager.login(loginData, HTTP_STATUSES.OK_200);
+        const cookie = req.jar.getCookie('refreshToken', CookieAccessInfo.All) as Cookie;
+        return cookie.value;
+        // const userRefreshSessions = await refreshSessionsTestRepository
+        //     .findUserRefreshSessions(userId);
+        // return userRefreshSessions.pop()!.refreshToken;
     },
 };

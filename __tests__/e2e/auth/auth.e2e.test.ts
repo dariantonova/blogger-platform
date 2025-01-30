@@ -268,6 +268,19 @@ describe('tests for /auth', () => {
             await authTestManager.checkAccessTokenIsPresent(loginResponse);
             await authTestManager.verifyRefTokenCookie();
         });
+
+        it('should login multiple times', async () => {
+            const data: LoginInputModel = {
+                loginOrEmail: createUsersData[0].login,
+                password: createUsersData[0].password,
+            };
+
+            for (let i = 0; i < 2; i++) {
+                const loginResponse = await authTestManager.login(data, HTTP_STATUSES.OK_200);
+                await authTestManager.checkAccessTokenIsPresent(loginResponse);
+                await authTestManager.verifyRefTokenCookie();
+            }
+        });
     });
 
     describe('get current user info', () => {

@@ -1,5 +1,5 @@
 import {UserDBType} from "../types/types";
-import jwt, {JwtPayload} from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 import {SETTINGS} from "../settings";
 
 export const jwtService = {
@@ -29,9 +29,14 @@ export const jwtService = {
             return null;
         }
     },
-    async getRefreshTokenExpDate(token: string): Promise<Date> {
-        const payload: any = jwt.verify(token, SETTINGS.REFRESH_JWT_SECRET);
-        const refTokenExp = payload.exp;
-        return new Date(+refTokenExp * 1000);
+    async getRefreshTokenExpDate(token: string): Promise<Date | null> {
+        try {
+            const payload: any = jwt.verify(token, SETTINGS.REFRESH_JWT_SECRET);
+            const refTokenExp = payload.exp;
+            return new Date(+refTokenExp * 1000);
+        }
+        catch (err) {
+            return null;
+        }
     },
 };

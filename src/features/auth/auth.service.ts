@@ -22,7 +22,10 @@ export const authService = {
         const accessToken = await jwtService.createAccessToken(user);
         const refreshToken = await jwtService.createRefreshToken(user);
 
-        await this._createRefreshSession(user.id, refreshToken);
+        const doesRefTokenExist = await refreshSessionsRepository.doesRefreshTokenExist(refreshToken);
+        if (!doesRefTokenExist) {
+            await this._createRefreshSession(user.id, refreshToken);
+        }
 
         return { accessToken, refreshToken };
     },
@@ -36,7 +39,7 @@ export const authService = {
         return isPasswordCorrect ? user : null;
     },
     async _createRefreshSession(userId: string, refreshToken: string) {
-        const refTokenExpDate = await jwtService.getRefreshTokenExpDate(refreshToken);
+        const refTokenExpDate = await jwtService.getRefreshTokenExpDate(refreshToken) || new Date();
         const refreshSession: RefreshSessionDTO = {
             userId,
             refreshToken,
