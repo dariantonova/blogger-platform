@@ -93,4 +93,10 @@ export const authTestManager = {
         //     .findUserRefreshSessions(userId);
         // return userRefreshSessions.pop()!.refreshToken;
     },
+    async logout(refToken: string, expectedStatusCode: number) {
+        return req
+            .post(SETTINGS.PATH.AUTH + '/logout')
+            .set('Cookie', 'refreshToken=' + refToken)
+            .expect(expectedStatusCode);
+    },
 };

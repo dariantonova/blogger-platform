@@ -1,14 +1,14 @@
 import {MongoMemoryServer} from "mongodb-memory-server";
+import {CreateUserInputModel} from "../../../src/features/users/models/CreateUserInputModel";
 import {client, runDb} from "../../../src/db/db";
+import {userTestManager} from "../../test-managers/user-test-manager";
+import {HTTP_STATUSES} from "../../../src/utils";
 import {req} from "../../test-helpers";
 import {SETTINGS} from "../../../src/settings";
-import {HTTP_STATUSES} from "../../../src/utils";
-import {userTestManager} from "../../test-managers/user-test-manager";
-import {CreateUserInputModel} from "../../../src/features/users/models/CreateUserInputModel";
-import {defaultRefreshTokenLife} from "../../datasets/authorization-data";
 import {authTestManager} from "../../test-managers/auth-test-manager";
+import {defaultRefreshTokenLife} from "../../datasets/authorization-data";
 
-describe('tests for refresh token endpoint', () => {
+describe('tests for logout endpoint', () => {
     let server: MongoMemoryServer;
     let createUsersData: CreateUserInputModel[];
     let createdUserIds: string[];
@@ -52,7 +52,7 @@ describe('tests for refresh token endpoint', () => {
 
     it('should return 401 if refresh token is not provided', async () => {
         await req
-            .post(SETTINGS.PATH.AUTH + '/refresh-token')
+            .post(SETTINGS.PATH.AUTH + '/logout')
             .expect(HTTP_STATUSES.UNAUTHORIZED_401);
     });
 
@@ -70,19 +70,19 @@ describe('tests for refresh token endpoint', () => {
         // wait
         await timeout(expiresIn);
 
-        // try to refresh token
-        await authTestManager.refreshToken(refreshToken, HTTP_STATUSES.UNAUTHORIZED_401);
+        // try to logout
+        await authTestManager.logout(refreshToken, HTTP_STATUSES.UNAUTHORIZED_401);
 
         SETTINGS.REFRESH_JWT_LIFE = defaultRefreshTokenLife;
     });
 
     it('should return 401 if refresh token is an empty string', async () => {
-        await authTestManager.refreshToken('', HTTP_STATUSES.UNAUTHORIZED_401);
+        await authTestManager.logout('', HTTP_STATUSES.UNAUTHORIZED_401);
     });
 
     it('should return 401 if refresh token is not a valid jwt', async () => {
         const randomToken = 'random';
-        await authTestManager.refreshToken(randomToken, HTTP_STATUSES.UNAUTHORIZED_401);
+        await authTestManager.logout(randomToken, HTTP_STATUSES.UNAUTHORIZED_401);
     });
 
     it('should return 401 if refresh token has already been used', async () => {
@@ -94,7 +94,16 @@ describe('tests for refresh token endpoint', () => {
         await timeout(1000);
 
         await authTestManager.refreshToken(refreshToken, HTTP_STATUSES.OK_200);
-        await authTestManager.refreshToken(refreshToken, HTTP_STATUSES.UNAUTHORIZED_401);
+        await authTestManager.logout(refreshToken, HTTP_STATUSES.UNAUTHORIZED_401);
+    });
+
+    it('should logout user', async () => {
+        const userData = createUsersData[0];
+        const refreshToken = await authTestManager.getNewRefreshToken(
+            userData.login, userData.password
+        );
+
+        await authTestManager.logout(refreshToken, HTTP_STATUSES.NO_CONTENT_204);
     });
 
     it('should return 401 if refresh token has already been revoked', async () => {
@@ -104,7 +113,7 @@ describe('tests for refresh token endpoint', () => {
         );
 
         await authTestManager.logout(refreshToken, HTTP_STATUSES.NO_CONTENT_204);
-        await authTestManager.refreshToken(refreshToken, HTTP_STATUSES.UNAUTHORIZED_401);
+        await authTestManager.logout(refreshToken, HTTP_STATUSES.UNAUTHORIZED_401);
     });
 
     it('should return 401 if user of refresh token was deleted', async () => {
@@ -122,28 +131,7 @@ describe('tests for refresh token endpoint', () => {
 
         await userTestManager.deleteUser(userId, HTTP_STATUSES.NO_CONTENT_204);
 
-        await authTestManager.refreshToken(refreshToken1, HTTP_STATUSES.UNAUTHORIZED_401);
-        await authTestManager.refreshToken(refreshToken2, HTTP_STATUSES.UNAUTHORIZED_401);
-    });
-
-    it('should refresh token', async () => {
-        const userData = createUsersData[0];
-        const refreshToken = await authTestManager.getNewRefreshToken(
-            userData.login, userData.password
-        );
-
-        await timeout(1000);
-
-        const response = await authTestManager.refreshToken(refreshToken, HTTP_STATUSES.OK_200);
-
-        await authTestManager.checkAccessTokenIsPresent(response);
-        await authTestManager.getCurrentUserInfo(
-            'Bearer '+ response.body.accessToken,
-            HTTP_STATUSES.OK_200
-        );
-
-        const cookie = await authTestManager.verifyRefTokenCookie();
-        const newRefreshToken = cookie.value;
-        await authTestManager.refreshToken(newRefreshToken, HTTP_STATUSES.OK_200);
+        await authTestManager.logout(refreshToken1, HTTP_STATUSES.UNAUTHORIZED_401);
+        await authTestManager.logout(refreshToken2, HTTP_STATUSES.UNAUTHORIZED_401);
     });
 });
