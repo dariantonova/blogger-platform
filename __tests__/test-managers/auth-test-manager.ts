@@ -89,9 +89,6 @@ export const authTestManager = {
         await authTestManager.login(loginData, HTTP_STATUSES.OK_200);
         const cookie = req.jar.getCookie('refreshToken', CookieAccessInfo.All) as Cookie;
         return cookie.value;
-        // const userRefreshSessions = await refreshSessionsTestRepository
-        //     .findUserRefreshSessions(userId);
-        // return userRefreshSessions.pop()!.refreshToken;
     },
     async logout(refToken: string, expectedStatusCode: number) {
         return req

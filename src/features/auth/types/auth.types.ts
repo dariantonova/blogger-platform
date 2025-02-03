@@ -26,7 +26,7 @@ export type TokenPair = {
     refreshToken: string,
 };
 
-export type RefreshSessionDTO = {
+export type DeviceAuthSessionDTO = {
     userId: string,
     deviceId: string,
     iat: Date,
@@ -35,11 +35,18 @@ export type RefreshSessionDTO = {
     exp: Date,
 };
 
-export type RefreshSessionDbType = {
+export type DeviceAuthSessionSessionDbType = {
     userId: string,
     deviceId: string,
     iat: Date,
     deviceName: string,
     ip: string,
     exp: Date,
+};
+
+export type DeviceViewModel = {
+    ip: string,
+    title: string,
+    lastActiveDate: string,
+    deviceId: string,
 };

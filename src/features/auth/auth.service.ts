@@ -6,13 +6,13 @@ import {Result} from "../../common/result/result.type";
 import {usersService} from "../users/users.service";
 import {ResultStatus} from "../../common/result/resultStatus";
 import {emailManager} from "../../application/email.manager";
-import {RefreshSessionDTO, TokenPair} from "./types/auth.types";
-import {refreshSessionsRepository} from "./refresh-sessions.repository";
+import {DeviceAuthSessionDTO, TokenPair} from "./types/auth.types";
+import {deviceAuthSessionsRepository} from "./device-auth-sessions.repository";
 import {randomUUID} from "node:crypto";
 
 export const authService = {
     async loginUser(loginOrEmail: string, password: string, deviceName: string, ip: string)
-        : Promise<Result<{ accessToken: string, refreshToken: string } | null>> {
+        : Promise<Result<TokenPair | null>> {
         const user = await this._checkCredentials(loginOrEmail, password);
         if (!user) {
             return {
@@ -24,7 +24,7 @@ export const authService = {
 
         const deviceId = randomUUID();
         const tokenPair = await this._createTokenPair(user, deviceId);
-        await this._createRefreshSession(tokenPair.refreshToken, deviceName, ip);
+        await this._createDeviceAuthSession(tokenPair.refreshToken, deviceName, ip);
 
         return {
             status: ResultStatus.SUCCESS,
@@ -32,7 +32,7 @@ export const authService = {
             extensions: [],
         };
     },
-    async _createTokenPair(user: UserDBType, deviceId: string): Promise<{ accessToken: string, refreshToken: string }> {
+    async _createTokenPair(user: UserDBType, deviceId: string): Promise<TokenPair> {
         const accessToken = await jwtService.createAccessToken(user);
         const refreshToken = await jwtService.createRefreshToken(user, deviceId);
         return { accessToken, refreshToken };
@@ -46,13 +46,13 @@ export const authService = {
         const isPasswordCorrect = await cryptoService.compareHash(password, user.passwordHash);
         return isPasswordCorrect ? user : null;
     },
-    async _createRefreshSession(refreshToken: string, deviceName: string, ip: string) {
+    async _createDeviceAuthSession(refreshToken: string, deviceName: string, ip: string) {
         const refTokenPayload = await jwtService.decodeRefreshToken(refreshToken);
         const userId = refTokenPayload.userId;
         const iat = new Date(refTokenPayload.iat * 1000);
         const exp = new Date(refTokenPayload.exp * 1000);
         const deviceId = refTokenPayload.deviceId;
-        const refreshSession: RefreshSessionDTO = {
+        const deviceAuthSession: DeviceAuthSessionDTO = {
             userId,
             deviceId,
             iat,
@@ -61,13 +61,13 @@ export const authService = {
             exp,
         };
 
-        await refreshSessionsRepository.createRefreshSession(refreshSession);
+        await deviceAuthSessionsRepository.createDeviceAuthSession(deviceAuthSession);
     },
-    async _updateRefreshSession(newRefreshToken: string, newIp: string): Promise<boolean> {
+    async _updateDeviceAuthSession(newRefreshToken: string, newIp: string): Promise<boolean> {
         const newRefTokenPayload = await jwtService
             .decodeRefreshToken(newRefreshToken);
 
-        return refreshSessionsRepository.updateRefreshSession(
+        return deviceAuthSessionsRepository.updateDeviceAuthSession(
             newRefTokenPayload.deviceId,
             new Date(newRefTokenPayload.iat * 1000),
             new Date(newRefTokenPayload.exp * 1000),
@@ -209,8 +209,8 @@ export const authService = {
             extensions: [],
         };
     },
-    async deleteAllRefreshSessions() {
-        return refreshSessionsRepository.deleteAllRefreshSessions();
+    async deleteAllDeviceAuthSessions() {
+        return deviceAuthSessionsRepository.deleteAllDeviceAuthSessions();
     },
     async verifyAccessToken(accessToken: string): Promise<Result<UserDBType | null>> {
         const userId = await jwtService.verifyAccessToken(accessToken);
@@ -260,7 +260,7 @@ export const authService = {
             };
         }
 
-        const isRefTokenInWhitelist = await refreshSessionsRepository.doesSessionExist(deviceId, iat);
+        const isRefTokenInWhitelist = await deviceAuthSessionsRepository.doesSessionExist(deviceId, iat);
         if (!isRefTokenInWhitelist) {
             return {
                 status: ResultStatus.UNAUTHORIZED,
@@ -280,7 +280,7 @@ export const authService = {
         const deviceId = tokenToRevokePayload.deviceId;
         const newTokenPair = await this._createTokenPair(user, deviceId);
 
-        const isSessionUpdated = await this._updateRefreshSession(newTokenPair.refreshToken, ip);
+        const isSessionUpdated = await this._updateDeviceAuthSession(newTokenPair.refreshToken, ip);
         if (!isSessionUpdated) {
             return {
                 status: ResultStatus.INTERNAL_SERVER_ERROR,
@@ -297,7 +297,7 @@ export const authService = {
     },
     async logoutUser(tokenToRevoke: string): Promise<Result<null>> {
         const tokenPayload = await jwtService.decodeRefreshToken(tokenToRevoke);
-        const isSessionTerminated = await refreshSessionsRepository.terminateSession(tokenPayload.deviceId);
+        const isSessionTerminated = await deviceAuthSessionsRepository.terminateSession(tokenPayload.deviceId);
         if (!isSessionTerminated) {
             return {
                 status: ResultStatus.INTERNAL_SERVER_ERROR,
