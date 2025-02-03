@@ -1,12 +1,12 @@
 import {deviceAuthSessionsCollection} from "../../db/db";
-import {DeviceAuthSessionSessionDbType, DeviceAuthSessionDTO} from "./types/auth.types";
+import {DeviceAuthSessionDbType, DeviceAuthSessionDTO} from "./types/auth.types";
 
 export const deviceAuthSessionsRepository = {
     async deleteAllDeviceAuthSessions() {
         await deviceAuthSessionsCollection.drop();
     },
     async createDeviceAuthSession({ userId, deviceId, iat, deviceName, ip, exp }: DeviceAuthSessionDTO): Promise<string> {
-        const deviceAuthSession: DeviceAuthSessionSessionDbType = {
+        const deviceAuthSession: DeviceAuthSessionDbType = {
             userId,
             deviceId,
             iat,
@@ -36,6 +36,10 @@ export const deviceAuthSessionsRepository = {
     },
     async deleteUserSessions(userId: string) {
         const filterObj = { userId };
+        await deviceAuthSessionsCollection.deleteMany(filterObj);
+    },
+    async terminateAllOtherUserSessions(userId: string, currentDeviceId: string) {
+        const filterObj = { userId, deviceId: { $ne: currentDeviceId } };
         await deviceAuthSessionsCollection.deleteMany(filterObj);
     },
 };

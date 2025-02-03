@@ -11,6 +11,7 @@ export const SETTINGS = {
         USERS: '/api/users',
         AUTH: '/api/auth',
         COMMENTS: '/api/comments',
+        SECURITY_DEVICES: '/api/security/devices',
     },
     CREDENTIALS: {
         LOGIN: 'admin',

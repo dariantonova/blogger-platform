@@ -2,14 +2,14 @@ import {BlogDBType, DBType, PostDBType, UserDBType} from "../types/types";
 import {Collection, MongoClient} from "mongodb";
 import {SETTINGS} from "../settings";
 import {CommentDBType} from "../features/comments/comments.types";
-import {DeviceAuthSessionSessionDbType} from "../features/auth/types/auth.types";
+import {DeviceAuthSessionDbType} from "../features/auth/types/auth.types";
 
 export let client: MongoClient;
 export let blogsCollection: Collection<BlogDBType>;
 export let postsCollection: Collection<PostDBType>;
 export let usersCollection: Collection<UserDBType>;
 export let commentsCollection: Collection<CommentDBType>;
-export let deviceAuthSessionsCollection: Collection<DeviceAuthSessionSessionDbType>;
+export let deviceAuthSessionsCollection: Collection<DeviceAuthSessionDbType>;
 
 export const runDb = async (url: string): Promise<boolean> => {
     try {
@@ -20,7 +20,7 @@ export const runDb = async (url: string): Promise<boolean> => {
         postsCollection = db.collection<PostDBType>('posts');
         usersCollection = db.collection<UserDBType>('users');
         commentsCollection = db.collection<CommentDBType>('comments');
-        deviceAuthSessionsCollection = db.collection<DeviceAuthSessionSessionDbType>('device-auth-sessions');
+        deviceAuthSessionsCollection = db.collection<DeviceAuthSessionDbType>('device-auth-sessions');
 
         await client.connect();
         await db.command({ ping: 1 });
@@ -130,7 +130,7 @@ const posts: PostDBType[] = [
 
 const users: UserDBType[] = [];
 const comments: CommentDBType[] = [];
-const deviceAuthSessions: DeviceAuthSessionSessionDbType[] = [];
+const deviceAuthSessions: DeviceAuthSessionDbType[] = [];
 
 export const initialDb: DBType = {
     blogs,
