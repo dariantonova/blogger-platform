@@ -10,5 +10,8 @@ router.get('/',
 router.delete('/',
     refreshTokenVerification,
     securityDevicesController.terminateAllOtherDeviceSessions);
+router.delete('/:deviceId',
+    refreshTokenVerification,
+    securityDevicesController.terminateDeviceSession);
 
 export { router as securityDevicesRouter };

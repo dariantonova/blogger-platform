@@ -16,4 +16,38 @@ export const securityDevicesService = {
             extensions: [],
         };
     },
+    async terminateDeviceSession(deviceId: string, currentUserId: string): Promise<Result<null>> {
+        const deviceAuthSession = await deviceAuthSessionsRepository
+            .findSessionByDeviceId(deviceId);
+        if (!deviceAuthSession) {
+            return {
+                status: ResultStatus.NOT_FOUND,
+                data: null,
+                extensions: [],
+            };
+        }
+
+        if (deviceAuthSession.userId !== currentUserId) {
+            return {
+                status: ResultStatus.FORBIDDEN,
+                data: null,
+                extensions: [],
+            };
+        }
+
+        const isSessionTerminated = await deviceAuthSessionsRepository.terminateSession(deviceId);
+        if (!isSessionTerminated) {
+            return {
+                status: ResultStatus.INTERNAL_SERVER_ERROR,
+                data: null,
+                extensions: [],
+            };
+        }
+
+        return {
+            status: ResultStatus.SUCCESS,
+            data: null,
+            extensions: [],
+        };
+    },
 };

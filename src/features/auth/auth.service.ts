@@ -260,7 +260,7 @@ export const authService = {
             };
         }
 
-        const isRefTokenInWhitelist = await deviceAuthSessionsRepository.doesSessionExist(deviceId, iat);
+        const isRefTokenInWhitelist = await deviceAuthSessionsRepository.isActiveSession(deviceId, iat);
         if (!isRefTokenInWhitelist) {
             return {
                 status: ResultStatus.UNAUTHORIZED,

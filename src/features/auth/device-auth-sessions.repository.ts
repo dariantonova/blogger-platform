@@ -24,7 +24,7 @@ export const deviceAuthSessionsRepository = {
         );
         return updateInfo.matchedCount === 1;
     },
-    async doesSessionExist(deviceId: string, iat: Date): Promise<boolean> {
+    async isActiveSession(deviceId: string, iat: Date): Promise<boolean> {
         const refreshSession = await deviceAuthSessionsCollection
             .findOne({ deviceId, iat });
         return !!refreshSession;
@@ -41,5 +41,8 @@ export const deviceAuthSessionsRepository = {
     async terminateAllOtherUserSessions(userId: string, currentDeviceId: string) {
         const filterObj = { userId, deviceId: { $ne: currentDeviceId } };
         await deviceAuthSessionsCollection.deleteMany(filterObj);
+    },
+    async findSessionByDeviceId(deviceId: string): Promise<DeviceAuthSessionDbType | null> {
+        return deviceAuthSessionsCollection.findOne({ deviceId }, { projection: { _id: 0 } });
     },
 };
