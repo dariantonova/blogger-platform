@@ -5,6 +5,7 @@ import {add} from "date-fns";
 import {authTestManager} from "../../test-managers/auth-test-manager";
 import {HTTP_STATUSES} from "../../../src/utils";
 import {RegistrationEmailResending} from "../../../src/features/auth/types/auth.types";
+import {requestsLimit} from "../../../src/middlewares/rate-limiting-middleware";
 
 describe('tests for registration email resending', () => {
     let server: MongoMemoryServer;
@@ -16,6 +17,8 @@ describe('tests for registration email resending', () => {
 
         const res = await runDb(uri);
         expect(res).toBe(true);
+
+        requestsLimit.numberOfAttemptsLimit = 1000;
 
         initialDbUsers = [
             {

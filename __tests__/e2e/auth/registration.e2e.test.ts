@@ -6,6 +6,7 @@ import {HTTP_STATUSES} from "../../../src/utils";
 import {authTestManager} from "../../test-managers/auth-test-manager";
 import {UserDBType} from "../../../src/types/types";
 import {CreateUserInputModel} from "../../../src/features/users/models/CreateUserInputModel";
+import {requestsLimit} from "../../../src/middlewares/rate-limiting-middleware";
 
 describe('tests for registration endpoint', () => {
     let server: MongoMemoryServer;
@@ -17,6 +18,8 @@ describe('tests for registration endpoint', () => {
 
         const res = await runDb(uri);
         expect(res).toBe(true);
+
+        requestsLimit.numberOfAttemptsLimit = 1000;
 
         initialDbUsers = [
             {

@@ -55,12 +55,19 @@ export type UserDBType = {
     isDeleted: boolean,
 };
 
+export type AttemptDbType = {
+    ip: string,
+    url: string,
+    date: Date,
+};
+
 export type DBType = {
     blogs: OptionalId<BlogDBType>[],
     posts: OptionalId<PostDBType>[],
     users: OptionalId<UserDBType>[],
     comments: OptionalId<CommentDBType>[],
     deviceAuthSessions: OptionalId<DeviceAuthSessionDbType>[],
+    attempts: OptionalId<AttemptDbType>[],
 };
 
 export enum SortDirections {

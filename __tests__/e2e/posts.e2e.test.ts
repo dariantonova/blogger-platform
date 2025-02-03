@@ -20,6 +20,7 @@ import {CommentDBType} from "../../src/features/comments/comments.types";
 import {userTestManager} from "../test-managers/user-test-manager";
 import {CreateUserInputModel} from "../../src/features/users/models/CreateUserInputModel";
 import {commentsRepository} from "../../src/features/comments/comments.repository";
+import {requestsLimit} from "../../src/middlewares/rate-limiting-middleware";
 
 describe('tests for /posts', () => {
     let server: MongoMemoryServer;
@@ -30,6 +31,8 @@ describe('tests for /posts', () => {
 
         const res = await runDb(uri);
         expect(res).toBe(true);
+
+        requestsLimit.numberOfAttemptsLimit = 1000;
 
         await req
             .delete(SETTINGS.PATH.TESTING + '/all-data');

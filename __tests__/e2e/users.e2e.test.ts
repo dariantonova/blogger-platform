@@ -12,6 +12,7 @@ import {invalidPageNumbers, invalidPageSizes} from "../datasets/validation/query
 import {CreateUserInputModel} from "../../src/features/users/models/CreateUserInputModel";
 import {validUserFieldInput} from "../datasets/validation/users-validation-data";
 import {usersTestRepository} from "../repositories/users.test.repository";
+import {requestsLimit} from "../../src/middlewares/rate-limiting-middleware";
 
 
 describe('tests for /users', () => {
@@ -23,6 +24,8 @@ describe('tests for /users', () => {
 
         const res = await runDb(uri);
         expect(res).toBe(true);
+
+        requestsLimit.numberOfAttemptsLimit = 1000;
 
         await req
             .delete(SETTINGS.PATH.TESTING + '/all-data');

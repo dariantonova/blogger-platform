@@ -9,6 +9,7 @@ import {SETTINGS} from "../../../src/settings";
 import {validAuthLoginInput} from "../../datasets/validation/auth-login-validation-data";
 import {LoginInputModel, MeViewModel} from "../../../src/features/auth/types/auth.types";
 import {defaultAccessTokenLife} from "../../datasets/authorization-data";
+import {requestsLimit} from "../../../src/middlewares/rate-limiting-middleware";
 
 describe('tests for /auth', () => {
     let server: MongoMemoryServer;
@@ -22,6 +23,8 @@ describe('tests for /auth', () => {
 
         await req
             .delete(SETTINGS.PATH.TESTING + '/all-data');
+
+        requestsLimit.numberOfAttemptsLimit = 1000;
     });
 
     afterAll(async () => {

@@ -7,6 +7,7 @@ import {commentsService} from "../features/comments/comments.service";
 import {RequestWithBody} from "../types/types";
 import {emailManager} from "../application/email.manager";
 import {authService} from "../features/auth/auth.service";
+import {attemptsService} from "../application/attempts.service";
 
 const router = Router();
 
@@ -16,6 +17,7 @@ router.delete('/all-data', async (req: Request, res: Response) => {
     await usersService.deleteAllUsers();
     await commentsService.deleteAllComments();
     await authService.deleteAllDeviceAuthSessions();
+    await attemptsService.deleteAllAttempts();
 
     res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
 });

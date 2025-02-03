@@ -7,6 +7,7 @@ import {req} from "../../test-helpers";
 import {SETTINGS} from "../../../src/settings";
 import {authTestManager} from "../../test-managers/auth-test-manager";
 import {defaultRefreshTokenLife} from "../../datasets/authorization-data";
+import {requestsLimit} from "../../../src/middlewares/rate-limiting-middleware";
 
 describe('tests for logout endpoint', () => {
     let server: MongoMemoryServer;
@@ -23,6 +24,8 @@ describe('tests for logout endpoint', () => {
 
         const res = await runDb(uri);
         expect(res).toBe(true);
+
+        requestsLimit.numberOfAttemptsLimit = 1000;
 
         createUsersData = [
             {

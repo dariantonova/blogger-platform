@@ -7,6 +7,7 @@ import {userTestManager} from "../../test-managers/user-test-manager";
 import {CreateUserInputModel} from "../../../src/features/users/models/CreateUserInputModel";
 import {defaultRefreshTokenLife} from "../../datasets/authorization-data";
 import {authTestManager} from "../../test-managers/auth-test-manager";
+import {requestsLimit} from "../../../src/middlewares/rate-limiting-middleware";
 
 describe('tests for refresh token endpoint', () => {
     let server: MongoMemoryServer;
@@ -23,6 +24,8 @@ describe('tests for refresh token endpoint', () => {
 
         const res = await runDb(uri);
         expect(res).toBe(true);
+
+        requestsLimit.numberOfAttemptsLimit = 1000;
 
         createUsersData = [
             {

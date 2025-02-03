@@ -1,4 +1,4 @@
-import {BlogDBType, DBType, PostDBType, UserDBType} from "../types/types";
+import {AttemptDbType, BlogDBType, DBType, PostDBType, UserDBType} from "../types/types";
 import {Collection, MongoClient} from "mongodb";
 import {SETTINGS} from "../settings";
 import {CommentDBType} from "../features/comments/comments.types";
@@ -10,6 +10,7 @@ export let postsCollection: Collection<PostDBType>;
 export let usersCollection: Collection<UserDBType>;
 export let commentsCollection: Collection<CommentDBType>;
 export let deviceAuthSessionsCollection: Collection<DeviceAuthSessionDbType>;
+export let attemptsCollection: Collection<AttemptDbType>;
 
 export const runDb = async (url: string): Promise<boolean> => {
     try {
@@ -21,6 +22,7 @@ export const runDb = async (url: string): Promise<boolean> => {
         usersCollection = db.collection<UserDBType>('users');
         commentsCollection = db.collection<CommentDBType>('comments');
         deviceAuthSessionsCollection = db.collection<DeviceAuthSessionDbType>('device-auth-sessions');
+        attemptsCollection = db.collection<AttemptDbType>('attempts');
 
         await client.connect();
         await db.command({ ping: 1 });
@@ -41,6 +43,7 @@ export const setDb = async (dataset?: Partial<DBType>) => {
         await usersCollection.drop();
         await commentsCollection.drop();
         await deviceAuthSessionsCollection.drop();
+        await attemptsCollection.drop();
         return;
     }
 
@@ -77,9 +80,18 @@ export const setDb = async (dataset?: Partial<DBType>) => {
     if (dataset.deviceAuthSessions) {
         await deviceAuthSessionsCollection.drop();
         if (dataset.deviceAuthSessions.length > 0) {
-            const refreshSessionsToInsert = dataset.deviceAuthSessions[0]._id ?
+            const deviceAuthSessionsToInsert = dataset.deviceAuthSessions[0]._id ?
                 dataset.deviceAuthSessions : structuredClone(dataset.deviceAuthSessions);
-            await deviceAuthSessionsCollection.insertMany(refreshSessionsToInsert);
+            await deviceAuthSessionsCollection.insertMany(deviceAuthSessionsToInsert);
+        }
+    }
+
+    if (dataset.attempts) {
+        await attemptsCollection.drop();
+        if (dataset.attempts.length > 0) {
+            const attemptsToInsert = dataset.attempts[0]._id ?
+                dataset.attempts : structuredClone(dataset.attempts);
+            await attemptsCollection.insertMany(attemptsToInsert);
         }
     }
 };
@@ -131,6 +143,7 @@ const posts: PostDBType[] = [
 const users: UserDBType[] = [];
 const comments: CommentDBType[] = [];
 const deviceAuthSessions: DeviceAuthSessionDbType[] = [];
+const attempts: AttemptDbType[] = [];
 
 export const initialDb: DBType = {
     blogs,
@@ -138,4 +151,5 @@ export const initialDb: DBType = {
     users,
     comments,
     deviceAuthSessions,
+    attempts,
 };
