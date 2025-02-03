@@ -39,7 +39,7 @@ export const authService = {
         return isPasswordCorrect ? user : null;
     },
     async _createRefreshSession(userId: string, refreshToken: string) {
-        const refTokenExpDate = await jwtService.getRefreshTokenExpDate(refreshToken) || new Date();
+        const refTokenExpDate = await jwtService.getRefreshTokenExpDate(refreshToken);
         const refreshSession: RefreshSessionDTO = {
             userId,
             refreshToken,
