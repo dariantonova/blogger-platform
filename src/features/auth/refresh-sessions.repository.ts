@@ -5,22 +5,32 @@ export const refreshSessionsRepository = {
     async deleteAllRefreshSessions() {
         await refreshSessionsCollection.drop();
     },
-    async createRefreshSession({ userId, refreshToken, expirationDate }: RefreshSessionDTO): Promise<string> {
+    async createRefreshSession({ userId, deviceId, iat, deviceName, ip, exp }: RefreshSessionDTO): Promise<string> {
         const refreshSession: RefreshSessionDbType = {
             userId,
-            refreshToken,
-            expirationDate,
+            deviceId,
+            iat,
+            deviceName,
+            ip,
+            exp,
         };
         const insertInfo = await refreshSessionsCollection.insertOne(refreshSession);
         return insertInfo.insertedId.toString();
     },
-    async doesRefreshTokenExist(refreshToken: string): Promise<boolean> {
+    async updateRefreshSession(deviceId: string, iat: Date, exp: Date, ip: string): Promise<boolean> {
+        const updateInfo = await refreshSessionsCollection.updateOne(
+            { deviceId },
+            { $set: { iat, exp, ip } }
+        );
+        return updateInfo.matchedCount === 1;
+    },
+    async doesSessionExist(deviceId: string, iat: Date): Promise<boolean> {
         const refreshSession = await refreshSessionsCollection
-            .findOne({ refreshToken });
+            .findOne({ deviceId, iat });
         return !!refreshSession;
     },
-    async revokeRefreshToken(refreshToken: string): Promise<boolean> {
-        const filterObj = { refreshToken };
+    async terminateSession(deviceId: string): Promise<boolean> {
+        const filterObj = { deviceId };
         const deleteInfo = await refreshSessionsCollection.deleteOne(filterObj);
         return deleteInfo.deletedCount === 1;
     },

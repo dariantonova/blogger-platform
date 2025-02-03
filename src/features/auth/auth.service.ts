@@ -6,27 +6,35 @@ import {Result} from "../../common/result/result.type";
 import {usersService} from "../users/users.service";
 import {ResultStatus} from "../../common/result/resultStatus";
 import {emailManager} from "../../application/email.manager";
-import {RefreshSessionDTO} from "./types/auth.types";
+import {RefreshSessionDTO, TokenPair} from "./types/auth.types";
 import {refreshSessionsRepository} from "./refresh-sessions.repository";
+import {randomUUID} from "node:crypto";
 
 export const authService = {
-    async loginUser(loginOrEmail: string, password: string): Promise<{ accessToken: string, refreshToken: string } | null> {
+    async loginUser(loginOrEmail: string, password: string, deviceName: string, ip: string)
+        : Promise<Result<{ accessToken: string, refreshToken: string } | null>> {
         const user = await this._checkCredentials(loginOrEmail, password);
         if (!user) {
-            return null;
+            return {
+                status: ResultStatus.UNAUTHORIZED,
+                data: null,
+                extensions: [],
+            };
         }
 
-        return this._createTokenPair(user);
+        const deviceId = randomUUID();
+        const tokenPair = await this._createTokenPair(user, deviceId);
+        await this._createRefreshSession(tokenPair.refreshToken, deviceName, ip);
+
+        return {
+            status: ResultStatus.SUCCESS,
+            data: tokenPair,
+            extensions: [],
+        };
     },
-    async _createTokenPair(user: UserDBType): Promise<{ accessToken: string, refreshToken: string }> {
+    async _createTokenPair(user: UserDBType, deviceId: string): Promise<{ accessToken: string, refreshToken: string }> {
         const accessToken = await jwtService.createAccessToken(user);
-        const refreshToken = await jwtService.createRefreshToken(user);
-
-        const doesRefTokenExist = await refreshSessionsRepository.doesRefreshTokenExist(refreshToken);
-        if (!doesRefTokenExist) {
-            await this._createRefreshSession(user.id, refreshToken);
-        }
-
+        const refreshToken = await jwtService.createRefreshToken(user, deviceId);
         return { accessToken, refreshToken };
     },
     async _checkCredentials(loginOrEmail: string, password: string): Promise<UserDBType | null> {
@@ -38,15 +46,33 @@ export const authService = {
         const isPasswordCorrect = await cryptoService.compareHash(password, user.passwordHash);
         return isPasswordCorrect ? user : null;
     },
-    async _createRefreshSession(userId: string, refreshToken: string) {
-        const refTokenExpDate = await jwtService.getRefreshTokenExpDate(refreshToken);
+    async _createRefreshSession(refreshToken: string, deviceName: string, ip: string) {
+        const refTokenPayload = await jwtService.decodeRefreshToken(refreshToken);
+        const userId = refTokenPayload.userId;
+        const iat = new Date(refTokenPayload.iat * 1000);
+        const exp = new Date(refTokenPayload.exp * 1000);
+        const deviceId = refTokenPayload.deviceId;
         const refreshSession: RefreshSessionDTO = {
             userId,
-            refreshToken,
-            expirationDate: refTokenExpDate,
+            deviceId,
+            iat,
+            deviceName,
+            ip,
+            exp,
         };
 
         await refreshSessionsRepository.createRefreshSession(refreshSession);
+    },
+    async _updateRefreshSession(newRefreshToken: string, newIp: string): Promise<boolean> {
+        const newRefTokenPayload = await jwtService
+            .decodeRefreshToken(newRefreshToken);
+
+        return refreshSessionsRepository.updateRefreshSession(
+            newRefTokenPayload.deviceId,
+            new Date(newRefTokenPayload.iat * 1000),
+            new Date(newRefTokenPayload.exp * 1000),
+            newIp
+        );
     },
     async registerUser(login: string, email: string, password: string): Promise<Result<null>> {
         const createUserResult = await usersService.createUser(login, email, password, false);
@@ -212,14 +238,18 @@ export const authService = {
         };
     },
     async verifyRefreshToken(refreshToken: string): Promise<Result<UserDBType | null>> {
-        const userId = await jwtService.verifyRefreshToken(refreshToken);
-        if (!userId) {
+        const decoded = await jwtService.verifyRefreshToken(refreshToken);
+        if (!decoded) {
             return {
                 status: ResultStatus.UNAUTHORIZED,
                 data: null,
                 extensions: [],
             };
         }
+
+        const userId = decoded.userId;
+        const deviceId = decoded.deviceId;
+        const iat = new Date(decoded.iat * 1000);
 
         const user = await usersService.findUserById(userId);
         if (!user) {
@@ -230,7 +260,7 @@ export const authService = {
             };
         }
 
-        const isRefTokenInWhitelist = await refreshSessionsRepository.doesRefreshTokenExist(refreshToken);
+        const isRefTokenInWhitelist = await refreshSessionsRepository.doesSessionExist(deviceId, iat);
         if (!isRefTokenInWhitelist) {
             return {
                 status: ResultStatus.UNAUTHORIZED,
@@ -245,9 +275,13 @@ export const authService = {
             extensions: [],
         };
     },
-    async refreshToken(tokenToRevoke: string, user: UserDBType): Promise<Result<{ accessToken: string, refreshToken: string } | null>> {
-        const isRefTokenRevoked = await refreshSessionsRepository.revokeRefreshToken(tokenToRevoke);
-        if (!isRefTokenRevoked) {
+    async refreshToken(tokenToRevoke: string, user: UserDBType, ip: string): Promise<Result<TokenPair | null>> {
+        const tokenToRevokePayload = await jwtService.decodeRefreshToken(tokenToRevoke);
+        const deviceId = tokenToRevokePayload.deviceId;
+        const newTokenPair = await this._createTokenPair(user, deviceId);
+
+        const isSessionUpdated = await this._updateRefreshSession(newTokenPair.refreshToken, ip);
+        if (!isSessionUpdated) {
             return {
                 status: ResultStatus.INTERNAL_SERVER_ERROR,
                 data: null,
@@ -255,16 +289,16 @@ export const authService = {
             };
         }
 
-        const tokenPair = await this._createTokenPair(user);
         return {
             status: ResultStatus.SUCCESS,
-            data: tokenPair,
+            data: newTokenPair,
             extensions: [],
         };
     },
     async logoutUser(tokenToRevoke: string): Promise<Result<null>> {
-        const isRefTokenRevoked = await refreshSessionsRepository.revokeRefreshToken(tokenToRevoke);
-        if (!isRefTokenRevoked) {
+        const tokenPayload = await jwtService.decodeRefreshToken(tokenToRevoke);
+        const isSessionTerminated = await refreshSessionsRepository.terminateSession(tokenPayload.deviceId);
+        if (!isSessionTerminated) {
             return {
                 status: ResultStatus.INTERNAL_SERVER_ERROR,
                 data: null,

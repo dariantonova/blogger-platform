@@ -8,26 +8,35 @@ import {
     LoginSuccessViewModel,
     MeViewModel,
     RegistrationConfirmationCodeModel,
-    RegistrationEmailResending
+    RegistrationEmailResending,
+    TokenPair
 } from "./types/auth.types";
 import {CreateUserInputModel} from "../users/models/CreateUserInputModel";
 import {ResultStatus} from "../../common/result/resultStatus";
 import {resultStatusToHttp} from "../../common/result/resultStatusToHttp";
-import {refreshSessionsQueryRepository} from "./refresh-sessions.query.repository";
+import {jwtService} from "../../application/jwt.service";
+
+const defaultIp = 'Unknown';
+const defaultDeviceName = 'Unknown';
 
 export const authController = {
     loginUser: async (req: RequestWithBody<LoginInputModel>,
                       res: Response<LoginSuccessViewModel>) => {
+        const ip = req.ip || defaultIp;
+        const deviceName = req.headers['user-agent'] || defaultDeviceName;
+
         const result = await authService.loginUser(
-            req.body.loginOrEmail, req.body.password
+            req.body.loginOrEmail, req.body.password, deviceName, ip
         );
 
-        if (!result) {
-            res.sendStatus(HTTP_STATUSES.UNAUTHORIZED_401);
+        if (result.status !== ResultStatus.SUCCESS) {
+            res.sendStatus(resultStatusToHttp(result.status));
             return;
         }
 
-        await authController._sendTokenPair(res, result.accessToken, result.refreshToken);
+        const tokenPair = result.data as TokenPair;
+
+        await authController._sendTokenPair(res, tokenPair);
     },
     getCurrentUserInfo: async (req: Request, res: Response<MeViewModel>) => {
         const user = req.user as UserDBType;
@@ -91,28 +100,26 @@ export const authController = {
     refreshToken: async (req: Request, res: Response<LoginSuccessViewModel>) => {
         const tokenToRevoke = req.cookies.refreshToken;
         const user = req.user as UserDBType;
+        const ip = req.ip || defaultIp;
 
-        const result = await authService.refreshToken(tokenToRevoke, user);
+        const result = await authService.refreshToken(tokenToRevoke, user, ip);
         if (result.status !== ResultStatus.SUCCESS) {
             res.sendStatus(resultStatusToHttp(result.status));
             return;
         }
 
-        await authController._sendTokenPair(res, result.data!.accessToken, result.data!.refreshToken);
+        const tokenPair = result.data as TokenPair;
+
+        await authController._sendTokenPair(res, tokenPair);
     },
     _sendTokenPair: async (res: Response<LoginSuccessViewModel>,
-                           accessToken: string, refreshToken: string) => {
-        const createdRefreshSession = await refreshSessionsQueryRepository
-            .getRefreshSessionByRefToken(refreshToken);
-        if (!createdRefreshSession) {
-            res.sendStatus(HTTP_STATUSES.INTERNAL_SERVER_ERROR_500);
-            return;
-        }
+                           { accessToken, refreshToken }: TokenPair) => {
+        const refTokenPayload = await jwtService.decodeRefreshToken(refreshToken);
 
         res.cookie('refreshToken', refreshToken, {
             httpOnly: true,
             secure: true,
-            expires: createdRefreshSession.expirationDate,
+            expires: new Date(refTokenPayload.exp * 1000),
             path: '/auth',
         });
 
