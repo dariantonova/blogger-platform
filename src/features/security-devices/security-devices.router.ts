@@ -7,8 +7,8 @@ const router = Router();
 router.get('/',
     refreshTokenVerification,
     securityDevicesController.getDeviceSessions);
-// router.delete('/',
-//     refreshTokenVerification,
-//     securityDevicesController.terminateAllOtherDeviceSessions);
+router.delete('/',
+    refreshTokenVerification,
+    securityDevicesController.terminateAllOtherDeviceSessions);
 
 export { router as securityDevicesRouter };
