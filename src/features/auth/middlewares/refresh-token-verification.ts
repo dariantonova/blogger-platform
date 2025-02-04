@@ -6,6 +6,11 @@ import {HTTP_STATUSES} from "../../../utils";
 export const refreshTokenVerification = async (req: Request, res: Response, next: NextFunction) => {
     const refreshToken = req.cookies.refreshToken;
 
+    if (!refreshToken) {
+        res.sendStatus(HTTP_STATUSES.UNAUTHORIZED_401);
+        return;
+    }
+
     const verificationResult = await authService.verifyRefreshToken(refreshToken);
     if (verificationResult.status !== ResultStatus.SUCCESS) {
         res.sendStatus(HTTP_STATUSES.UNAUTHORIZED_401);

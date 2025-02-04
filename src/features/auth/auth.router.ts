@@ -14,11 +14,13 @@ import {
 } from "../../validation/field-validators/users-field-validators";
 import {refreshTokenVerification} from "./middlewares/refresh-token-verification";
 import {rateLimitingMiddleware} from "../../middlewares/rate-limiting-middleware";
+import {noActiveDeviceSessionExists} from "./middlewares/no-active-device-session-exists";
 
 const router = Router();
 
 router.post('/login',
     rateLimitingMiddleware,
+    noActiveDeviceSessionExists,
     loginOrEmailAuthValidator,
     passwordAuthValidator,
     errorsResultMiddleware,
