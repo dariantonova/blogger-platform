@@ -4,11 +4,11 @@ import {CreateUserInputModel} from "../../../src/features/users/models/CreateUse
 import {ObjectId, WithId} from "mongodb";
 import {CommentDBType} from "../../../src/features/comments/comments.types";
 import {client, runDb, setDb} from "../../../src/db/db";
-import {userTestManager} from "../../test-managers/user-test-manager";
+import {usersTestManager} from "../../test-managers/users-test-manager";
 import {HTTP_STATUSES} from "../../../src/utils";
 import {DEFAULT_QUERY_VALUES} from "../../../src/helpers/query-params-values";
 import {commentsQueryRepository} from "../../../src/features/comments/comments.query.repository";
-import {postTestManager} from "../../test-managers/post-test-manager";
+import {postsTestManager} from "../../test-managers/posts-test-manager";
 import {invalidPageNumbers, invalidPageSizes} from "../../datasets/validation/query-validation-data";
 
 describe('tests for get post comments endpoint', () => {
@@ -83,7 +83,7 @@ describe('tests for get post comments endpoint', () => {
 
         createdUserIds = [];
         for (const createUserData of createUsersData) {
-            const createUserResponse = await userTestManager.createUser(createUserData,
+            const createUserResponse = await usersTestManager.createUser(createUserData,
                 HTTP_STATUSES.CREATED_201);
             createdUserIds.push(createUserResponse.body.id);
         }
@@ -106,7 +106,7 @@ describe('tests for get post comments endpoint', () => {
             0,
         );
 
-        const response = await postTestManager.getPostComments(postId, HTTP_STATUSES.OK_200);
+        const response = await postsTestManager.getPostComments(postId, HTTP_STATUSES.OK_200);
         expect(response.body).toEqual(expected);
     });
 
@@ -193,7 +193,7 @@ describe('tests for get post comments endpoint', () => {
             expectedComments.length,
         );
 
-        const response = await postTestManager.getPostComments(postId, HTTP_STATUSES.OK_200);
+        const response = await postsTestManager.getPostComments(postId, HTTP_STATUSES.OK_200);
         expect(response.body).toEqual(expected);
     });
 
@@ -209,7 +209,7 @@ describe('tests for get post comments endpoint', () => {
             expectedComments.length,
         );
 
-        const response = await postTestManager.getPostComments(postId, HTTP_STATUSES.OK_200);
+        const response = await postsTestManager.getPostComments(postId, HTTP_STATUSES.OK_200);
         expect(response.body).toEqual(expected);
     });
 
@@ -277,19 +277,19 @@ describe('tests for get post comments endpoint', () => {
             expectedComments.length,
         );
 
-        const response1 = await postTestManager.getPostComments(postId, HTTP_STATUSES.OK_200,
+        const response1 = await postsTestManager.getPostComments(postId, HTTP_STATUSES.OK_200,
             'sortBy=createdAt&sortDirection=desc');
         expect(response1.body).toEqual(expected);
 
-        const response2 = await postTestManager.getPostComments(postId, HTTP_STATUSES.OK_200,
+        const response2 = await postsTestManager.getPostComments(postId, HTTP_STATUSES.OK_200,
             'sortBy=createdAt');
         expect(response2.body).toEqual(expected);
 
-        const response3 = await postTestManager.getPostComments(postId, HTTP_STATUSES.OK_200,
+        const response3 = await postsTestManager.getPostComments(postId, HTTP_STATUSES.OK_200,
             'sortDirection=desc');
         expect(response3.body).toEqual(expected);
 
-        const response4 = await postTestManager.getPostComments(postId, HTTP_STATUSES.OK_200);
+        const response4 = await postsTestManager.getPostComments(postId, HTTP_STATUSES.OK_200);
         expect(response4.body).toEqual(expected);
     });
 
@@ -308,11 +308,11 @@ describe('tests for get post comments endpoint', () => {
             expectedComments.length,
         );
 
-        const response1 = await postTestManager.getPostComments(postId, HTTP_STATUSES.OK_200,
+        const response1 = await postsTestManager.getPostComments(postId, HTTP_STATUSES.OK_200,
             'sortBy=createdAt&sortDirection=asc');
         expect(response1.body).toEqual(expected);
 
-        const response2 = await postTestManager.getPostComments(postId, HTTP_STATUSES.OK_200,
+        const response2 = await postsTestManager.getPostComments(postId, HTTP_STATUSES.OK_200,
             'sortDirection=asc');
         expect(response2.body).toEqual(expected);
     });
@@ -332,11 +332,11 @@ describe('tests for get post comments endpoint', () => {
             expectedComments.length,
         );
 
-        const response1 = await postTestManager.getPostComments(postId, HTTP_STATUSES.OK_200,
+        const response1 = await postsTestManager.getPostComments(postId, HTTP_STATUSES.OK_200,
             'sortBy=id&sortDirection=desc');
         expect(response1.body).toEqual(expected);
 
-        const response2 = await postTestManager.getPostComments(postId, HTTP_STATUSES.OK_200,
+        const response2 = await postsTestManager.getPostComments(postId, HTTP_STATUSES.OK_200,
             'sortBy=id');
         expect(response2.body).toEqual(expected);
     });
@@ -356,7 +356,7 @@ describe('tests for get post comments endpoint', () => {
             expectedComments.length,
         );
 
-        const response = await postTestManager.getPostComments(postId, HTTP_STATUSES.OK_200,
+        const response = await postsTestManager.getPostComments(postId, HTTP_STATUSES.OK_200,
             'sortBy=id&sortDirection=asc');
         expect(response.body).toEqual(expected);
     });
@@ -376,11 +376,11 @@ describe('tests for get post comments endpoint', () => {
             expectedComments.length,
         );
 
-        const response1 = await postTestManager.getPostComments(postId, HTTP_STATUSES.OK_200,
+        const response1 = await postsTestManager.getPostComments(postId, HTTP_STATUSES.OK_200,
             'sortBy=userId&sortDirection=desc');
         expect(response1.body).toEqual(expected);
 
-        const response2 = await postTestManager.getPostComments(postId, HTTP_STATUSES.OK_200,
+        const response2 = await postsTestManager.getPostComments(postId, HTTP_STATUSES.OK_200,
             'sortBy=userId');
         expect(response2.body).toEqual(expected);
     });
@@ -400,7 +400,7 @@ describe('tests for get post comments endpoint', () => {
             expectedComments.length,
         );
 
-        const response = await postTestManager.getPostComments(postId, HTTP_STATUSES.OK_200,
+        const response = await postsTestManager.getPostComments(postId, HTTP_STATUSES.OK_200,
             'sortBy=userId&sortDirection=asc');
         expect(response.body).toEqual(expected);
     });
@@ -420,11 +420,11 @@ describe('tests for get post comments endpoint', () => {
             expectedComments.length,
         );
 
-        const response1 = await postTestManager.getPostComments(postId, HTTP_STATUSES.OK_200,
+        const response1 = await postsTestManager.getPostComments(postId, HTTP_STATUSES.OK_200,
             'sortBy=userLogin&sortDirection=desc');
         expect(response1.body).toEqual(expected);
 
-        const response2 = await postTestManager.getPostComments(postId, HTTP_STATUSES.OK_200,
+        const response2 = await postsTestManager.getPostComments(postId, HTTP_STATUSES.OK_200,
             'sortBy=userLogin');
         expect(response2.body).toEqual(expected);
     });
@@ -444,7 +444,7 @@ describe('tests for get post comments endpoint', () => {
             expectedComments.length,
         );
 
-        const response = await postTestManager.getPostComments(postId, HTTP_STATUSES.OK_200,
+        const response = await postsTestManager.getPostComments(postId, HTTP_STATUSES.OK_200,
             'sortBy=userLogin&sortDirection=asc');
         expect(response.body).toEqual(expected);
     });
@@ -464,11 +464,11 @@ describe('tests for get post comments endpoint', () => {
             expectedComments.length,
         );
 
-        const response1 = await postTestManager.getPostComments(postId, HTTP_STATUSES.OK_200,
+        const response1 = await postsTestManager.getPostComments(postId, HTTP_STATUSES.OK_200,
             'sortBy=content&sortDirection=desc');
         expect(response1.body).toEqual(expected);
 
-        const response2 = await postTestManager.getPostComments(postId, HTTP_STATUSES.OK_200,
+        const response2 = await postsTestManager.getPostComments(postId, HTTP_STATUSES.OK_200,
             'sortBy=content');
         expect(response2.body).toEqual(expected);
     });
@@ -488,7 +488,7 @@ describe('tests for get post comments endpoint', () => {
             expectedComments.length,
         );
 
-        const response = await postTestManager.getPostComments(postId, HTTP_STATUSES.OK_200,
+        const response = await postsTestManager.getPostComments(postId, HTTP_STATUSES.OK_200,
             'sortBy=content&sortDirection=asc');
         expect(response.body).toEqual(expected);
     });
@@ -508,7 +508,7 @@ describe('tests for get post comments endpoint', () => {
             expectedComments.length,
         );
 
-        const response = await postTestManager.getPostComments(postId, HTTP_STATUSES.OK_200,
+        const response = await postsTestManager.getPostComments(postId, HTTP_STATUSES.OK_200,
             'sortBy=bad');
         expect(response.body).toEqual(expected);
     });
@@ -790,7 +790,7 @@ describe('tests for get post comments endpoint', () => {
             [], 0, 0, 0, 0,
         );
         for (const invalidPageNumber of invalidPageNumbers) {
-            const response = await postTestManager.getPostComments(postId, HTTP_STATUSES.OK_200,
+            const response = await postsTestManager.getPostComments(postId, HTTP_STATUSES.OK_200,
                 'pageNumber=' + invalidPageNumber);
             expect(response.body).toEqual(expected);
         }
@@ -803,7 +803,7 @@ describe('tests for get post comments endpoint', () => {
             [], 0, 0, 0, 0,
         );
         for (const invalidPageSize of invalidPageSizes) {
-            const response = await postTestManager.getPostComments(postId, HTTP_STATUSES.OK_200,
+            const response = await postsTestManager.getPostComments(postId, HTTP_STATUSES.OK_200,
                 'pageNumber=' + invalidPageSize);
             expect(response.body).toEqual(expected);
         }
@@ -819,7 +819,7 @@ describe('tests for get post comments endpoint', () => {
         const expected = await commentsQueryRepository.createCommentsPaginator(
             [], 0, 0, 0, 0,
         );
-        const response = await postTestManager.getPostComments(postId, HTTP_STATUSES.OK_200,
+        const response = await postsTestManager.getPostComments(postId, HTTP_STATUSES.OK_200,
             'pageNumber=' + invalidPageNumber
             + '&pageSize=' + invalidPageSize);
         expect(response.body).toEqual(expected);
@@ -840,7 +840,7 @@ describe('tests for get post comments endpoint', () => {
             initialDbComments.length,
         );
 
-        const response = await postTestManager.getPostComments(postId, HTTP_STATUSES.OK_200);
+        const response = await postsTestManager.getPostComments(postId, HTTP_STATUSES.OK_200);
         expect(response.body).toEqual(expected);
     });
 
@@ -860,7 +860,7 @@ describe('tests for get post comments endpoint', () => {
             initialDbComments.length,
         );
 
-        const response = await postTestManager.getPostComments(postId, HTTP_STATUSES.OK_200,
+        const response = await postsTestManager.getPostComments(postId, HTTP_STATUSES.OK_200,
             'pageNumber=' + pageNumber);
         expect(response.body).toEqual(expected);
     });
@@ -880,7 +880,7 @@ describe('tests for get post comments endpoint', () => {
             initialDbComments.length,
         );
 
-        const response = await postTestManager.getPostComments(postId, HTTP_STATUSES.OK_200,
+        const response = await postsTestManager.getPostComments(postId, HTTP_STATUSES.OK_200,
             'pageSize=' + pageSize);
         expect(response.body).toEqual(expected);
     });
@@ -903,7 +903,7 @@ describe('tests for get post comments endpoint', () => {
             initialDbComments.length,
         );
 
-        const response = await postTestManager.getPostComments(postId, HTTP_STATUSES.OK_200,
+        const response = await postsTestManager.getPostComments(postId, HTTP_STATUSES.OK_200,
             'pageNumber=' + pageNumber
             + '&pageSize=' + pageSize);
         expect(response.body).toEqual(expected);
@@ -927,7 +927,7 @@ describe('tests for get post comments endpoint', () => {
             totalCount
         );
 
-        const response = await postTestManager.getPostComments(postId, HTTP_STATUSES.OK_200,
+        const response = await postsTestManager.getPostComments(postId, HTTP_STATUSES.OK_200,
             'pageNumber=' + pageNumber);
         expect(response.body).toEqual(expected);
     });
@@ -948,7 +948,7 @@ describe('tests for get post comments endpoint', () => {
             totalCount
         );
 
-        const response = await postTestManager.getPostComments(postId, HTTP_STATUSES.OK_200,
+        const response = await postsTestManager.getPostComments(postId, HTTP_STATUSES.OK_200,
             'pageSize=' + pageSize);
         expect(response.body).toEqual(expected);
     });

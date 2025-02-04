@@ -4,9 +4,9 @@ import {client, postsCollection, runDb, setDb} from "../../src/db/db";
 import {HTTP_STATUSES} from "../../src/utils";
 import {BlogDBType, PostDBType} from "../../src/types/types";
 import {CreatePostInputModel} from "../../src/features/posts/models/CreatePostInputModel";
-import {postTestManager} from "../test-managers/post-test-manager";
+import {postsTestManager} from "../test-managers/posts-test-manager";
 import {MongoMemoryServer} from "mongodb-memory-server";
-import {blogTestManager} from "../test-managers/blog-test-manager";
+import {blogsTestManager} from "../test-managers/blogs-test-manager";
 import {CreateBlogInputModel} from "../../src/features/blogs/models/CreateBlogInputModel";
 import {UpdatePostInputModel} from "../../src/features/posts/models/UpdatePostInputModel";
 import {invalidAuthValues} from "../datasets/authorization-data";
@@ -17,7 +17,7 @@ import {invalidPageNumbers, invalidPageSizes} from "../datasets/validation/query
 import {postsQueryRepository} from "../../src/features/posts/repositories/posts.query.repository";
 import {ObjectId, WithId} from "mongodb";
 import {CommentDBType} from "../../src/features/comments/comments.types";
-import {userTestManager} from "../test-managers/user-test-manager";
+import {usersTestManager} from "../test-managers/users-test-manager";
 import {CreateUserInputModel} from "../../src/features/users/models/CreateUserInputModel";
 import {commentsRepository} from "../../src/features/comments/comments.repository";
 import {requestsLimit} from "../../src/middlewares/rate-limiting-middleware";
@@ -1142,7 +1142,7 @@ describe('tests for /posts', () => {
 
             const createdUserIds: string[] = [];
             for (const createUserData of createUsersData) {
-                const createUserResponse = await userTestManager.createUser(createUserData,
+                const createUserResponse = await usersTestManager.createUser(createUserData,
                     HTTP_STATUSES.CREATED_201);
                 createdUserIds.push(createUserResponse.body.id);
             }
@@ -1200,7 +1200,7 @@ describe('tests for /posts', () => {
                 .expect(HTTP_STATUSES.UNAUTHORIZED_401);
 
             for (const invalidAuthValue of invalidAuthValues) {
-                await postTestManager.deletePost(postToDelete.id,
+                await postsTestManager.deletePost(postToDelete.id,
                     HTTP_STATUSES.UNAUTHORIZED_401, invalidAuthValue);
             }
 
@@ -1216,19 +1216,19 @@ describe('tests for /posts', () => {
         });
 
         it('should return 404 when deleting non-existing post', async () => {
-            await postTestManager.deletePost('-100',
+            await postsTestManager.deletePost('-100',
                 HTTP_STATUSES.NOT_FOUND_404);
 
             // deleted
             const postToDelete = initialDbPosts[2];
-            await postTestManager.deletePost(postToDelete.id,
+            await postsTestManager.deletePost(postToDelete.id,
                 HTTP_STATUSES.NOT_FOUND_404);
         });
 
         it('should delete the first post', async () => {
             const postToDelete = initialDbPosts[0];
 
-            await postTestManager.deletePost(postToDelete.id,
+            await postsTestManager.deletePost(postToDelete.id,
                 HTTP_STATUSES.NO_CONTENT_204);
 
             const postComments = await commentsRepository.findPostComments(postToDelete.id,
@@ -1299,7 +1299,7 @@ describe('tests for /posts', () => {
                 .expect(HTTP_STATUSES.UNAUTHORIZED_401);
 
             for (const invalidAuthValue of invalidAuthValues) {
-                await postTestManager.createPost(data, HTTP_STATUSES.UNAUTHORIZED_401,
+                await postsTestManager.createPost(data, HTTP_STATUSES.UNAUTHORIZED_401,
                     invalidAuthValue);
             }
 
@@ -1314,7 +1314,7 @@ describe('tests for /posts', () => {
                 blogId: validBlogIdInput,
             };
 
-            const response1 = await postTestManager.createPost(data1,
+            const response1 = await postsTestManager.createPost(data1,
                 HTTP_STATUSES.BAD_REQUEST_400);
             expect(response1.body).toEqual({
                 errorsMessages: [
@@ -1331,7 +1331,7 @@ describe('tests for /posts', () => {
                 blogId: validBlogIdInput,
             };
 
-            const response2 = await postTestManager.createPost(data2,
+            const response2 = await postsTestManager.createPost(data2,
                 HTTP_STATUSES.BAD_REQUEST_400);
             expect(response2.body).toEqual({
                 errorsMessages: [
@@ -1348,7 +1348,7 @@ describe('tests for /posts', () => {
                 blogId: validBlogIdInput,
             };
 
-            const response3 = await postTestManager.createPost(data3,
+            const response3 = await postsTestManager.createPost(data3,
                 HTTP_STATUSES.BAD_REQUEST_400);
             expect(response3.body).toEqual({
                 errorsMessages: [
@@ -1365,7 +1365,7 @@ describe('tests for /posts', () => {
                 content: validPostFieldInput.content,
             };
 
-            const response4 = await postTestManager.createPost(data4,
+            const response4 = await postsTestManager.createPost(data4,
                 HTTP_STATUSES.BAD_REQUEST_400);
             expect(response4.body).toEqual({
                 errorsMessages: [
@@ -1387,7 +1387,7 @@ describe('tests for /posts', () => {
                 blogId: validBlogIdInput,
             };
 
-            const response1 = await postTestManager.createPost(data1,
+            const response1 = await postsTestManager.createPost(data1,
                 HTTP_STATUSES.BAD_REQUEST_400);
             expect(response1.body).toEqual({
                 errorsMessages: [
@@ -1405,7 +1405,7 @@ describe('tests for /posts', () => {
                 blogId: validBlogIdInput,
             };
 
-            const response2 = await postTestManager.createPost(data2,
+            const response2 = await postsTestManager.createPost(data2,
                 HTTP_STATUSES.BAD_REQUEST_400);
             expect(response2.body).toEqual({
                 errorsMessages: [
@@ -1423,7 +1423,7 @@ describe('tests for /posts', () => {
                 blogId: validBlogIdInput,
             };
 
-            const response3 = await postTestManager.createPost(data3,
+            const response3 = await postsTestManager.createPost(data3,
                 HTTP_STATUSES.BAD_REQUEST_400);
             expect(response3.body).toEqual({
                 errorsMessages: [
@@ -1441,7 +1441,7 @@ describe('tests for /posts', () => {
                 blogId: validBlogIdInput,
             };
 
-            const response4 = await postTestManager.createPost(data4,
+            const response4 = await postsTestManager.createPost(data4,
                 HTTP_STATUSES.BAD_REQUEST_400);
             expect(response4.body).toEqual({
                 errorsMessages: [
@@ -1463,7 +1463,7 @@ describe('tests for /posts', () => {
                 blogId: validBlogIdInput,
             };
 
-            const response1 = await postTestManager.createPost(data1,
+            const response1 = await postsTestManager.createPost(data1,
                 HTTP_STATUSES.BAD_REQUEST_400);
             expect(response1.body).toEqual({
                 errorsMessages: [
@@ -1481,7 +1481,7 @@ describe('tests for /posts', () => {
                 blogId: validBlogIdInput,
             };
 
-            const response2 = await postTestManager.createPost(data2,
+            const response2 = await postsTestManager.createPost(data2,
                 HTTP_STATUSES.BAD_REQUEST_400);
             expect(response2.body).toEqual({
                 errorsMessages: [
@@ -1499,7 +1499,7 @@ describe('tests for /posts', () => {
                 blogId: validBlogIdInput,
             };
 
-            const response3 = await postTestManager.createPost(data3,
+            const response3 = await postsTestManager.createPost(data3,
                 HTTP_STATUSES.BAD_REQUEST_400);
             expect(response3.body).toEqual({
                 errorsMessages: [
@@ -1517,7 +1517,7 @@ describe('tests for /posts', () => {
                 blogId: validBlogIdInput,
             };
 
-            const response4 = await postTestManager.createPost(data4,
+            const response4 = await postsTestManager.createPost(data4,
                 HTTP_STATUSES.BAD_REQUEST_400);
             expect(response4.body).toEqual({
                 errorsMessages: [
@@ -1539,7 +1539,7 @@ describe('tests for /posts', () => {
                 blogId: validBlogIdInput,
             };
 
-            const response1 = await postTestManager.createPost(data1,
+            const response1 = await postsTestManager.createPost(data1,
                 HTTP_STATUSES.BAD_REQUEST_400);
             expect(response1.body).toEqual({
                 errorsMessages: [
@@ -1557,7 +1557,7 @@ describe('tests for /posts', () => {
                 blogId: validBlogIdInput,
             };
 
-            const response2 = await postTestManager.createPost(data2,
+            const response2 = await postsTestManager.createPost(data2,
                 HTTP_STATUSES.BAD_REQUEST_400);
             expect(response2.body).toEqual({
                 errorsMessages: [
@@ -1575,7 +1575,7 @@ describe('tests for /posts', () => {
                 blogId: validBlogIdInput,
             };
 
-            const response3 = await postTestManager.createPost(data3,
+            const response3 = await postsTestManager.createPost(data3,
                 HTTP_STATUSES.BAD_REQUEST_400);
             expect(response3.body).toEqual({
                 errorsMessages: [
@@ -1593,7 +1593,7 @@ describe('tests for /posts', () => {
                 blogId: validBlogIdInput,
             };
 
-            const response4 = await postTestManager.createPost(data4,
+            const response4 = await postsTestManager.createPost(data4,
                 HTTP_STATUSES.BAD_REQUEST_400);
             expect(response4.body).toEqual({
                 errorsMessages: [
@@ -1615,7 +1615,7 @@ describe('tests for /posts', () => {
                 blogId: 1,
             };
 
-            const response1 = await postTestManager.createPost(data1,
+            const response1 = await postsTestManager.createPost(data1,
                 HTTP_STATUSES.BAD_REQUEST_400);
             expect(response1.body).toEqual({
                 errorsMessages: [
@@ -1633,7 +1633,7 @@ describe('tests for /posts', () => {
                 blogId: '',
             };
 
-            const response2 = await postTestManager.createPost(data2,
+            const response2 = await postsTestManager.createPost(data2,
                 HTTP_STATUSES.BAD_REQUEST_400);
             expect(response2.body).toEqual({
                 errorsMessages: [
@@ -1651,7 +1651,7 @@ describe('tests for /posts', () => {
                 blogId: '  ',
             };
 
-            const response3 = await postTestManager.createPost(data3,
+            const response3 = await postsTestManager.createPost(data3,
                 HTTP_STATUSES.BAD_REQUEST_400);
             expect(response3.body).toEqual({
                 errorsMessages: [
@@ -1669,7 +1669,7 @@ describe('tests for /posts', () => {
                 blogId: '-100',
             };
 
-            const response4 = await postTestManager.createPost(data4,
+            const response4 = await postsTestManager.createPost(data4,
                 HTTP_STATUSES.BAD_REQUEST_400);
             expect(response4.body).toEqual({
                 errorsMessages: [
@@ -1690,7 +1690,7 @@ describe('tests for /posts', () => {
                 blogId: '-100',
             };
 
-            const response = await postTestManager.createPost(data,
+            const response = await postsTestManager.createPost(data,
                 HTTP_STATUSES.BAD_REQUEST_400);
             expect(response.body).toEqual({
                 errorsMessages: expect.arrayContaining([
@@ -1712,7 +1712,7 @@ describe('tests for /posts', () => {
                 websiteUrl: 'https://superblog.com/51',
             }
 
-            const createBlogResponse = await blogTestManager.createBlog(createBlogData,
+            const createBlogResponse = await blogsTestManager.createBlog(createBlogData,
                 HTTP_STATUSES.CREATED_201);
             const createdBlog = createBlogResponse.body;
 
@@ -1723,7 +1723,7 @@ describe('tests for /posts', () => {
                 blogId: createdBlog.id,
             };
 
-            await postTestManager.createPost(createPostData,
+            await postsTestManager.createPost(createPostData,
                 HTTP_STATUSES.CREATED_201);
 
             const dbPosts = await postsCollection.find({}).toArray();
@@ -1738,7 +1738,7 @@ describe('tests for /posts', () => {
                 blogId: initialDbBlogs[0].id,
             };
 
-            await postTestManager.createPost(createPostData,
+            await postsTestManager.createPost(createPostData,
                 HTTP_STATUSES.CREATED_201);
 
             const dbPosts = await postsCollection.find({}).toArray();
@@ -1852,7 +1852,7 @@ describe('tests for /posts', () => {
                 .expect(HTTP_STATUSES.UNAUTHORIZED_401);
 
             for (const invalidAuthValue of invalidAuthValues) {
-                await postTestManager.updatePost(postToUpdate.id, data,
+                await postsTestManager.updatePost(postToUpdate.id, data,
                     HTTP_STATUSES.UNAUTHORIZED_401, invalidAuthValue);
             }
 
@@ -1871,7 +1871,7 @@ describe('tests for /posts', () => {
                 blogId: validBlogIdInput,
             };
 
-            const response1 = await postTestManager.updatePost(postToUpdate.id, data1,
+            const response1 = await postsTestManager.updatePost(postToUpdate.id, data1,
                 HTTP_STATUSES.BAD_REQUEST_400);
             expect(response1.body).toEqual({
                 errorsMessages: [
@@ -1888,7 +1888,7 @@ describe('tests for /posts', () => {
                 blogId: validBlogIdInput,
             };
 
-            const response2 = await postTestManager.updatePost(postToUpdate.id, data2,
+            const response2 = await postsTestManager.updatePost(postToUpdate.id, data2,
                 HTTP_STATUSES.BAD_REQUEST_400);
             expect(response2.body).toEqual({
                 errorsMessages: [
@@ -1905,7 +1905,7 @@ describe('tests for /posts', () => {
                 blogId: validBlogIdInput,
             };
 
-            const response3 = await postTestManager.updatePost(postToUpdate.id, data3,
+            const response3 = await postsTestManager.updatePost(postToUpdate.id, data3,
                 HTTP_STATUSES.BAD_REQUEST_400);
             expect(response3.body).toEqual({
                 errorsMessages: [
@@ -1922,7 +1922,7 @@ describe('tests for /posts', () => {
                 content: validPostFieldInput.content,
             };
 
-            const response4 = await postTestManager.updatePost(postToUpdate.id, data4,
+            const response4 = await postsTestManager.updatePost(postToUpdate.id, data4,
                 HTTP_STATUSES.BAD_REQUEST_400);
             expect(response4.body).toEqual({
                 errorsMessages: [
@@ -1948,7 +1948,7 @@ describe('tests for /posts', () => {
                 blogId: validBlogIdInput,
             };
 
-            const response1 = await postTestManager.updatePost(postToUpdate.id, data1,
+            const response1 = await postsTestManager.updatePost(postToUpdate.id, data1,
                 HTTP_STATUSES.BAD_REQUEST_400);
             expect(response1.body).toEqual({
                 errorsMessages: [
@@ -1966,7 +1966,7 @@ describe('tests for /posts', () => {
                 blogId: validBlogIdInput,
             };
 
-            const response2 = await postTestManager.updatePost(postToUpdate.id, data2,
+            const response2 = await postsTestManager.updatePost(postToUpdate.id, data2,
                 HTTP_STATUSES.BAD_REQUEST_400);
             expect(response2.body).toEqual({
                 errorsMessages: [
@@ -1984,7 +1984,7 @@ describe('tests for /posts', () => {
                 blogId: validBlogIdInput,
             };
 
-            const response3 = await postTestManager.updatePost(postToUpdate.id, data3,
+            const response3 = await postsTestManager.updatePost(postToUpdate.id, data3,
                 HTTP_STATUSES.BAD_REQUEST_400);
             expect(response3.body).toEqual({
                 errorsMessages: [
@@ -2002,7 +2002,7 @@ describe('tests for /posts', () => {
                 blogId: validBlogIdInput,
             };
 
-            const response4 = await postTestManager.updatePost(postToUpdate.id, data4,
+            const response4 = await postsTestManager.updatePost(postToUpdate.id, data4,
                 HTTP_STATUSES.BAD_REQUEST_400);
             expect(response4.body).toEqual({
                 errorsMessages: [
@@ -2028,7 +2028,7 @@ describe('tests for /posts', () => {
                 blogId: validBlogIdInput,
             };
 
-            const response1 = await postTestManager.updatePost(postToUpdate.id, data1,
+            const response1 = await postsTestManager.updatePost(postToUpdate.id, data1,
                 HTTP_STATUSES.BAD_REQUEST_400);
             expect(response1.body).toEqual({
                 errorsMessages: [
@@ -2046,7 +2046,7 @@ describe('tests for /posts', () => {
                 blogId: validBlogIdInput,
             };
 
-            const response2 = await postTestManager.updatePost(postToUpdate.id, data2,
+            const response2 = await postsTestManager.updatePost(postToUpdate.id, data2,
                 HTTP_STATUSES.BAD_REQUEST_400);
             expect(response2.body).toEqual({
                 errorsMessages: [
@@ -2064,7 +2064,7 @@ describe('tests for /posts', () => {
                 blogId: validBlogIdInput,
             };
 
-            const response3 = await postTestManager.updatePost(postToUpdate.id, data3,
+            const response3 = await postsTestManager.updatePost(postToUpdate.id, data3,
                 HTTP_STATUSES.BAD_REQUEST_400);
             expect(response3.body).toEqual({
                 errorsMessages: [
@@ -2082,7 +2082,7 @@ describe('tests for /posts', () => {
                 blogId: validBlogIdInput,
             };
 
-            const response4 = await postTestManager.updatePost(postToUpdate.id, data4,
+            const response4 = await postsTestManager.updatePost(postToUpdate.id, data4,
                 HTTP_STATUSES.BAD_REQUEST_400);
             expect(response4.body).toEqual({
                 errorsMessages: [
@@ -2108,7 +2108,7 @@ describe('tests for /posts', () => {
                 blogId: validBlogIdInput,
             };
 
-            const response1 = await postTestManager.updatePost(postToUpdate.id, data1,
+            const response1 = await postsTestManager.updatePost(postToUpdate.id, data1,
                 HTTP_STATUSES.BAD_REQUEST_400);
             expect(response1.body).toEqual({
                 errorsMessages: [
@@ -2126,7 +2126,7 @@ describe('tests for /posts', () => {
                 blogId: validBlogIdInput,
             };
 
-            const response2 = await postTestManager.updatePost(postToUpdate.id, data2,
+            const response2 = await postsTestManager.updatePost(postToUpdate.id, data2,
                 HTTP_STATUSES.BAD_REQUEST_400);
             expect(response2.body).toEqual({
                 errorsMessages: [
@@ -2144,7 +2144,7 @@ describe('tests for /posts', () => {
                 blogId: validBlogIdInput,
             };
 
-            const response3 = await postTestManager.updatePost(postToUpdate.id, data3,
+            const response3 = await postsTestManager.updatePost(postToUpdate.id, data3,
                 HTTP_STATUSES.BAD_REQUEST_400);
             expect(response3.body).toEqual({
                 errorsMessages: [
@@ -2162,7 +2162,7 @@ describe('tests for /posts', () => {
                 blogId: validBlogIdInput,
             };
 
-            const response4 = await postTestManager.updatePost(postToUpdate.id, data4,
+            const response4 = await postsTestManager.updatePost(postToUpdate.id, data4,
                 HTTP_STATUSES.BAD_REQUEST_400);
             expect(response4.body).toEqual({
                 errorsMessages: [
@@ -2188,7 +2188,7 @@ describe('tests for /posts', () => {
                 blogId: 1,
             };
 
-            const response1 = await postTestManager.updatePost(postToUpdate.id, data1,
+            const response1 = await postsTestManager.updatePost(postToUpdate.id, data1,
                 HTTP_STATUSES.BAD_REQUEST_400);
             expect(response1.body).toEqual({
                 errorsMessages: [
@@ -2206,7 +2206,7 @@ describe('tests for /posts', () => {
                 blogId: '',
             };
 
-            const response2 = await postTestManager.updatePost(postToUpdate.id, data2,
+            const response2 = await postsTestManager.updatePost(postToUpdate.id, data2,
                 HTTP_STATUSES.BAD_REQUEST_400);
             expect(response2.body).toEqual({
                 errorsMessages: [
@@ -2224,7 +2224,7 @@ describe('tests for /posts', () => {
                 blogId: '  ',
             };
 
-            const response3 = await postTestManager.updatePost(postToUpdate.id, data3,
+            const response3 = await postsTestManager.updatePost(postToUpdate.id, data3,
                 HTTP_STATUSES.BAD_REQUEST_400);
             expect(response3.body).toEqual({
                 errorsMessages: [
@@ -2242,7 +2242,7 @@ describe('tests for /posts', () => {
                 blogId: '-100',
             };
 
-            const response4 = await postTestManager.updatePost(postToUpdate.id, data4,
+            const response4 = await postsTestManager.updatePost(postToUpdate.id, data4,
                 HTTP_STATUSES.BAD_REQUEST_400);
             expect(response4.body).toEqual({
                 errorsMessages: [
@@ -2267,7 +2267,7 @@ describe('tests for /posts', () => {
                 blogId: '-100',
             };
 
-            const response = await postTestManager.updatePost(postToUpdate.id, data,
+            const response = await postsTestManager.updatePost(postToUpdate.id, data,
                 HTTP_STATUSES.BAD_REQUEST_400);
             expect(response.body).toEqual({
                 errorsMessages: expect.arrayContaining([
@@ -2292,11 +2292,11 @@ describe('tests for /posts', () => {
                 blogId: initialDbBlogs[0].id,
             }
 
-            await postTestManager.updatePost('-100', data, HTTP_STATUSES.NOT_FOUND_404);
+            await postsTestManager.updatePost('-100', data, HTTP_STATUSES.NOT_FOUND_404);
 
             // deleted
             const postToUpdate = initialDbPosts[2];
-            await postTestManager.updatePost(postToUpdate.id, data, HTTP_STATUSES.NOT_FOUND_404);
+            await postsTestManager.updatePost(postToUpdate.id, data, HTTP_STATUSES.NOT_FOUND_404);
         });
 
         // correct input
@@ -2309,7 +2309,7 @@ describe('tests for /posts', () => {
             };
             const postToUpdate = initialDbPosts[0];
 
-            await postTestManager.updatePost(postToUpdate.id, data, HTTP_STATUSES.NO_CONTENT_204);
+            await postsTestManager.updatePost(postToUpdate.id, data, HTTP_STATUSES.NO_CONTENT_204);
 
             // check other posts aren't modified
             const otherPosts = initialDbPosts.filter(b => b.id !== postToUpdate.id);

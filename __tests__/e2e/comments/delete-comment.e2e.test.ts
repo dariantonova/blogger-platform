@@ -6,12 +6,12 @@ import {CommentDBType} from "../../../src/features/comments/comments.types";
 import {client, runDb, setDb} from "../../../src/db/db";
 import {req} from "../../test-helpers";
 import {SETTINGS} from "../../../src/settings";
-import {userTestManager} from "../../test-managers/user-test-manager";
+import {usersTestManager} from "../../test-managers/users-test-manager";
 import {HTTP_STATUSES} from "../../../src/utils";
-import {commentTestManager} from "../../test-managers/comment-test-manager";
+import {commentsTestManager} from "../../test-managers/comments-test-manager";
 import {LoginInputModel} from "../../../src/features/auth/types/auth.types";
 import {authTestManager} from "../../test-managers/auth-test-manager";
-import {postTestManager} from "../../test-managers/post-test-manager";
+import {postsTestManager} from "../../test-managers/posts-test-manager";
 import {defaultAccessTokenLife} from "../../datasets/authorization-data";
 
 describe('tests for delete comment endpoint', () => {
@@ -76,7 +76,7 @@ describe('tests for delete comment endpoint', () => {
 
         createdUserIds = [];
         for (const createUserData of createUsersData) {
-            const createUserResponse = await userTestManager.createUser(createUserData,
+            const createUserResponse = await usersTestManager.createUser(createUserData,
                 HTTP_STATUSES.CREATED_201);
             createdUserIds.push(createUserResponse.body.id);
         }
@@ -151,7 +151,7 @@ describe('tests for delete comment endpoint', () => {
         const commentId = initialDbComments[0]._id.toString();
 
         // never existed, weird
-        await commentTestManager.deleteComment(commentId,
+        await commentsTestManager.deleteComment(commentId,
             'Bearer somethingWeird',
             HTTP_STATUSES.UNAUTHORIZED_401);
 
@@ -159,10 +159,10 @@ describe('tests for delete comment endpoint', () => {
         const userIndex = 0;
         const token = await getAccessTokenForUser(userIndex);
 
-        await userTestManager.deleteUser(createdUserIds[userIndex],
+        await usersTestManager.deleteUser(createdUserIds[userIndex],
             HTTP_STATUSES.NO_CONTENT_204);
 
-        await commentTestManager.deleteComment(commentId,
+        await commentsTestManager.deleteComment(commentId,
             'Bearer ' + token,
             HTTP_STATUSES.UNAUTHORIZED_401);
 
@@ -179,7 +179,7 @@ describe('tests for delete comment endpoint', () => {
         const userIndex = 0;
         const token = await getAccessTokenForUser(userIndex);
 
-        await commentTestManager.deleteComment(commentId,
+        await commentsTestManager.deleteComment(commentId,
             'Bearer ' + token,
             HTTP_STATUSES.UNAUTHORIZED_401);
 
@@ -197,11 +197,11 @@ describe('tests for delete comment endpoint', () => {
         const userIndex = 0;
         const token = await getAccessTokenForUser(userIndex);
 
-        await commentTestManager.deleteComment(commentId,
+        await commentsTestManager.deleteComment(commentId,
             token,
             HTTP_STATUSES.UNAUTHORIZED_401);
 
-        await commentTestManager.deleteComment(commentId,
+        await commentsTestManager.deleteComment(commentId,
             token + ' Bearer',
             HTTP_STATUSES.UNAUTHORIZED_401);
 
@@ -219,7 +219,7 @@ describe('tests for delete comment endpoint', () => {
         };
         createUsersData.push(createNewUserData);
 
-        const createUserResponse = await userTestManager.createUser(createNewUserData,
+        const createUserResponse = await usersTestManager.createUser(createNewUserData,
             HTTP_STATUSES.CREATED_201);
         createdUserIds.push(createUserResponse.body.id);
 
@@ -227,7 +227,7 @@ describe('tests for delete comment endpoint', () => {
         const token = await getAccessTokenForUser(userIndex);
 
         const commentId = initialDbComments[0]._id.toString();
-        await commentTestManager.deleteComment(commentId,
+        await commentsTestManager.deleteComment(commentId,
             'Bearer ' + token,
             HTTP_STATUSES.FORBIDDEN_403);
 
@@ -242,11 +242,11 @@ describe('tests for delete comment endpoint', () => {
 
         // deleted
         const commentId = initialDbComments[1]._id.toString();
-        await commentTestManager.deleteComment(commentId,
+        await commentsTestManager.deleteComment(commentId,
             'Bearer ' + token,
             HTTP_STATUSES.NOT_FOUND_404);
 
-        await commentTestManager.deleteComment('-100',
+        await commentsTestManager.deleteComment('-100',
             'Bearer ' + token,
             HTTP_STATUSES.NOT_FOUND_404);
     });
@@ -257,7 +257,7 @@ describe('tests for delete comment endpoint', () => {
         const userIndex = 0;
         const token = await getAccessTokenForUser(userIndex);
 
-        await commentTestManager.deleteComment(commentId,
+        await commentsTestManager.deleteComment(commentId,
             'Bearer ' + token,
             HTTP_STATUSES.NO_CONTENT_204);
 
@@ -265,7 +265,7 @@ describe('tests for delete comment endpoint', () => {
             .get(SETTINGS.PATH.COMMENTS + '/' + commentId)
             .expect(HTTP_STATUSES.NOT_FOUND_404);
 
-        const getPostsResponse = await postTestManager.getPostComments(
+        const getPostsResponse = await postsTestManager.getPostComments(
             initialDbPosts[0].id, HTTP_STATUSES.OK_200);
         expect(getPostsResponse.body.items.length).toBe(
             initialDbComments.filter(c => !c.isDeleted).length - 1);

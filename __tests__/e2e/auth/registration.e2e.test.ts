@@ -1,7 +1,7 @@
 import {MongoMemoryServer} from "mongodb-memory-server";
 import {client, runDb, setDb} from "../../../src/db/db";
 import {nonExistingValidEmail, validUserFieldInput} from "../../datasets/validation/users-validation-data";
-import {userTestManager} from "../../test-managers/user-test-manager";
+import {usersTestManager} from "../../test-managers/users-test-manager";
 import {HTTP_STATUSES} from "../../../src/utils";
 import {authTestManager} from "../../test-managers/auth-test-manager";
 import {UserDBType} from "../../../src/types/types";
@@ -122,7 +122,7 @@ describe('tests for registration endpoint', () => {
             ],
         });
 
-        await userTestManager.checkUsersQuantity(initialDbUsers
+        await usersTestManager.checkUsersQuantity(initialDbUsers
             .filter(u => !u.isDeleted).length);
     });
 
@@ -255,7 +255,7 @@ describe('tests for registration endpoint', () => {
             ],
         });
 
-        await userTestManager.checkUsersQuantity(initialDbUsers
+        await usersTestManager.checkUsersQuantity(initialDbUsers
             .filter(u => !u.isDeleted).length);
     });
 
@@ -352,7 +352,7 @@ describe('tests for registration endpoint', () => {
             ],
         });
 
-        await userTestManager.checkUsersQuantity(initialDbUsers
+        await usersTestManager.checkUsersQuantity(initialDbUsers
             .filter(u => !u.isDeleted).length);
     });
 
@@ -448,7 +448,7 @@ describe('tests for registration endpoint', () => {
             ],
         });
 
-        await userTestManager.checkUsersQuantity(initialDbUsers
+        await usersTestManager.checkUsersQuantity(initialDbUsers
             .filter(u => !u.isDeleted).length);
     });
 
@@ -469,7 +469,7 @@ describe('tests for registration endpoint', () => {
             ]),
         });
 
-        await userTestManager.checkUsersQuantity(initialDbUsers
+        await usersTestManager.checkUsersQuantity(initialDbUsers
             .filter(u => !u.isDeleted).length);
     });
 
@@ -492,7 +492,7 @@ describe('tests for registration endpoint', () => {
             ],
         });
 
-        await userTestManager.checkUsersQuantity(initialDbUsers
+        await usersTestManager.checkUsersQuantity(initialDbUsers
             .filter(u => !u.isDeleted).length);
     });
 
@@ -515,7 +515,7 @@ describe('tests for registration endpoint', () => {
             ],
         });
 
-            await userTestManager.checkUsersQuantity(initialDbUsers
+            await usersTestManager.checkUsersQuantity(initialDbUsers
                 .filter(u => !u.isDeleted).length);
     });
 
@@ -538,7 +538,7 @@ describe('tests for registration endpoint', () => {
             ],
         });
 
-        await userTestManager.checkUsersQuantity(initialDbUsers
+        await usersTestManager.checkUsersQuantity(initialDbUsers
             .filter(u => !u.isDeleted).length);
     });
 

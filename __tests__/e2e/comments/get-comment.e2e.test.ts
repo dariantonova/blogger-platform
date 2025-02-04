@@ -4,7 +4,7 @@ import {CreateUserInputModel} from "../../../src/features/users/models/CreateUse
 import {client, runDb, setDb} from "../../../src/db/db";
 import {req} from "../../test-helpers";
 import {SETTINGS} from "../../../src/settings";
-import {userTestManager} from "../../test-managers/user-test-manager";
+import {usersTestManager} from "../../test-managers/users-test-manager";
 import {HTTP_STATUSES} from "../../../src/utils";
 import {CommentDBType} from "../../../src/features/comments/comments.types";
 import {ObjectId, WithId} from "mongodb";
@@ -72,7 +72,7 @@ describe('test for get comment endpoint', () => {
 
         createdUserIds = [];
         for (const createUserData of createUsersData) {
-            const createUserResponse = await userTestManager.createUser(createUserData,
+            const createUserResponse = await usersTestManager.createUser(createUserData,
                 HTTP_STATUSES.CREATED_201);
             createdUserIds.push(createUserResponse.body.id);
         }

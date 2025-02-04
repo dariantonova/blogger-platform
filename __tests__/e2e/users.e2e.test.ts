@@ -4,7 +4,7 @@ import {req} from "../test-helpers";
 import {SETTINGS} from "../../src/settings";
 import {HTTP_STATUSES} from "../../src/utils";
 import {invalidAuthValues} from "../datasets/authorization-data";
-import {userTestManager} from "../test-managers/user-test-manager";
+import {usersTestManager} from "../test-managers/users-test-manager";
 import {usersQueryRepository} from "../../src/features/users/repositories/users.query.repository";
 import {DEFAULT_QUERY_VALUES} from "../../src/helpers/query-params-values";
 import {UserDBType} from "../../src/types/types";
@@ -13,6 +13,8 @@ import {CreateUserInputModel} from "../../src/features/users/models/CreateUserIn
 import {validUserFieldInput} from "../datasets/validation/users-validation-data";
 import {usersTestRepository} from "../repositories/users.test.repository";
 import {requestsLimit} from "../../src/middlewares/rate-limiting-middleware";
+import {LoginInputModel} from "../../src/features/auth/types/auth.types";
+import {authTestManager} from "../test-managers/auth-test-manager";
 
 
 describe('tests for /users', () => {
@@ -51,7 +53,7 @@ describe('tests for /users', () => {
                 .expect(HTTP_STATUSES.UNAUTHORIZED_401);
 
             for (const invalidAuthValue of invalidAuthValues) {
-                await userTestManager.getUsers(HTTP_STATUSES.UNAUTHORIZED_401,
+                await usersTestManager.getUsers(HTTP_STATUSES.UNAUTHORIZED_401,
                     '', invalidAuthValue);
             }
         });
@@ -66,7 +68,7 @@ describe('tests for /users', () => {
                 0,
             );
 
-            const response = await userTestManager.getUsers(HTTP_STATUSES.OK_200);
+            const response = await usersTestManager.getUsers(HTTP_STATUSES.OK_200);
             expect(response.body).toEqual(expected);
         });
 
@@ -138,7 +140,7 @@ describe('tests for /users', () => {
                 expectedUsers.length,
             );
 
-            const response = await userTestManager.getUsers(HTTP_STATUSES.OK_200);
+            const response = await usersTestManager.getUsers(HTTP_STATUSES.OK_200);
             expect(response.body).toEqual(expected);
         });
 
@@ -239,7 +241,7 @@ describe('tests for /users', () => {
                 expectedUsers.length,
             );
 
-            const response = await userTestManager.getUsers(HTTP_STATUSES.OK_200,
+            const response = await usersTestManager.getUsers(HTTP_STATUSES.OK_200,
                 'searchLoginTerm=b');
             expect(response.body).toEqual(expected);
         });
@@ -257,7 +259,7 @@ describe('tests for /users', () => {
                 expectedUsers.length,
             );
 
-            const response = await userTestManager.getUsers(HTTP_STATUSES.OK_200,
+            const response = await usersTestManager.getUsers(HTTP_STATUSES.OK_200,
                 'searchEmailTerm=k');
             expect(response.body).toEqual(expected);
         });
@@ -276,7 +278,7 @@ describe('tests for /users', () => {
                 expectedUsers.length,
             );
 
-            const response = await userTestManager.getUsers(HTTP_STATUSES.OK_200,
+            const response = await usersTestManager.getUsers(HTTP_STATUSES.OK_200,
                 'searchLoginTerm=b&searchEmailTerm=k');
             expect(response.body).toEqual(expected);
         });
@@ -293,7 +295,7 @@ describe('tests for /users', () => {
                 expectedUsers.length,
             );
 
-            const response = await userTestManager.getUsers(HTTP_STATUSES.OK_200,
+            const response = await usersTestManager.getUsers(HTTP_STATUSES.OK_200,
                 'searchLoginTerm=bad&searchEmailTerm=bad');
             expect(response.body).toEqual(expected);
         });
@@ -369,19 +371,19 @@ describe('tests for /users', () => {
                 expectedUsers.length,
             );
 
-            const response1 = await userTestManager.getUsers(HTTP_STATUSES.OK_200,
+            const response1 = await usersTestManager.getUsers(HTTP_STATUSES.OK_200,
                 'sortBy=createdAt&sortDirection=desc');
             expect(response1.body).toEqual(expected);
 
-            const response2 = await userTestManager.getUsers(HTTP_STATUSES.OK_200,
+            const response2 = await usersTestManager.getUsers(HTTP_STATUSES.OK_200,
                 'sortBy=createdAt');
             expect(response2.body).toEqual(expected);
 
-            const response3 = await userTestManager.getUsers(HTTP_STATUSES.OK_200,
+            const response3 = await usersTestManager.getUsers(HTTP_STATUSES.OK_200,
                 'sortDirection=desc');
             expect(response3.body).toEqual(expected);
 
-            const response4 = await userTestManager.getUsers(HTTP_STATUSES.OK_200);
+            const response4 = await usersTestManager.getUsers(HTTP_STATUSES.OK_200);
             expect(response4.body).toEqual(expected);
         });
 
@@ -398,11 +400,11 @@ describe('tests for /users', () => {
                 expectedUsers.length,
             );
 
-            const response1 = await userTestManager.getUsers(HTTP_STATUSES.OK_200,
+            const response1 = await usersTestManager.getUsers(HTTP_STATUSES.OK_200,
                 'sortBy=createdAt&sortDirection=asc');
             expect(response1.body).toEqual(expected);
 
-            const response2 = await userTestManager.getUsers(HTTP_STATUSES.OK_200,
+            const response2 = await usersTestManager.getUsers(HTTP_STATUSES.OK_200,
                 'sortDirection=asc');
             expect(response2.body).toEqual(expected);
         });
@@ -420,11 +422,11 @@ describe('tests for /users', () => {
                 expectedUsers.length,
             );
 
-            const response1 = await userTestManager.getUsers(HTTP_STATUSES.OK_200,
+            const response1 = await usersTestManager.getUsers(HTTP_STATUSES.OK_200,
                 'sortBy=id&sortDirection=desc');
             expect(response1.body).toEqual(expected);
 
-            const response2 = await userTestManager.getUsers(HTTP_STATUSES.OK_200,
+            const response2 = await usersTestManager.getUsers(HTTP_STATUSES.OK_200,
                 'sortBy=id');
             expect(response2.body).toEqual(expected);
         });
@@ -442,7 +444,7 @@ describe('tests for /users', () => {
                 expectedUsers.length,
             );
 
-            const response = await userTestManager.getUsers(HTTP_STATUSES.OK_200,
+            const response = await usersTestManager.getUsers(HTTP_STATUSES.OK_200,
                 'sortBy=id&sortDirection=asc');
             expect(response.body).toEqual(expected);
         });
@@ -460,11 +462,11 @@ describe('tests for /users', () => {
                 expectedUsers.length,
             );
 
-            const response1 = await userTestManager.getUsers(HTTP_STATUSES.OK_200,
+            const response1 = await usersTestManager.getUsers(HTTP_STATUSES.OK_200,
                 'sortBy=login&sortDirection=desc');
             expect(response1.body).toEqual(expected);
 
-            const response2 = await userTestManager.getUsers(HTTP_STATUSES.OK_200,
+            const response2 = await usersTestManager.getUsers(HTTP_STATUSES.OK_200,
                 'sortBy=login');
             expect(response2.body).toEqual(expected);
         });
@@ -482,7 +484,7 @@ describe('tests for /users', () => {
                 expectedUsers.length,
             );
 
-            const response = await userTestManager.getUsers(HTTP_STATUSES.OK_200,
+            const response = await usersTestManager.getUsers(HTTP_STATUSES.OK_200,
                 'sortBy=login&sortDirection=asc');
             expect(response.body).toEqual(expected);
         });
@@ -500,11 +502,11 @@ describe('tests for /users', () => {
                 expectedUsers.length,
             );
 
-            const response1 = await userTestManager.getUsers(HTTP_STATUSES.OK_200,
+            const response1 = await usersTestManager.getUsers(HTTP_STATUSES.OK_200,
                 'sortBy=email&sortDirection=desc');
             expect(response1.body).toEqual(expected);
 
-            const response2 = await userTestManager.getUsers(HTTP_STATUSES.OK_200,
+            const response2 = await usersTestManager.getUsers(HTTP_STATUSES.OK_200,
                 'sortBy=email');
             expect(response2.body).toEqual(expected);
         });
@@ -522,7 +524,7 @@ describe('tests for /users', () => {
                 expectedUsers.length,
             );
 
-            const response = await userTestManager.getUsers(HTTP_STATUSES.OK_200,
+            const response = await usersTestManager.getUsers(HTTP_STATUSES.OK_200,
                 'sortBy=email&sortDirection=asc');
             expect(response.body).toEqual(expected);
         });
@@ -541,7 +543,7 @@ describe('tests for /users', () => {
                 expectedUsers.length,
             );
 
-            const response = await userTestManager.getUsers(HTTP_STATUSES.OK_200,
+            const response = await usersTestManager.getUsers(HTTP_STATUSES.OK_200,
                 'sortBy=email&sortDirection=asc&searchLoginTerm=user');
             expect(response.body).toEqual(expected);
         });
@@ -558,7 +560,7 @@ describe('tests for /users', () => {
                 expectedUsers.length,
             );
 
-            const response = await userTestManager.getUsers(HTTP_STATUSES.OK_200,
+            const response = await usersTestManager.getUsers(HTTP_STATUSES.OK_200,
                 'sortBy=bad');
             expect(response.body).toEqual(expected);
         });
@@ -887,7 +889,7 @@ describe('tests for /users', () => {
                 [], 0, 0, 0, 0,
             );
             for (const invalidPageNumber of invalidPageNumbers) {
-                const response = await userTestManager.getUsers(HTTP_STATUSES.OK_200,
+                const response = await usersTestManager.getUsers(HTTP_STATUSES.OK_200,
                     'pageNumber=' + invalidPageNumber);
                 expect(response.body).toEqual(expected);
             }
@@ -899,7 +901,7 @@ describe('tests for /users', () => {
                 [], 0, 0, 0, 0,
             );
             for (const invalidPageSize of invalidPageSizes) {
-                const response = await userTestManager.getUsers(HTTP_STATUSES.OK_200,
+                const response = await usersTestManager.getUsers(HTTP_STATUSES.OK_200,
                     'pageNumber=' + invalidPageSize);
                 expect(response.body).toEqual(expected);
             }
@@ -914,7 +916,7 @@ describe('tests for /users', () => {
             const expected = await usersQueryRepository.createUsersPaginator(
                 [], 0, 0, 0, 0,
             );
-            const response = await userTestManager.getUsers(HTTP_STATUSES.OK_200,
+            const response = await usersTestManager.getUsers(HTTP_STATUSES.OK_200,
                 'pageNumber=' + invalidPageNumber
                 + '&pageSize=' + invalidPageSize);
             expect(response.body).toEqual(expected);
@@ -934,7 +936,7 @@ describe('tests for /users', () => {
                 initialDbUsers.length,
             );
 
-            const response = await userTestManager.getUsers(HTTP_STATUSES.OK_200);
+            const response = await usersTestManager.getUsers(HTTP_STATUSES.OK_200);
             expect(response.body).toEqual(expected);
         });
 
@@ -953,7 +955,7 @@ describe('tests for /users', () => {
                 initialDbUsers.length,
             );
 
-            const response = await userTestManager.getUsers(HTTP_STATUSES.OK_200,
+            const response = await usersTestManager.getUsers(HTTP_STATUSES.OK_200,
                 'pageNumber=' + pageNumber);
             expect(response.body).toEqual(expected);
         });
@@ -972,7 +974,7 @@ describe('tests for /users', () => {
                 initialDbUsers.length,
             );
 
-            const response = await userTestManager.getUsers(HTTP_STATUSES.OK_200,
+            const response = await usersTestManager.getUsers(HTTP_STATUSES.OK_200,
                 'pageSize=' + pageSize);
             expect(response.body).toEqual(expected);
         });
@@ -994,7 +996,7 @@ describe('tests for /users', () => {
                 initialDbUsers.length,
             );
 
-            const response = await userTestManager.getUsers(HTTP_STATUSES.OK_200,
+            const response = await usersTestManager.getUsers(HTTP_STATUSES.OK_200,
                 'pageNumber=' + pageNumber
                 + '&pageSize=' + pageSize);
             expect(response.body).toEqual(expected);
@@ -1017,7 +1019,7 @@ describe('tests for /users', () => {
                 totalCount
             );
 
-            const response = await userTestManager.getUsers(HTTP_STATUSES.OK_200,
+            const response = await usersTestManager.getUsers(HTTP_STATUSES.OK_200,
                 'pageNumber=' + pageNumber);
             expect(response.body).toEqual(expected);
         });
@@ -1037,7 +1039,7 @@ describe('tests for /users', () => {
                 totalCount
             );
 
-            const response = await userTestManager.getUsers(HTTP_STATUSES.OK_200,
+            const response = await usersTestManager.getUsers(HTTP_STATUSES.OK_200,
                 'pageSize=' + pageSize);
             expect(response.body).toEqual(expected);
         });
@@ -1086,11 +1088,11 @@ describe('tests for /users', () => {
                 .expect(HTTP_STATUSES.UNAUTHORIZED_401);
 
             for (const invalidAuthValue of invalidAuthValues) {
-                await userTestManager.createUser(data, HTTP_STATUSES.UNAUTHORIZED_401,
+                await usersTestManager.createUser(data, HTTP_STATUSES.UNAUTHORIZED_401,
                     invalidAuthValue);
             }
 
-            await userTestManager.checkUsersQuantity(initialDbUsers.length);
+            await usersTestManager.checkUsersQuantity(initialDbUsers.length);
         });
 
         // validation
@@ -1101,7 +1103,7 @@ describe('tests for /users', () => {
                 password: validUserFieldInput.password,
             };
 
-            const response1 = await userTestManager.createUser(data1,
+            const response1 = await usersTestManager.createUser(data1,
                 HTTP_STATUSES.BAD_REQUEST_400);
             expect(response1.body).toEqual({
                 errorsMessages: [
@@ -1117,7 +1119,7 @@ describe('tests for /users', () => {
                 password: validUserFieldInput.password,
             };
 
-            const response2 = await userTestManager.createUser(data2,
+            const response2 = await usersTestManager.createUser(data2,
                 HTTP_STATUSES.BAD_REQUEST_400);
             expect(response2.body).toEqual({
                 errorsMessages: [
@@ -1133,7 +1135,7 @@ describe('tests for /users', () => {
                 email: validUserFieldInput.email,
             };
 
-            const response3 = await userTestManager.createUser(data3,
+            const response3 = await usersTestManager.createUser(data3,
                 HTTP_STATUSES.BAD_REQUEST_400);
             expect(response3.body).toEqual({
                 errorsMessages: [
@@ -1144,7 +1146,7 @@ describe('tests for /users', () => {
                 ],
             });
 
-            await userTestManager.checkUsersQuantity(initialDbUsers.length);
+            await usersTestManager.checkUsersQuantity(initialDbUsers.length);
         });
 
         // login
@@ -1156,7 +1158,7 @@ describe('tests for /users', () => {
                 password: validUserFieldInput.password,
             };
 
-            const response1 = await userTestManager.createUser(data1,
+            const response1 = await usersTestManager.createUser(data1,
                 HTTP_STATUSES.BAD_REQUEST_400);
             expect(response1.body).toEqual({
                 errorsMessages: [
@@ -1174,7 +1176,7 @@ describe('tests for /users', () => {
                 password: validUserFieldInput.password,
             };
 
-            const response2 = await userTestManager.createUser(data2,
+            const response2 = await usersTestManager.createUser(data2,
                 HTTP_STATUSES.BAD_REQUEST_400);
             expect(response2.body).toEqual({
                 errorsMessages: [
@@ -1192,7 +1194,7 @@ describe('tests for /users', () => {
                 password: validUserFieldInput.password,
             };
 
-            const response3 = await userTestManager.createUser(data3,
+            const response3 = await usersTestManager.createUser(data3,
                 HTTP_STATUSES.BAD_REQUEST_400);
             expect(response3.body).toEqual({
                 errorsMessages: [
@@ -1210,7 +1212,7 @@ describe('tests for /users', () => {
                 password: validUserFieldInput.password,
             };
 
-            const response4 = await userTestManager.createUser(data4,
+            const response4 = await usersTestManager.createUser(data4,
                 HTTP_STATUSES.BAD_REQUEST_400);
             expect(response4.body).toEqual({
                 errorsMessages: [
@@ -1228,7 +1230,7 @@ describe('tests for /users', () => {
                 password: validUserFieldInput.password,
             };
 
-            const response5 = await userTestManager.createUser(data5,
+            const response5 = await usersTestManager.createUser(data5,
                 HTTP_STATUSES.BAD_REQUEST_400);
             expect(response5.body).toEqual({
                 errorsMessages: [
@@ -1247,7 +1249,7 @@ describe('tests for /users', () => {
                 password: validUserFieldInput.password,
             };
 
-            const response6 = await userTestManager.createUser(data6,
+            const response6 = await usersTestManager.createUser(data6,
                 HTTP_STATUSES.BAD_REQUEST_400);
             expect(response6.body).toEqual({
                 errorsMessages: [
@@ -1265,7 +1267,7 @@ describe('tests for /users', () => {
                 password: validUserFieldInput.password,
             };
 
-            const response7 = await userTestManager.createUser(data7,
+            const response7 = await usersTestManager.createUser(data7,
                 HTTP_STATUSES.BAD_REQUEST_400);
             expect(response7.body).toEqual({
                 errorsMessages: [
@@ -1276,7 +1278,7 @@ describe('tests for /users', () => {
                 ],
             });
 
-            await userTestManager.checkUsersQuantity(initialDbUsers.length);
+            await usersTestManager.checkUsersQuantity(initialDbUsers.length);
         });
 
         // email
@@ -1288,7 +1290,7 @@ describe('tests for /users', () => {
                 password: validUserFieldInput.password,
             };
 
-            const response1 = await userTestManager.createUser(data1,
+            const response1 = await usersTestManager.createUser(data1,
                 HTTP_STATUSES.BAD_REQUEST_400);
             expect(response1.body).toEqual({
                 errorsMessages: [
@@ -1306,7 +1308,7 @@ describe('tests for /users', () => {
                 password: validUserFieldInput.password,
             };
 
-            const response2 = await userTestManager.createUser(data2,
+            const response2 = await usersTestManager.createUser(data2,
                 HTTP_STATUSES.BAD_REQUEST_400);
             expect(response2.body).toEqual({
                 errorsMessages: [
@@ -1324,7 +1326,7 @@ describe('tests for /users', () => {
                 password: validUserFieldInput.password,
             };
 
-            const response3 = await userTestManager.createUser(data3,
+            const response3 = await usersTestManager.createUser(data3,
                 HTTP_STATUSES.BAD_REQUEST_400);
             expect(response3.body).toEqual({
                 errorsMessages: [
@@ -1343,7 +1345,7 @@ describe('tests for /users', () => {
                 password: validUserFieldInput.password,
             };
 
-            const response4 = await userTestManager.createUser(data4,
+            const response4 = await usersTestManager.createUser(data4,
                 HTTP_STATUSES.BAD_REQUEST_400);
             expect(response4.body).toEqual({
                 errorsMessages: [
@@ -1361,7 +1363,7 @@ describe('tests for /users', () => {
                 password: validUserFieldInput.password,
             };
 
-            const response5 = await userTestManager.createUser(data5,
+            const response5 = await usersTestManager.createUser(data5,
                 HTTP_STATUSES.BAD_REQUEST_400);
             expect(response5.body).toEqual({
                 errorsMessages: [
@@ -1372,7 +1374,7 @@ describe('tests for /users', () => {
                 ],
             });
 
-            await userTestManager.checkUsersQuantity(initialDbUsers.length);
+            await usersTestManager.checkUsersQuantity(initialDbUsers.length);
         });
 
         // password
@@ -1384,7 +1386,7 @@ describe('tests for /users', () => {
                 password: 4,
             };
 
-            const response1 = await userTestManager.createUser(data1,
+            const response1 = await usersTestManager.createUser(data1,
                 HTTP_STATUSES.BAD_REQUEST_400);
             expect(response1.body).toEqual({
                 errorsMessages: [
@@ -1402,7 +1404,7 @@ describe('tests for /users', () => {
                 password: '',
             };
 
-            const response2 = await userTestManager.createUser(data2,
+            const response2 = await usersTestManager.createUser(data2,
                 HTTP_STATUSES.BAD_REQUEST_400);
             expect(response2.body).toEqual({
                 errorsMessages: [
@@ -1420,7 +1422,7 @@ describe('tests for /users', () => {
                 password: '  ',
             };
 
-            const response3 = await userTestManager.createUser(data3,
+            const response3 = await usersTestManager.createUser(data3,
                 HTTP_STATUSES.BAD_REQUEST_400);
             expect(response3.body).toEqual({
                 errorsMessages: [
@@ -1438,7 +1440,7 @@ describe('tests for /users', () => {
                 password: 'a'.repeat(5),
             };
 
-            const response4 = await userTestManager.createUser(data4,
+            const response4 = await usersTestManager.createUser(data4,
                 HTTP_STATUSES.BAD_REQUEST_400);
             expect(response4.body).toEqual({
                 errorsMessages: [
@@ -1456,7 +1458,7 @@ describe('tests for /users', () => {
                 password: 'a'.repeat(21),
             };
 
-            const response5 = await userTestManager.createUser(data5,
+            const response5 = await usersTestManager.createUser(data5,
                 HTTP_STATUSES.BAD_REQUEST_400);
             expect(response5.body).toEqual({
                 errorsMessages: [
@@ -1467,7 +1469,7 @@ describe('tests for /users', () => {
                 ],
             });
 
-            await userTestManager.checkUsersQuantity(initialDbUsers.length);
+            await usersTestManager.checkUsersQuantity(initialDbUsers.length);
         });
 
         // multiple fields
@@ -1477,7 +1479,7 @@ describe('tests for /users', () => {
                 password: '  ',
             };
 
-            const response = await userTestManager.createUser(data,
+            const response = await usersTestManager.createUser(data,
                 HTTP_STATUSES.BAD_REQUEST_400);
             expect(response.body).toEqual({
                 errorsMessages: expect.arrayContaining([
@@ -1487,7 +1489,7 @@ describe('tests for /users', () => {
                 ]),
             });
 
-            await userTestManager.checkUsersQuantity(initialDbUsers.length);
+            await usersTestManager.checkUsersQuantity(initialDbUsers.length);
         });
 
         // both login and email are not unique
@@ -1498,7 +1500,7 @@ describe('tests for /users', () => {
                 password: validUserFieldInput.password,
             };
 
-            const response = await userTestManager.createUser(data,
+            const response = await usersTestManager.createUser(data,
                 HTTP_STATUSES.BAD_REQUEST_400);
             expect(response.body).toEqual({
                 errorsMessages: [
@@ -1518,9 +1520,15 @@ describe('tests for /users', () => {
                 password: 'qwerty',
             };
 
-            await userTestManager.createUser(data, HTTP_STATUSES.CREATED_201);
+            await usersTestManager.createUser(data, HTTP_STATUSES.CREATED_201);
 
-            await userTestManager.checkUsersQuantity(initialDbUsers.length + 1);
+            const loginData: LoginInputModel = {
+                loginOrEmail: data.login,
+                password: data.password,
+            };
+            await authTestManager.login(loginData, HTTP_STATUSES.OK_200);
+
+            await usersTestManager.checkUsersQuantity(initialDbUsers.length + 1);
         });
 
         it('should create one more user', async () => {
@@ -1530,9 +1538,15 @@ describe('tests for /users', () => {
                 password: '1234qwerty',
             };
 
-            await userTestManager.createUser(data, HTTP_STATUSES.CREATED_201);
+            await usersTestManager.createUser(data, HTTP_STATUSES.CREATED_201);
 
-            await userTestManager.checkUsersQuantity(initialDbUsers.length + 2);
+            const loginData: LoginInputModel = {
+                loginOrEmail: data.login,
+                password: data.password,
+            };
+            await authTestManager.login(loginData, HTTP_STATUSES.OK_200);
+
+            await usersTestManager.checkUsersQuantity(initialDbUsers.length + 2);
         });
     });
 
@@ -1599,7 +1613,7 @@ describe('tests for /users', () => {
                 .expect(HTTP_STATUSES.UNAUTHORIZED_401);
 
             for (const invalidAuthValue of invalidAuthValues) {
-                await userTestManager.deleteUser(userToDelete.id,
+                await usersTestManager.deleteUser(userToDelete.id,
                     HTTP_STATUSES.UNAUTHORIZED_401, invalidAuthValue);
             }
 
@@ -1608,19 +1622,19 @@ describe('tests for /users', () => {
         });
 
         it('should return 404 when deleting non-existing user', async () => {
-            await userTestManager.deleteUser('-100',
+            await usersTestManager.deleteUser('-100',
                 HTTP_STATUSES.NOT_FOUND_404);
 
             // deleted
             const userToDelete = initialDbUsers[1];
-            await userTestManager.deleteUser(userToDelete.id,
+            await usersTestManager.deleteUser(userToDelete.id,
                 HTTP_STATUSES.NOT_FOUND_404);
         });
 
         it('should delete the first user', async () => {
             const userToDelete = initialDbUsers[0];
 
-            await userTestManager.deleteUser(userToDelete.id,
+            await usersTestManager.deleteUser(userToDelete.id,
                 HTTP_STATUSES.NO_CONTENT_204);
         });
     });

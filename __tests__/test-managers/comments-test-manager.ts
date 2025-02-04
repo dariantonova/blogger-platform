@@ -5,7 +5,7 @@ import {WithId} from "mongodb";
 import {HTTP_STATUSES} from "../../src/utils";
 import {commentsQueryRepository} from "../../src/features/comments/comments.query.repository";
 
-export const commentTestManager = {
+export const commentsTestManager = {
     async deleteComment(commentId: string, auth: string, expectedStatusCode: number) {
         return req
             .delete(SETTINGS.PATH.COMMENTS + '/' + commentId)

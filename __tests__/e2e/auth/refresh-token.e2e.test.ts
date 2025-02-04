@@ -3,7 +3,7 @@ import {client, runDb} from "../../../src/db/db";
 import {req} from "../../test-helpers";
 import {SETTINGS} from "../../../src/settings";
 import {HTTP_STATUSES} from "../../../src/utils";
-import {userTestManager} from "../../test-managers/user-test-manager";
+import {usersTestManager} from "../../test-managers/users-test-manager";
 import {CreateUserInputModel} from "../../../src/features/users/models/CreateUserInputModel";
 import {defaultRefreshTokenLife} from "../../datasets/authorization-data";
 import {authTestManager} from "../../test-managers/auth-test-manager";
@@ -42,7 +42,7 @@ describe('tests for refresh token endpoint', () => {
 
         createdUserIds = [];
         for (const createUserData of createUsersData) {
-            const createUserResponse = await userTestManager.createUser(createUserData,
+            const createUserResponse = await usersTestManager.createUser(createUserData,
                 HTTP_STATUSES.CREATED_201);
             createdUserIds.push(createUserResponse.body.id);
         }
@@ -123,7 +123,7 @@ describe('tests for refresh token endpoint', () => {
             userData.login, userData.password
         );
 
-        await userTestManager.deleteUser(userId, HTTP_STATUSES.NO_CONTENT_204);
+        await usersTestManager.deleteUser(userId, HTTP_STATUSES.NO_CONTENT_204);
 
         await authTestManager.refreshToken(refreshToken1, HTTP_STATUSES.UNAUTHORIZED_401);
         await authTestManager.refreshToken(refreshToken2, HTTP_STATUSES.UNAUTHORIZED_401);

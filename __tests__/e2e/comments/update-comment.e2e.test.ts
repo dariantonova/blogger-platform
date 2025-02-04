@@ -6,12 +6,12 @@ import {CommentDBType, CommentViewModel, UpdateCommentInputModel} from "../../..
 import {client, runDb, setDb} from "../../../src/db/db";
 import {req} from "../../test-helpers";
 import {SETTINGS} from "../../../src/settings";
-import {userTestManager} from "../../test-managers/user-test-manager";
+import {usersTestManager} from "../../test-managers/users-test-manager";
 import {HTTP_STATUSES} from "../../../src/utils";
 import {LoginInputModel} from "../../../src/features/auth/types/auth.types";
 import {authTestManager} from "../../test-managers/auth-test-manager";
 import {validCommentFieldInput} from "../../datasets/validation/comments-validation-data";
-import {commentTestManager} from "../../test-managers/comment-test-manager";
+import {commentsTestManager} from "../../test-managers/comments-test-manager";
 import {defaultAccessTokenLife} from "../../datasets/authorization-data";
 
 
@@ -77,7 +77,7 @@ describe('tests for update comment endpoint', () => {
 
         createdUserIds = [];
         for (const createUserData of createUsersData) {
-            const createUserResponse = await userTestManager.createUser(createUserData,
+            const createUserResponse = await usersTestManager.createUser(createUserData,
                 HTTP_STATUSES.CREATED_201);
             createdUserIds.push(createUserResponse.body.id);
         }
@@ -148,7 +148,7 @@ describe('tests for update comment endpoint', () => {
             .send(data)
             .expect(HTTP_STATUSES.UNAUTHORIZED_401);
 
-        await commentTestManager.checkCommentIsTheSame(commentToUpdate);
+        await commentsTestManager.checkCommentIsTheSame(commentToUpdate);
     });
 
     // - invalid token
@@ -160,7 +160,7 @@ describe('tests for update comment endpoint', () => {
         };
 
         // never existed, weird
-        await commentTestManager.updateComment(commentId, data,
+        await commentsTestManager.updateComment(commentId, data,
             'Bearer somethingWeird',
             HTTP_STATUSES.UNAUTHORIZED_401);
 
@@ -168,14 +168,14 @@ describe('tests for update comment endpoint', () => {
         const userIndex = 0;
         const token = await getAccessTokenForUser(userIndex);
 
-        await userTestManager.deleteUser(createdUserIds[userIndex],
+        await usersTestManager.deleteUser(createdUserIds[userIndex],
             HTTP_STATUSES.NO_CONTENT_204);
 
-        await commentTestManager.updateComment(commentId, data,
+        await commentsTestManager.updateComment(commentId, data,
             'Bearer ' + token,
             HTTP_STATUSES.UNAUTHORIZED_401);
 
-        await commentTestManager.checkCommentIsTheSame(commentToUpdate);
+        await commentsTestManager.checkCommentIsTheSame(commentToUpdate);
     });
 
     // - expired token
@@ -190,11 +190,11 @@ describe('tests for update comment endpoint', () => {
         const userIndex = 0;
         const token = await getAccessTokenForUser(userIndex);
 
-        await commentTestManager.updateComment(commentId, data,
+        await commentsTestManager.updateComment(commentId, data,
             'Bearer ' + token,
             HTTP_STATUSES.UNAUTHORIZED_401);
 
-        await commentTestManager.checkCommentIsTheSame(commentToUpdate);
+        await commentsTestManager.checkCommentIsTheSame(commentToUpdate);
 
         SETTINGS.ACCESS_JWT_LIFE = defaultAccessTokenLife;
     });
@@ -210,15 +210,15 @@ describe('tests for update comment endpoint', () => {
         const userIndex = 0;
         const token = await getAccessTokenForUser(userIndex);
 
-        await commentTestManager.updateComment(commentId, data,
+        await commentsTestManager.updateComment(commentId, data,
             token,
             HTTP_STATUSES.UNAUTHORIZED_401);
 
-        await commentTestManager.updateComment(commentId, data,
+        await commentsTestManager.updateComment(commentId, data,
             token + ' Bearer',
             HTTP_STATUSES.UNAUTHORIZED_401);
 
-        await commentTestManager.checkCommentIsTheSame(commentToUpdate);
+        await commentsTestManager.checkCommentIsTheSame(commentToUpdate);
     });
 
     it('should return 403 when user is trying to update a comment that is not their own',
@@ -230,7 +230,7 @@ describe('tests for update comment endpoint', () => {
         };
         createUsersData.push(createNewUserData);
 
-        const createUserResponse = await userTestManager.createUser(createNewUserData,
+        const createUserResponse = await usersTestManager.createUser(createNewUserData,
             HTTP_STATUSES.CREATED_201);
         createdUserIds.push(createUserResponse.body.id);
 
@@ -243,11 +243,11 @@ describe('tests for update comment endpoint', () => {
             content: validCommentFieldInput.content,
         };
 
-        await commentTestManager.updateComment(commentId, data,
+        await commentsTestManager.updateComment(commentId, data,
             'Bearer ' + token,
             HTTP_STATUSES.FORBIDDEN_403);
 
-        await commentTestManager.checkCommentIsTheSame(commentToUpdate);
+        await commentsTestManager.checkCommentIsTheSame(commentToUpdate);
     });
 
     it('should return 404 when deleting non-existing comment', async () => {
@@ -258,14 +258,14 @@ describe('tests for update comment endpoint', () => {
             content: validCommentFieldInput.content,
         };
 
-        await commentTestManager.updateComment('-100', data,
+        await commentsTestManager.updateComment('-100', data,
             'Bearer ' + token,
             HTTP_STATUSES.NOT_FOUND_404);
 
         // deleted
         const commentToUpdate = initialDbComments[1];
         const commentId = commentToUpdate._id.toString();
-        await commentTestManager.updateComment(commentId, data,
+        await commentsTestManager.updateComment(commentId, data,
             'Bearer ' + token,
             HTTP_STATUSES.NOT_FOUND_404);
     });
@@ -280,7 +280,7 @@ describe('tests for update comment endpoint', () => {
         const userIndex = 0;
         const token = await getAccessTokenForUser(userIndex);
 
-        const response = await commentTestManager.updateComment(commentId, data,
+        const response = await commentsTestManager.updateComment(commentId, data,
             'Bearer ' + token,
             HTTP_STATUSES.BAD_REQUEST_400);
         expect(response.body).toEqual({
@@ -292,7 +292,7 @@ describe('tests for update comment endpoint', () => {
             ],
         });
 
-        await commentTestManager.checkCommentIsTheSame(commentToUpdate);
+        await commentsTestManager.checkCommentIsTheSame(commentToUpdate);
     });
 
     it(`shouldn't create comment if content is invalid`, async () => {
@@ -307,7 +307,7 @@ describe('tests for update comment endpoint', () => {
             content: 4,
         };
 
-        const response1 = await commentTestManager.updateComment(commentId, data1,
+        const response1 = await commentsTestManager.updateComment(commentId, data1,
             'Bearer ' + token,
             HTTP_STATUSES.BAD_REQUEST_400);
         expect(response1.body).toEqual({
@@ -324,7 +324,7 @@ describe('tests for update comment endpoint', () => {
             content: '',
         };
 
-        const response2 = await commentTestManager.updateComment(commentId, data2,
+        const response2 = await commentsTestManager.updateComment(commentId, data2,
             'Bearer ' + token,
             HTTP_STATUSES.BAD_REQUEST_400);
         expect(response2.body).toEqual({
@@ -341,7 +341,7 @@ describe('tests for update comment endpoint', () => {
             content: '  ',
         };
 
-        const response3 = await commentTestManager.updateComment(commentId, data3,
+        const response3 = await commentsTestManager.updateComment(commentId, data3,
             'Bearer ' + token,
             HTTP_STATUSES.BAD_REQUEST_400);
         expect(response3.body).toEqual({
@@ -358,7 +358,7 @@ describe('tests for update comment endpoint', () => {
             content: 'a'.repeat(19),
         };
 
-        const response4 = await commentTestManager.updateComment(commentId, data4,
+        const response4 = await commentsTestManager.updateComment(commentId, data4,
             'Bearer ' + token,
             HTTP_STATUSES.BAD_REQUEST_400);
         expect(response4.body).toEqual({
@@ -375,7 +375,7 @@ describe('tests for update comment endpoint', () => {
             content: 'a'.repeat(301),
         };
 
-        const response5 = await commentTestManager.updateComment(commentId, data5,
+        const response5 = await commentsTestManager.updateComment(commentId, data5,
             'Bearer ' + token,
             HTTP_STATUSES.BAD_REQUEST_400);
         expect(response5.body).toEqual({
@@ -387,7 +387,7 @@ describe('tests for update comment endpoint', () => {
             ],
         });
 
-        await commentTestManager.checkCommentIsTheSame(commentToUpdate);
+        await commentsTestManager.checkCommentIsTheSame(commentToUpdate);
     });
 
     // successful update
@@ -401,7 +401,7 @@ describe('tests for update comment endpoint', () => {
         const userIndex = 0;
         const token = await getAccessTokenForUser(userIndex);
 
-        await commentTestManager.updateComment(commentId, data,
+        await commentsTestManager.updateComment(commentId, data,
             'Bearer ' + token,
             HTTP_STATUSES.NO_CONTENT_204);
 

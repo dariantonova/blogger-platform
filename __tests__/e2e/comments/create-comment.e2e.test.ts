@@ -4,13 +4,13 @@ import {req} from "../../test-helpers";
 import {SETTINGS} from "../../../src/settings";
 import {BlogDBType, PostDBType} from "../../../src/types/types";
 import {CreateUserInputModel} from "../../../src/features/users/models/CreateUserInputModel";
-import {userTestManager} from "../../test-managers/user-test-manager";
+import {usersTestManager} from "../../test-managers/users-test-manager";
 import {HTTP_STATUSES} from "../../../src/utils";
 import {LoginInputModel} from "../../../src/features/auth/types/auth.types";
 import {authTestManager} from "../../test-managers/auth-test-manager";
 import {CommentDBType, CommentViewModel, CreateCommentInputModel} from "../../../src/features/comments/comments.types";
 import {validCommentFieldInput} from "../../datasets/validation/comments-validation-data";
-import {postTestManager} from "../../test-managers/post-test-manager";
+import {postsTestManager} from "../../test-managers/posts-test-manager";
 import {defaultAccessTokenLife} from "../../datasets/authorization-data";
 
 
@@ -122,7 +122,7 @@ describe('tests for create comments endpoint', () => {
 
         createdUserIds = [];
         for (const createUserData of createUsersData) {
-            const createUserResponse = await userTestManager.createUser(createUserData,
+            const createUserResponse = await usersTestManager.createUser(createUserData,
                 HTTP_STATUSES.CREATED_201);
             createdUserIds.push(createUserResponse.body.id);
         }
@@ -155,7 +155,7 @@ describe('tests for create comments endpoint', () => {
             .send(data)
             .expect(HTTP_STATUSES.UNAUTHORIZED_401);
 
-        await postTestManager.checkPostCommentsQuantity(postId, 0);
+        await postsTestManager.checkPostCommentsQuantity(postId, 0);
     });
 
     // - invalid token
@@ -166,7 +166,7 @@ describe('tests for create comments endpoint', () => {
         };
 
         // never existed, weird
-        await postTestManager.createPostComment(postId, data,
+        await postsTestManager.createPostComment(postId, data,
             'Bearer somethingWeird',
             HTTP_STATUSES.UNAUTHORIZED_401);
 
@@ -174,14 +174,14 @@ describe('tests for create comments endpoint', () => {
         const userIndex = 0;
         const token = await getAccessTokenForUser(userIndex);
 
-        await userTestManager.deleteUser(createdUserIds[userIndex],
+        await usersTestManager.deleteUser(createdUserIds[userIndex],
             HTTP_STATUSES.NO_CONTENT_204);
 
-        await postTestManager.createPostComment(postId, data,
+        await postsTestManager.createPostComment(postId, data,
             'Bearer ' + token,
             HTTP_STATUSES.UNAUTHORIZED_401);
 
-        await postTestManager.checkPostCommentsQuantity(postId, 0);
+        await postsTestManager.checkPostCommentsQuantity(postId, 0);
     });
 
     // - expired token
@@ -195,11 +195,11 @@ describe('tests for create comments endpoint', () => {
         const userIndex = 0;
         const token = await getAccessTokenForUser(userIndex);
 
-        await postTestManager.createPostComment(postId, data,
+        await postsTestManager.createPostComment(postId, data,
             'Bearer ' + token,
             HTTP_STATUSES.UNAUTHORIZED_401);
 
-        await postTestManager.checkPostCommentsQuantity(postId, 0);
+        await postsTestManager.checkPostCommentsQuantity(postId, 0);
 
         SETTINGS.ACCESS_JWT_LIFE = defaultAccessTokenLife;
     });
@@ -214,15 +214,15 @@ describe('tests for create comments endpoint', () => {
         const userIndex = 0;
         const token = await getAccessTokenForUser(userIndex);
 
-        await postTestManager.createPostComment(postId, data,
+        await postsTestManager.createPostComment(postId, data,
             token,
             HTTP_STATUSES.UNAUTHORIZED_401);
 
-        await postTestManager.createPostComment(postId, data,
+        await postsTestManager.createPostComment(postId, data,
             token + ' Bearer',
             HTTP_STATUSES.UNAUTHORIZED_401);
 
-        await postTestManager.checkPostCommentsQuantity(postId, 0);
+        await postsTestManager.checkPostCommentsQuantity(postId, 0);
     });
 
     // validation
@@ -234,7 +234,7 @@ describe('tests for create comments endpoint', () => {
         const userIndex = 0;
         const token = await getAccessTokenForUser(userIndex);
 
-        const response = await postTestManager.createPostComment(postId, data,
+        const response = await postsTestManager.createPostComment(postId, data,
             'Bearer ' + token,
             HTTP_STATUSES.BAD_REQUEST_400);
         expect(response.body).toEqual({
@@ -246,7 +246,7 @@ describe('tests for create comments endpoint', () => {
             ],
         });
 
-        await postTestManager.checkPostCommentsQuantity(postId, 0);
+        await postsTestManager.checkPostCommentsQuantity(postId, 0);
     });
 
     it(`shouldn't create comment if content is invalid`, async () => {
@@ -260,7 +260,7 @@ describe('tests for create comments endpoint', () => {
             content: 4,
         };
 
-        const response1 = await postTestManager.createPostComment(postId, data1,
+        const response1 = await postsTestManager.createPostComment(postId, data1,
             'Bearer ' + token,
             HTTP_STATUSES.BAD_REQUEST_400);
         expect(response1.body).toEqual({
@@ -277,7 +277,7 @@ describe('tests for create comments endpoint', () => {
             content: '',
         };
 
-        const response2 = await postTestManager.createPostComment(postId, data2,
+        const response2 = await postsTestManager.createPostComment(postId, data2,
             'Bearer ' + token,
             HTTP_STATUSES.BAD_REQUEST_400);
         expect(response2.body).toEqual({
@@ -294,7 +294,7 @@ describe('tests for create comments endpoint', () => {
             content: '  ',
         };
 
-        const response3 = await postTestManager.createPostComment(postId, data3,
+        const response3 = await postsTestManager.createPostComment(postId, data3,
             'Bearer ' + token,
             HTTP_STATUSES.BAD_REQUEST_400);
         expect(response3.body).toEqual({
@@ -311,7 +311,7 @@ describe('tests for create comments endpoint', () => {
             content: 'a'.repeat(19),
         };
 
-        const response4 = await postTestManager.createPostComment(postId, data4,
+        const response4 = await postsTestManager.createPostComment(postId, data4,
             'Bearer ' + token,
             HTTP_STATUSES.BAD_REQUEST_400);
         expect(response4.body).toEqual({
@@ -328,7 +328,7 @@ describe('tests for create comments endpoint', () => {
             content: 'a'.repeat(301),
         };
 
-        const response5 = await postTestManager.createPostComment(postId, data5,
+        const response5 = await postsTestManager.createPostComment(postId, data5,
             'Bearer ' + token,
             HTTP_STATUSES.BAD_REQUEST_400);
         expect(response5.body).toEqual({
@@ -340,7 +340,7 @@ describe('tests for create comments endpoint', () => {
             ],
         });
 
-        await postTestManager.checkPostCommentsQuantity(postId, 0);
+        await postsTestManager.checkPostCommentsQuantity(postId, 0);
     });
 
     // non-existing post
@@ -352,13 +352,13 @@ describe('tests for create comments endpoint', () => {
         const userIndex = 0;
         const token = await getAccessTokenForUser(userIndex);
 
-        await postTestManager.createPostComment('-100', data,
+        await postsTestManager.createPostComment('-100', data,
             'Bearer ' + token,
             HTTP_STATUSES.NOT_FOUND_404);
 
         // deleted
         const postId = initialDbPosts[1].id;
-        await postTestManager.createPostComment(postId, data,
+        await postsTestManager.createPostComment(postId, data,
             'Bearer ' + token,
             HTTP_STATUSES.NOT_FOUND_404);
     });
@@ -373,7 +373,7 @@ describe('tests for create comments endpoint', () => {
         const userIndex = 0;
         const token = await getAccessTokenForUser(userIndex);
 
-        const response = await postTestManager.createPostComment(postId, data,
+        const response = await postsTestManager.createPostComment(postId, data,
             'Bearer ' + token,
             HTTP_STATUSES.CREATED_201);
 
@@ -385,7 +385,7 @@ describe('tests for create comments endpoint', () => {
         expect(createdComment.createdAt).toEqual(expect.any(String));
         expect(new Date(createdComment.createdAt).getTime()).not.toBeNaN();
 
-        const getCommentsResponse = await postTestManager.getPostComments(postId, HTTP_STATUSES.OK_200);
+        const getCommentsResponse = await postsTestManager.getPostComments(postId, HTTP_STATUSES.OK_200);
         expect(getCommentsResponse.body.items).toEqual([createdComment]);
     });
 
@@ -412,7 +412,7 @@ describe('tests for create comments endpoint', () => {
         const data: CreateCommentInputModel = {
             content: 'Another comment. Wow!',
         };
-        const response = await postTestManager.createPostComment(postId, data,
+        const response = await postsTestManager.createPostComment(postId, data,
             'Bearer ' + token,
             HTTP_STATUSES.CREATED_201);
 
@@ -428,6 +428,6 @@ describe('tests for create comments endpoint', () => {
             .get(SETTINGS.PATH.COMMENTS + '/' + createdComment.id)
             .expect(HTTP_STATUSES.OK_200, createdComment);
 
-        await postTestManager.checkPostCommentsQuantity(postId, 2);
+        await postsTestManager.checkPostCommentsQuantity(postId, 2);
     });
 });

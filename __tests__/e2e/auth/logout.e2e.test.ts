@@ -1,7 +1,7 @@
 import {MongoMemoryServer} from "mongodb-memory-server";
 import {CreateUserInputModel} from "../../../src/features/users/models/CreateUserInputModel";
 import {client, runDb} from "../../../src/db/db";
-import {userTestManager} from "../../test-managers/user-test-manager";
+import {usersTestManager} from "../../test-managers/users-test-manager";
 import {HTTP_STATUSES} from "../../../src/utils";
 import {req} from "../../test-helpers";
 import {SETTINGS} from "../../../src/settings";
@@ -42,7 +42,7 @@ describe('tests for logout endpoint', () => {
 
         createdUserIds = [];
         for (const createUserData of createUsersData) {
-            const createUserResponse = await userTestManager.createUser(createUserData,
+            const createUserResponse = await usersTestManager.createUser(createUserData,
                 HTTP_STATUSES.CREATED_201);
             createdUserIds.push(createUserResponse.body.id);
         }
@@ -132,7 +132,7 @@ describe('tests for logout endpoint', () => {
             userData.login, userData.password
         );
 
-        await userTestManager.deleteUser(userId, HTTP_STATUSES.NO_CONTENT_204);
+        await usersTestManager.deleteUser(userId, HTTP_STATUSES.NO_CONTENT_204);
 
         await authTestManager.logout(refreshToken1, HTTP_STATUSES.UNAUTHORIZED_401);
         await authTestManager.logout(refreshToken2, HTTP_STATUSES.UNAUTHORIZED_401);

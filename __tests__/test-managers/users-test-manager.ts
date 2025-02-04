@@ -3,13 +3,10 @@ import {req} from "../test-helpers";
 import {SETTINGS} from "../../src/settings";
 import {HTTP_STATUSES} from "../../src/utils";
 import {UserViewModel} from "../../src/features/users/models/UserViewModel";
-import {authTestManager} from "./auth-test-manager";
 import {Paginator} from "../../src/types/types";
 import {usersTestRepository} from "../repositories/users.test.repository";
 
-import {LoginInputModel} from "../../src/features/auth/types/auth.types";
-
-export const userTestManager = {
+export const usersTestManager = {
     async getUsers(expectedStatusCode: number, query: string = '', auth: string = VALID_AUTH) {
         return req
             .get(SETTINGS.PATH.USERS + '?' + query)
@@ -35,12 +32,6 @@ export const userTestManager = {
 
             const dbCreatedUser = await usersTestRepository.findUserById(createdUser.id);
             expect(dbCreatedUser?.confirmationInfo.isConfirmed).toBe(true);
-
-            const loginData: LoginInputModel = {
-                loginOrEmail: data.login,
-                password: data.password,
-            };
-            await authTestManager.login(loginData, HTTP_STATUSES.OK_200);
         }
 
         return response;

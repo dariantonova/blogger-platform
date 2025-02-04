@@ -1,7 +1,7 @@
 import {MongoMemoryServer} from "mongodb-memory-server";
 import {client, runDb} from "../../../src/db/db";
 import {CreateUserInputModel} from "../../../src/features/users/models/CreateUserInputModel";
-import {userTestManager} from "../../test-managers/user-test-manager";
+import {usersTestManager} from "../../test-managers/users-test-manager";
 import {HTTP_STATUSES} from "../../../src/utils";
 import {authTestManager} from "../../test-managers/auth-test-manager";
 import {req} from "../../test-helpers";
@@ -56,12 +56,12 @@ describe('tests for /auth', () => {
 
             const createdUserIds = [];
             for (const createUserData of createUsersData) {
-                const createUserResponse = await userTestManager.createUser(createUserData,
+                const createUserResponse = await usersTestManager.createUser(createUserData,
                     HTTP_STATUSES.CREATED_201);
                 createdUserIds.push(createUserResponse.body.id);
             }
 
-            await userTestManager.deleteUser(createdUserIds[2],
+            await usersTestManager.deleteUser(createdUserIds[2],
                 HTTP_STATUSES.NO_CONTENT_204);
         });
 
@@ -311,7 +311,7 @@ describe('tests for /auth', () => {
 
             createdUserIds = [];
             for (const createUserData of createUsersData) {
-                const createUserResponse = await userTestManager.createUser(createUserData,
+                const createUserResponse = await usersTestManager.createUser(createUserData,
                     HTTP_STATUSES.CREATED_201);
                 createdUserIds.push(createUserResponse.body.id);
             }
@@ -346,7 +346,7 @@ describe('tests for /auth', () => {
             const userIndex = 0;
             const token = await getAccessTokenForUser(userIndex);
 
-            await userTestManager.deleteUser(createdUserIds[userIndex],
+            await usersTestManager.deleteUser(createdUserIds[userIndex],
                 HTTP_STATUSES.NO_CONTENT_204);
 
             await authTestManager.getCurrentUserInfo('Bearer ' + token,

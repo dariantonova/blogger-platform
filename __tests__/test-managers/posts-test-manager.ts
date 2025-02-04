@@ -6,7 +6,7 @@ import {blogsCollection, postsCollection} from "../../src/db/db";
 import {VALID_AUTH} from "../datasets/authorization-data";
 import {CreatePostInputModel} from "../../src/features/posts/models/CreatePostInputModel";
 
-export const postTestManager = {
+export const postsTestManager = {
     async deletePost(postId: string, expectedStatusCode: number, auth: string = VALID_AUTH) {
         await req
             .delete(SETTINGS.PATH.POSTS + '/' + postId)
