@@ -7,6 +7,11 @@ import {HTTP_STATUSES} from "../../../src/utils";
 import {usersTestRepository} from "../../repositories/users.test.repository";
 import {RegistrationConfirmationCodeModel} from "../../../src/features/auth/types/auth.types";
 import {requestsLimit} from "../../../src/middlewares/rate-limiting-middleware";
+import {usersService} from "../../../src/features/users/users.service";
+import {attemptsService} from "../../../src/application/attempts.service";
+import {defaultNumberOfAttemptsLimit} from "../../datasets/common-data";
+import {CreateUserInputModel} from "../../../src/features/users/models/CreateUserInputModel";
+import {validUserFieldInput} from "../../datasets/validation/users-validation-data";
 
 describe('tests for registration confirmation endpoint', () => {
     let server: MongoMemoryServer;
@@ -230,5 +235,33 @@ describe('tests for registration confirmation endpoint', () => {
 
         const dbCreatedUser = await usersTestRepository.findUserByConfirmationCode(data.code);
         expect(dbCreatedUser?.confirmationInfo.isConfirmed).toBe(true);
+    });
+
+    it(`shouldn't confirm registration user if too many requests`, async () => {
+        await usersService.deleteAllUsers();
+        await attemptsService.deleteAllAttempts();
+        requestsLimit.numberOfAttemptsLimit = defaultNumberOfAttemptsLimit;
+
+        const createUserData: CreateUserInputModel = {
+            login: 'user1',
+            email: 'user1@example.com',
+            password: validUserFieldInput.password,
+        };
+
+        await authTestManager.registerUser(createUserData, HTTP_STATUSES.NO_CONTENT_204);
+
+        const confirmationData: RegistrationConfirmationCodeModel = {
+            code: 'wrong-code',
+        };
+
+        for (let i = 0; i < requestsLimit.numberOfAttemptsLimit; i++) {
+            await authTestManager.confirmRegistration(confirmationData,
+                HTTP_STATUSES.BAD_REQUEST_400);
+        }
+
+        await authTestManager.confirmRegistration(confirmationData,
+            HTTP_STATUSES.TOO_MANY_REQUESTS_429);
+
+        requestsLimit.numberOfAttemptsLimit = 1000;
     });
 });

@@ -7,6 +7,9 @@ import {authTestManager} from "../../test-managers/auth-test-manager";
 import {UserDBType} from "../../../src/types/types";
 import {CreateUserInputModel} from "../../../src/features/users/models/CreateUserInputModel";
 import {requestsLimit} from "../../../src/middlewares/rate-limiting-middleware";
+import {attemptsService} from "../../../src/application/attempts.service";
+import {defaultNumberOfAttemptsLimit} from "../../datasets/common-data";
+import {usersService} from "../../../src/features/users/users.service";
 
 describe('tests for registration endpoint', () => {
     let server: MongoMemoryServer;
@@ -564,5 +567,62 @@ describe('tests for registration endpoint', () => {
         await authTestManager.registerUser(data, HTTP_STATUSES.NO_CONTENT_204);
 
         await authTestManager.verifyRegisteredUser(data);
+    });
+
+    it(`shouldn't register user if too many requests`, async () => {
+        await usersService.deleteAllUsers();
+        await attemptsService.deleteAllAttempts();
+        requestsLimit.numberOfAttemptsLimit = defaultNumberOfAttemptsLimit;
+
+        const data: CreateUserInputModel[] = [];
+
+        const data1: CreateUserInputModel = {
+            login: 'user1',
+            email: 'user1@example.com',
+            password: validUserFieldInput.password,
+        };
+        data.push(data1);
+
+        const data2: CreateUserInputModel = {
+            login: 'user2',
+            email: 'user2@example.com',
+            password: validUserFieldInput.password,
+        };
+        data.push(data2);
+
+        const data3: CreateUserInputModel = {
+            login: 'user3',
+            email: 'user3@example.com',
+            password: validUserFieldInput.password,
+        };
+        data.push(data3);
+
+        const data4: CreateUserInputModel = {
+            login: 'user4',
+            email: 'user4@example.com',
+            password: validUserFieldInput.password,
+        };
+        data.push(data4);
+
+        const data5: CreateUserInputModel = {
+            login: 'user5',
+            email: 'user5@example.com',
+            password: validUserFieldInput.password,
+        };
+        data.push(data5);
+
+        const data6: CreateUserInputModel = {
+            login: 'user6',
+            email: 'user6@example.com',
+            password: validUserFieldInput.password,
+        };
+
+        for (const dataItem of data) {
+            await authTestManager.registerUser(dataItem, HTTP_STATUSES.NO_CONTENT_204);
+        }
+
+        await authTestManager.registerUser(data6, HTTP_STATUSES.TOO_MANY_REQUESTS_429);
+
+        requestsLimit.numberOfAttemptsLimit = 1000;
     });
 });

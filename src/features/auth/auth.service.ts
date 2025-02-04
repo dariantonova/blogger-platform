@@ -191,17 +191,8 @@ export const authService = {
             };
         }
 
-        try {
-            await emailManager.sendRegistrationMessage(email, newConfirmationInfo.confirmationCode);
-        }
-        catch (err) {
-            console.log('Email send error: ' + err);
-            return {
-                status: ResultStatus.INTERNAL_SERVER_ERROR,
-                data: null,
-                extensions: [],
-            };
-        }
+        emailManager.sendRegistrationMessage(email, newConfirmationInfo.confirmationCode)
+            .catch(err => console.log('Email send error: ' + err));
 
         return {
             status: ResultStatus.SUCCESS,

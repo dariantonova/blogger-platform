@@ -10,6 +10,8 @@ import {validAuthLoginInput} from "../../datasets/validation/auth-login-validati
 import {LoginInputModel, MeViewModel} from "../../../src/features/auth/types/auth.types";
 import {defaultAccessTokenLife} from "../../datasets/authorization-data";
 import {requestsLimit} from "../../../src/middlewares/rate-limiting-middleware";
+import {defaultNumberOfAttemptsLimit} from "../../datasets/common-data";
+import {attemptsService} from "../../../src/application/attempts.service";
 
 describe('tests for /auth', () => {
     let server: MongoMemoryServer;
@@ -300,6 +302,24 @@ describe('tests for /auth', () => {
                 .set('Cookie', 'refreshToken=' + refreshToken)
                 .send(data)
                 .expect(HTTP_STATUSES.TOO_MANY_REQUESTS_429);
+        });
+
+        it(`shouldn't login user if too many requests`, async () => {
+            await attemptsService.deleteAllAttempts();
+            requestsLimit.numberOfAttemptsLimit = defaultNumberOfAttemptsLimit;
+
+            const data: LoginInputModel = {
+                loginOrEmail: createUsersData[0].login,
+                password: 'wrong-password',
+            };
+
+            for (let i = 0; i < requestsLimit.numberOfAttemptsLimit; i++) {
+                await authTestManager.login(data, HTTP_STATUSES.UNAUTHORIZED_401);
+            }
+
+            await authTestManager.login(data, HTTP_STATUSES.TOO_MANY_REQUESTS_429);
+
+            requestsLimit.numberOfAttemptsLimit = 1000;
         });
     });
 

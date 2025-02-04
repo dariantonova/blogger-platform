@@ -16,7 +16,7 @@ export const rateLimitingMiddleware = async (req: Request, res: Response, next: 
 
     const url = req.originalUrl;
     const numberOfRecentAttempts = await attemptsService.countRecentAttempts(ip, url, requestsLimit.interval);
-    if (numberOfRecentAttempts > requestsLimit.numberOfAttemptsLimit) {
+    if (numberOfRecentAttempts >= requestsLimit.numberOfAttemptsLimit) {
         res.sendStatus(HTTP_STATUSES.TOO_MANY_REQUESTS_429);
         return;
     }
