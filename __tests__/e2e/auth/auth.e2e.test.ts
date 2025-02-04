@@ -272,7 +272,7 @@ describe('tests for /auth', () => {
             await authTestManager.verifyRefTokenCookie();
         });
 
-        it('should login multiple times', async () => {
+        it('should login multiple times on different devices', async () => {
             const data: LoginInputModel = {
                 loginOrEmail: createUsersData[0].login,
                 password: createUsersData[0].password,
@@ -283,6 +283,23 @@ describe('tests for /auth', () => {
                 await authTestManager.checkAccessTokenIsPresent(loginResponse);
                 await authTestManager.verifyRefTokenCookie();
             }
+        });
+
+        it(`shouldn't login multiple times on the same device`, async () => {
+            const data: LoginInputModel = {
+                loginOrEmail: createUsersData[0].login,
+                password: createUsersData[0].password,
+            };
+
+            const refreshToken = await authTestManager.getNewRefreshToken(
+                data.loginOrEmail, data.password
+            );
+
+            await req
+                .post(SETTINGS.PATH.AUTH + '/login')
+                .set('Cookie', 'refreshToken=' + refreshToken)
+                .send(data)
+                .expect(HTTP_STATUSES.TOO_MANY_REQUESTS_429);
         });
     });
 
