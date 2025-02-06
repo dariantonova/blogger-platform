@@ -5,9 +5,8 @@ export const attemptsRepository = {
     async deleteAllAttempts() {
         await attemptsCollection.drop();
     },
-    async countRecentAttempts(ip: string, url: string, intervalMs: number) {
-        const startDate = new Date(Date.now() - intervalMs);
-        const filterObj = { ip, url, date: { $gte: startDate } };
+    async countAttemptsFromDate(ip: string, url: string, fromDate: Date) {
+        const filterObj = { ip, url, date: { $gte: fromDate } };
         return attemptsCollection.countDocuments(filterObj);
     },
     async createAttempt(ip: string, url: string, date: Date) {

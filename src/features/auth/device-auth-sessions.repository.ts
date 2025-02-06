@@ -25,9 +25,9 @@ export const deviceAuthSessionsRepository = {
         return updateInfo.matchedCount === 1;
     },
     async isActiveSession(deviceId: string, iat: Date): Promise<boolean> {
-        const refreshSession = await deviceAuthSessionsCollection
+        const deviceAuthSession = await deviceAuthSessionsCollection
             .findOne({ deviceId, iat });
-        return !!refreshSession;
+        return !!deviceAuthSession;
     },
     async terminateSession(deviceId: string): Promise<boolean> {
         const filterObj = { deviceId };

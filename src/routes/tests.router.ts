@@ -34,5 +34,19 @@ router.post('/mail', async (req: RequestWithBody<{ email: string }>,
 
     res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
 });
+router.get('/create', async (req: Request, res: Response) => {
+    const refreshToken = 'cool-token';
+    res.cookie('refreshToken', refreshToken, {
+        httpOnly: true,
+        secure: true,
+        maxAge: 2592000000,
+        path: '/',
+    });
+    res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
+});
+router.get('/delete', async (req: Request, res: Response) => {
+    res.clearCookie('refreshToken', { path: '/' });
+    res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
+});
 
 export { router as testsRouter };

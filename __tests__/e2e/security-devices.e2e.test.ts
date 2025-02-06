@@ -163,6 +163,9 @@ describe('tests for /security/devices', () => {
         const newRefreshToken1 = cookie.value;
         refreshTokens.user1[0] = newRefreshToken1;
 
+        await authTestManager.refreshToken(refreshToken1, HTTP_STATUSES.UNAUTHORIZED_401);
+        await authTestManager.logout(refreshToken1, HTTP_STATUSES.UNAUTHORIZED_401);
+
         const sessionsAfterRefreshResponse = await securityDevicesTestManager.getDeviceSessions(
             newRefreshToken1, HTTP_STATUSES.OK_200);
         const sessionsAfterRefresh = sessionsAfterRefreshResponse.body;

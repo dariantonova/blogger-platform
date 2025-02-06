@@ -4,8 +4,8 @@ export const attemptsService = {
     async deleteAllAttempts() {
         return attemptsRepository.deleteAllAttempts();
     },
-    async countRecentAttempts(ip: string, url: string, intervalMs: number) {
-        return attemptsRepository.countRecentAttempts(ip, url, intervalMs);
+    async countAttemptsFromDate(ip: string, url: string, fromDate: Date) {
+        return attemptsRepository.countAttemptsFromDate(ip, url, fromDate);
     },
     async createAttempt(ip: string, url: string) {
         return attemptsRepository.createAttempt(ip, url, new Date());

@@ -15,13 +15,15 @@ export const rateLimitingMiddleware = async (req: Request, res: Response, next: 
     }
 
     const url = req.originalUrl;
-    const numberOfRecentAttempts = await attemptsService.countRecentAttempts(ip, url, requestsLimit.interval);
-    if (numberOfRecentAttempts >= requestsLimit.numberOfAttemptsLimit) {
+    await attemptsService.createAttempt(ip, url);
+
+    const fromDate = new Date(Date.now() - requestsLimit.interval);
+
+    const numberOfRecentAttempts = await attemptsService.countAttemptsFromDate(ip, url, fromDate);
+    if (numberOfRecentAttempts > requestsLimit.numberOfAttemptsLimit) {
         res.sendStatus(HTTP_STATUSES.TOO_MANY_REQUESTS_429);
         return;
     }
-
-    await attemptsService.createAttempt(ip, url);
 
     next();
 };
