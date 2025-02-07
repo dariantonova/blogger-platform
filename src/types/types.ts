@@ -1,7 +1,7 @@
 import {Request} from 'express';
 import {CommentDBType} from "../features/comments/comments.types";
 import {OptionalId} from "mongodb";
-import {DeviceAuthSessionDbType} from "../features/auth/types/auth.types";
+import {DeviceAuthSessionDBType} from "../features/auth/types/auth.types";
 
 export type RequestWithBody<T> = Request<{}, {}, T>;
 export type RequestWithParams<T> = Request<T>;
@@ -55,7 +55,7 @@ export type UserDBType = {
     isDeleted: boolean,
 };
 
-export type AttemptDbType = {
+export type AttemptDBType = {
     ip: string,
     url: string,
     date: Date,
@@ -66,8 +66,8 @@ export type DBType = {
     posts: OptionalId<PostDBType>[],
     users: OptionalId<UserDBType>[],
     comments: OptionalId<CommentDBType>[],
-    deviceAuthSessions: OptionalId<DeviceAuthSessionDbType>[],
-    attempts: OptionalId<AttemptDbType>[],
+    deviceAuthSessions: OptionalId<DeviceAuthSessionDBType>[],
+    attempts: OptionalId<AttemptDBType>[],
 };
 
 export enum SortDirections {

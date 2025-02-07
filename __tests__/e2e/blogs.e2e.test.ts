@@ -5,7 +5,7 @@ import {BlogDBType, PostDBType} from "../../src/types/types";
 import {CreateBlogInputModel} from "../../src/features/blogs/models/CreateBlogInputModel";
 import {blogsTestManager} from "../test-managers/blogs-test-manager";
 import {websiteUrlPattern} from "../../src/validation/field-validators/blogs-field-validators";
-import {blogsCollection, client, postsCollection, runDb, setDb} from "../../src/db/db";
+import {BlogModel, blogsCollection, client, postsCollection, runDb, setDb} from "../../src/db/db";
 import {MongoMemoryServer} from "mongodb-memory-server";
 import {UpdateBlogInputModel} from "../../src/features/blogs/models/UpdateBlogInputModel";
 import {invalidAuthValues} from "../datasets/authorization-data";
@@ -17,6 +17,7 @@ import {invalidPageNumbers, invalidPageSizes} from "../datasets/validation/query
 import {createPostsPaginator} from "../../src/features/posts/posts.controller";
 import {validPostFieldInput} from "../datasets/validation/posts-validation-data";
 import {CreateBlogPostInputModel} from "../../src/features/blogs/models/CreateBlogPostInputModel";
+import mongoose from "mongoose";
 
 describe('tests for /blogs', () => {
     let server: MongoMemoryServer;
@@ -33,6 +34,7 @@ describe('tests for /blogs', () => {
     });
 
     afterAll(async () => {
+        await mongoose.connection.close();
         await client.close();
         await server.stop();
     });
@@ -1393,7 +1395,7 @@ describe('tests for /blogs', () => {
             await blogsTestManager
                 .createBlog(data, HTTP_STATUSES.CREATED_201);
 
-            const dbBlogs = await blogsCollection.find({}).toArray();
+            const dbBlogs = await BlogModel.find().lean();
             expect(dbBlogs.length).toBe(1);
         });
 

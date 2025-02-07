@@ -15,6 +15,7 @@ import {usersTestRepository} from "../repositories/users.test.repository";
 import {requestsLimit} from "../../src/middlewares/rate-limiting-middleware";
 import {LoginInputModel} from "../../src/features/auth/types/auth.types";
 import {authTestManager} from "../test-managers/auth-test-manager";
+import mongoose from "mongoose";
 
 
 describe('tests for /users', () => {
@@ -34,6 +35,7 @@ describe('tests for /users', () => {
     });
 
     afterAll(async () => {
+        await mongoose.connection.close();
         await client.close();
         await server.stop();
     });

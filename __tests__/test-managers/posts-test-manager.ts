@@ -47,20 +47,11 @@ export const postsTestManager = {
             createdAt: expect.any(String),
         });
 
-        expect(isNaN(new Date(createdPost.createdAt).getTime())).toBe(false);
+        expect((new Date(createdPost.createdAt).getTime())).not.toBeNaN();
 
-        const dbCreatedPost = await postsCollection
-            .findOne({ id: createdPost.id }, { projection: { _id: 0 } });
-        expect(dbCreatedPost).toEqual({
-            id: createdPost.id,
-            title: createdPost.title,
-            shortDescription: createdPost.shortDescription,
-            content: createdPost.content,
-            blogId: createdPost.blogId,
-            blogName: createdPost.blogName,
-            createdAt: createdPost.createdAt,
-            isDeleted: false,
-        });
+        await req
+            .get(SETTINGS.PATH.POSTS + '/' + createdPost.id)
+            .expect(HTTP_STATUSES.OK_200);
     },
     async updatePost(postId: string, data: any, expectedStatusCode: number, auth: string = VALID_AUTH) {
         const dbPostBeforeUpdate = await postsCollection

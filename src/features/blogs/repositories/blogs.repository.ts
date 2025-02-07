@@ -1,32 +1,31 @@
 import {BlogDBType} from "../../../types/types";
-import {blogsCollection} from "../../../db/db";
+import {BlogModel} from "../../../db/db";
 
 export const blogsRepository = {
     async deleteBlog(id: string): Promise<boolean> {
-        const updateBlogInfo = await blogsCollection.updateOne(
-            { isDeleted: false, id: id },
-            { $set: { isDeleted: true } }
+        const updateBlogInfo = await BlogModel.updateOne(
+            { isDeleted: false, id },
+            { isDeleted: true }
         );
 
         return updateBlogInfo.modifiedCount === 1;
     },
     async createBlog(createdBlog: BlogDBType) {
-        await blogsCollection.insertOne(createdBlog);
+        await BlogModel.create(createdBlog);
     },
     async updateBlog(id: string, name: string, description: string, websiteUrl: string): Promise<boolean> {
-        const updateBlogInfo = await blogsCollection.updateOne(
-            { isDeleted: false, id: id },
-            { $set: { name, description, websiteUrl } }
+        const updateBlogInfo = await BlogModel.updateOne(
+            { isDeleted: false, id },
+            { name, description, websiteUrl }
         );
 
         return updateBlogInfo.matchedCount === 1;
     },
     async deleteAllBlogs() {
-        await blogsCollection.drop();
+        await BlogModel.deleteMany({});
     },
     async findBlogById(id: string): Promise<BlogDBType | null> {
-        const filterObj: any = { isDeleted: false, id: id };
-        return blogsCollection
-            .findOne(filterObj, { projection: { _id: 0 } });
+        const filterObj: any = { isDeleted: false, id };
+        return BlogModel.findOne(filterObj, { _id: 0 }).lean();
     },
 };

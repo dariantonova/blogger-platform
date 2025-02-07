@@ -12,6 +12,7 @@ import {attemptsService} from "../../../src/application/attempts.service";
 import {defaultNumberOfAttemptsLimit} from "../../datasets/common-data";
 import {CreateUserInputModel} from "../../../src/features/users/models/CreateUserInputModel";
 import {validUserFieldInput} from "../../datasets/validation/users-validation-data";
+import mongoose from "mongoose";
 
 describe('tests for registration confirmation endpoint', () => {
     let server: MongoMemoryServer;
@@ -85,6 +86,7 @@ describe('tests for registration confirmation endpoint', () => {
     });
 
     afterAll(async () => {
+        await mongoose.connection.close();
         await client.close();
         await server.stop();
     });

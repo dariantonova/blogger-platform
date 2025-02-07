@@ -148,7 +148,7 @@ export const blogsController = {
             return;
         }
 
-        const totalCount = await postsQueryRepository.countPostsOfBlog(blogId);
+        const totalCount = await postsQueryRepository.countBlogPosts(blogId);
         const pagesCount = Math.ceil(totalCount / pageSize);
 
         const output = await postsQueryRepository.createPostsPaginator(

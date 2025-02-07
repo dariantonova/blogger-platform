@@ -10,6 +10,7 @@ import {requestsLimit} from "../../../src/middlewares/rate-limiting-middleware";
 import {attemptsService} from "../../../src/application/attempts.service";
 import {defaultNumberOfAttemptsLimit} from "../../datasets/common-data";
 import {usersService} from "../../../src/features/users/users.service";
+import mongoose from "mongoose";
 
 describe('tests for registration endpoint', () => {
     let server: MongoMemoryServer;
@@ -70,6 +71,7 @@ describe('tests for registration endpoint', () => {
     });
 
     afterAll(async () => {
+        await mongoose.connection.close();
         await client.close();
         await server.stop();
     });

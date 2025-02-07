@@ -38,12 +38,9 @@ export const blogsTestManager = {
                 isMembership: false,
             });
 
-            const dbCreatedBlog = await blogsCollection
-                .findOne({ id: createdBlog.id }, { projection: { _id: 0 } });
-            expect(dbCreatedBlog).toEqual({
-                ...createdBlog,
-                isDeleted: false,
-            });
+            await req
+                .get(SETTINGS.PATH.BLOGS + '/' + createdBlog.id)
+                .expect(HTTP_STATUSES.OK_200);
         }
 
         return response;

@@ -1,60 +1,60 @@
-import {postsCollection} from "../../../db/db";
+import {PostModel} from "../../../db/db";
 import {PostDBType, SortDirections} from "../../../types/types";
 
 export const postsRepository = {
     async deletePost(id: string): Promise<boolean> {
-        const updatePostInfo = await postsCollection.updateOne(
-            { isDeleted: false, id: id },
-            { $set: { isDeleted: true } }
+        const updatePostInfo = await PostModel.updateOne(
+            { isDeleted: false, id },
+            { isDeleted: true }
         );
 
         return updatePostInfo.modifiedCount === 1;
     },
     async createPost(createdPost: PostDBType) {
-        await postsCollection.insertOne(createdPost);
+        await PostModel.create(createdPost);
     },
     async updatePost(id: string, title: string, shortDescription: string,
                      content: string, blogId: string, blogName: string): Promise<boolean> {
-        const updatePostInfo = await postsCollection.updateOne(
-            { isDeleted: false, id: id },
-            { $set: { title, shortDescription, content, blogId, blogName } }
+        const updatePostInfo = await PostModel.updateOne(
+            { isDeleted: false, id },
+            { title, shortDescription, content, blogId, blogName }
         );
 
         return updatePostInfo.matchedCount === 1;
     },
     async deleteAllPosts() {
-        await postsCollection.drop();
+        await PostModel.deleteMany({});
     },
     async updatePostsBlogNames(blogId: string, blogName: string) {
-        await postsCollection.updateMany(
-            { isDeleted: false, blogId: blogId },
-            { $set: { blogName } }
+        await PostModel.updateMany(
+            { isDeleted: false, blogId },
+            { blogName }
         );
     },
     async deleteBlogPosts(blogId: string) {
-        await postsCollection.updateMany(
-            { isDeleted: false, blogId: blogId },
-            { $set: { isDeleted: true } }
+        await PostModel.updateMany(
+            { isDeleted: false, blogId },
+            { isDeleted: true }
         );
     },
     async findBlogPosts(blogId: string, sortBy: string, sortDirection: SortDirections,
                         pageNumber: number, pageSize: number): Promise<PostDBType[]> {
-        const filterObj: any = { isDeleted: false, blogId: blogId };
+        const filterObj: any = { isDeleted: false, blogId };
 
         const sortObj: any = {
             [sortBy]: sortDirection === SortDirections.ASC ? 1 : -1,
             _id: 1,
         };
 
-        return await postsCollection
-            .find(filterObj, { projection: { _id: 0 } })
+        return PostModel
+            .find(filterObj, { _id: 0 })
             .sort(sortObj)
             .skip((pageNumber - 1) * pageSize)
             .limit(pageSize)
-            .toArray() as PostDBType[];
+            .lean();
     },
     async findPostById(id: string): Promise<PostDBType | null> {
         const filterObj: any = { isDeleted: false, id };
-        return postsCollection.findOne(filterObj, { projection: { _id: 0 } });
+        return PostModel.findOne(filterObj, { _id: 0 }).lean();
     },
 };

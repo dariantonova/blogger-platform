@@ -21,6 +21,7 @@ import {usersTestManager} from "../test-managers/users-test-manager";
 import {CreateUserInputModel} from "../../src/features/users/models/CreateUserInputModel";
 import {commentsRepository} from "../../src/features/comments/comments.repository";
 import {requestsLimit} from "../../src/middlewares/rate-limiting-middleware";
+import mongoose from "mongoose";
 
 describe('tests for /posts', () => {
     let server: MongoMemoryServer;
@@ -39,6 +40,7 @@ describe('tests for /posts', () => {
     });
 
     afterAll(async () => {
+        await mongoose.connection.close();
         await client.close();
         await server.stop();
     });

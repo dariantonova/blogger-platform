@@ -8,6 +8,7 @@ import {SETTINGS} from "../../../src/settings";
 import {authTestManager} from "../../test-managers/auth-test-manager";
 import {defaultRefreshTokenLife} from "../../datasets/authorization-data";
 import {requestsLimit} from "../../../src/middlewares/rate-limiting-middleware";
+import mongoose from "mongoose";
 
 describe('tests for logout endpoint', () => {
     let server: MongoMemoryServer;
@@ -49,6 +50,7 @@ describe('tests for logout endpoint', () => {
     });
 
     afterAll(async () => {
+        await mongoose.connection.close();
         await client.close();
         await server.stop();
     });

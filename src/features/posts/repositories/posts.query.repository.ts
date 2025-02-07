@@ -1,5 +1,5 @@
 import {Paginator, PostDBType, SortDirections} from "../../../types/types";
-import {postsCollection} from "../../../db/db";
+import {PostModel} from "../../../db/db";
 import {PostViewModel} from "../models/PostViewModel";
 
 export const postsQueryRepository = {
@@ -12,20 +12,20 @@ export const postsQueryRepository = {
             _id: 1,
         };
 
-        const foundPosts = await postsCollection
-            .find(filterObj, { projection: { _id: 0 } })
+        const foundPosts = await PostModel
+            .find(filterObj, { _id: 0 })
             .sort(sortObj)
             .skip((pageNumber - 1) * pageSize)
             .limit(pageSize)
-            .toArray() as PostDBType[];
+            .lean();
         const totalCount = await this.countPosts();
         const pagesCount = Math.ceil(totalCount / pageSize);
 
         return this.createPostsPaginator(foundPosts, pageNumber, pageSize, pagesCount, totalCount);
     },
     async findPostById(id: string): Promise<PostViewModel | null> {
-        const foundPost = await postsCollection
-            .findOne({ isDeleted: false, id: id }, { projection: { _id: 0 } });
+        const foundPost = await PostModel
+            .findOne({ isDeleted: false, id }, { _id: 0 }).lean();
         if (!foundPost) {
             return null;
         }
@@ -34,11 +34,11 @@ export const postsQueryRepository = {
     },
     async countPosts(): Promise<number> {
         const filterObj: any = { isDeleted: false };
-        return postsCollection.countDocuments(filterObj);
+        return PostModel.countDocuments(filterObj);
     },
-    async countPostsOfBlog(blogId: string): Promise<number> {
-        const filterObj: any = { isDeleted: false, blogId: blogId };
-        return postsCollection.countDocuments(filterObj);
+    async countBlogPosts(blogId: string): Promise<number> {
+        const filterObj: any = { isDeleted: false, blogId };
+        return PostModel.countDocuments(filterObj);
     },
     async mapToOutput(dbPost: PostDBType): Promise<PostViewModel> {
         return {

@@ -1,12 +1,12 @@
 import {CommentDBType, CommentType, CommentViewModel} from "./comments.types";
-import {commentsCollection} from "../../db/db";
+import {CommentModel} from "../../db/db";
 import {ObjectId, WithId} from "mongodb";
 import {Paginator} from "../../types/types";
 
 export const commentsQueryRepository = {
     async findCommentById(id: string): Promise<CommentViewModel | null> {
         const filterObj: any = { isDeleted: false, _id: new ObjectId(id) };
-        const comment = await commentsCollection.findOne(filterObj);
+        const comment = await CommentModel.findOne(filterObj).lean();
         return comment ? this.mapToOutput(comment) : null;
     },
     async mapToOutput(dbComment: WithId<CommentDBType>): Promise<CommentViewModel> {
@@ -41,6 +41,6 @@ export const commentsQueryRepository = {
     },
     async countPostComments(postId: string): Promise<number> {
         const filterObj = { isDeleted: false, postId };
-        return commentsCollection.countDocuments(filterObj);
+        return CommentModel.countDocuments(filterObj);
     },
 };

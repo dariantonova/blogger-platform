@@ -9,6 +9,7 @@ import {HTTP_STATUSES} from "../../../src/utils";
 import {CommentDBType} from "../../../src/features/comments/comments.types";
 import {ObjectId, WithId} from "mongodb";
 import {commentsQueryRepository} from "../../../src/features/comments/comments.query.repository";
+import mongoose from "mongoose";
 
 describe('test for get comment endpoint', () => {
     let server: MongoMemoryServer;
@@ -30,6 +31,7 @@ describe('test for get comment endpoint', () => {
     });
 
     afterAll(async () => {
+        await mongoose.connection.close();
         await client.close();
         await server.stop();
     });

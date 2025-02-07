@@ -13,6 +13,7 @@ import {LoginInputModel} from "../../../src/features/auth/types/auth.types";
 import {authTestManager} from "../../test-managers/auth-test-manager";
 import {postsTestManager} from "../../test-managers/posts-test-manager";
 import {defaultAccessTokenLife} from "../../datasets/authorization-data";
+import mongoose from "mongoose";
 
 describe('tests for delete comment endpoint', () => {
     let server: MongoMemoryServer;
@@ -34,6 +35,7 @@ describe('tests for delete comment endpoint', () => {
     });
 
     afterAll(async () => {
+        await mongoose.connection.close();
         await client.close();
         await server.stop();
     });

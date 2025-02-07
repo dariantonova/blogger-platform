@@ -35,7 +35,7 @@ export type DeviceAuthSessionDTO = {
     exp: Date,
 };
 
-export type DeviceAuthSessionDbType = {
+export type DeviceAuthSessionDBType = {
     userId: string,
     deviceId: string,
     iat: Date,

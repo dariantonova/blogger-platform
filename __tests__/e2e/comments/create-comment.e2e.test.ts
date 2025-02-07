@@ -12,6 +12,7 @@ import {CommentDBType, CommentViewModel, CreateCommentInputModel} from "../../..
 import {validCommentFieldInput} from "../../datasets/validation/comments-validation-data";
 import {postsTestManager} from "../../test-managers/posts-test-manager";
 import {defaultAccessTokenLife} from "../../datasets/authorization-data";
+import mongoose from "mongoose";
 
 
 describe('tests for create comments endpoint', () => {
@@ -70,6 +71,7 @@ describe('tests for create comments endpoint', () => {
     });
 
     afterAll(async () => {
+        await mongoose.connection.close();
         await client.close();
         await server.stop();
     });

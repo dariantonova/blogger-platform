@@ -1,5 +1,5 @@
 import {BlogDBType, Paginator, SortDirections} from "../../../types/types";
-import {blogsCollection} from "../../../db/db";
+import {BlogModel} from "../../../db/db";
 import {BlogViewModel} from "../models/BlogViewModel";
 
 export const blogsQueryRepository = {
@@ -17,20 +17,20 @@ export const blogsQueryRepository = {
             _id: 1,
         };
 
-        const foundBlogs = await blogsCollection
-            .find(filterObj, { projection: { _id: 0 } })
+        const foundBlogs = await BlogModel
+            .find(filterObj, { _id: 0 })
             .sort(sortObj)
             .skip((pageNumber - 1) * pageSize)
             .limit(pageSize)
-            .toArray() as BlogDBType[];
+            .lean();
         const totalCount = await this.countBlogs(searchNameTerm);
         const pagesCount = Math.ceil(totalCount / pageSize);
 
         return this.createBlogsPaginator(foundBlogs, pageNumber, pageSize, pagesCount, totalCount);
     },
     async findBlogById(id: string): Promise<BlogViewModel | null> {
-        const foundBlog = await blogsCollection
-            .findOne({ isDeleted: false, id: id }, { projection: { _id: 0 } });
+        const foundBlog = await BlogModel
+            .findOne({ isDeleted: false, id }, { _id: 0 }).lean();
         if (!foundBlog) {
             return null;
         }
@@ -44,7 +44,7 @@ export const blogsQueryRepository = {
             filterObj.name = { $regex: searchNameTerm, $options: 'i' };
         }
 
-        return blogsCollection.countDocuments(filterObj);
+        return BlogModel.countDocuments(filterObj);
     },
     mapToOutput(dbBlog: BlogDBType): BlogViewModel {
         return {

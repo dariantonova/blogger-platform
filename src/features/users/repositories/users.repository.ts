@@ -1,17 +1,17 @@
 import {ConfirmationInfoType, UserDBType} from "../../../types/types";
-import {usersCollection} from "../../../db/db";
+import {UserModel} from "../../../db/db";
 
 export const usersRepository = {
     async createUser(createdUser: UserDBType) {
-        await usersCollection.insertOne(createdUser);
+        await UserModel.create(createdUser);
     },
     async findUserByLogin(login: string): Promise<UserDBType | null> {
-        const filterObj: any = { isDeleted: false, login: login };
-        return usersCollection.findOne(filterObj, { projection: { _id: 0 } });
+        const filterObj: any = { isDeleted: false, login };
+        return UserModel.findOne(filterObj, { _id: 0 }).lean();
     },
     async findUserByEmail(email: string): Promise<UserDBType | null> {
-        const filterObj: any = { isDeleted: false, email: email };
-        return usersCollection.findOne(filterObj, { projection: { _id: 0 } });
+        const filterObj: any = { isDeleted: false, email };
+        return UserModel.findOne(filterObj, { _id: 0 }).lean();
     },
     async findUserByLoginOrEmail(loginOrEmail: string): Promise<UserDBType | null> {
         const filterObj: any = {
@@ -20,43 +20,43 @@ export const usersRepository = {
                 { $or: [ { login: loginOrEmail }, { email: loginOrEmail } ] }
             ]
         };
-        return usersCollection.findOne(filterObj, { projection: { _id: 0 } });
+        return UserModel.findOne(filterObj, { _id: 0 }).lean();
     },
     async findUserById(id: string): Promise<UserDBType | null> {
-        const filterObj: any = { isDeleted: false, id: id };
-        return usersCollection.findOne(filterObj, { projection: { _id: 0 } });
+        const filterObj: any = { isDeleted: false, id };
+        return UserModel.findOne(filterObj, { _id: 0 }).lean();
     },
     async findUserByConfirmationCode(confirmationCode: string): Promise<UserDBType | null> {
         const filterObj: any = {
             isDeleted: false,
             'confirmationInfo.confirmationCode': confirmationCode };
-        return usersCollection.findOne(filterObj, { projection: { _id: 0 } });
+        return UserModel.findOne(filterObj, { _id: 0 }).lean();
     },
     async confirmUserRegistration(id: string) {
-        const updateUserInfo = await usersCollection.updateOne(
-            { isDeleted: false, id: id },
-            { $set: { 'confirmationInfo.isConfirmed': true } }
+        const updateUserInfo = await UserModel.updateOne(
+            { isDeleted: false, id },
+            { 'confirmationInfo.isConfirmed': true }
         );
 
         return updateUserInfo.modifiedCount === 1;
     },
     async updateUserConfirmationInfo(id: string, confirmationInfo: ConfirmationInfoType) {
-        const updateUserInfo = await usersCollection.updateOne(
+        const updateUserInfo = await UserModel.updateOne(
             { isDeleted: false, id },
-            { $set: { confirmationInfo } }
+            { confirmationInfo }
         );
 
         return updateUserInfo.modifiedCount === 1;
     },
     async deleteUser(id: string): Promise<boolean> {
-        const updateUserInfo = await usersCollection.updateOne(
-            { isDeleted: false, id: id },
-            { $set: { isDeleted: true } }
+        const updateUserInfo = await UserModel.updateOne(
+            { isDeleted: false, id },
+            { isDeleted: true }
         );
 
         return updateUserInfo.modifiedCount === 1;
     },
     async deleteAllUsers() {
-        await usersCollection.drop();
+        await UserModel.deleteMany({});
     },
 };

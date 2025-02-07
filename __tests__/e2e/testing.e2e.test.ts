@@ -3,6 +3,7 @@ import {MongoMemoryServer} from "mongodb-memory-server";
 import {req} from "../test-helpers";
 import {SETTINGS} from "../../src/settings";
 import {BlogDBType, PostDBType} from "../../src/types/types";
+import mongoose from "mongoose";
 
 describe('tests for /testing', () => {
     let server: MongoMemoryServer;
@@ -16,6 +17,7 @@ describe('tests for /testing', () => {
     });
 
     afterAll(async () => {
+        await mongoose.connection.close();
         await client.close();
         await server.stop();
     });

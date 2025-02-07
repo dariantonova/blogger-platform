@@ -12,6 +12,7 @@ import {defaultAccessTokenLife} from "../../datasets/authorization-data";
 import {requestsLimit} from "../../../src/middlewares/rate-limiting-middleware";
 import {defaultNumberOfAttemptsLimit} from "../../datasets/common-data";
 import {attemptsService} from "../../../src/application/attempts.service";
+import mongoose from "mongoose";
 
 describe('tests for /auth', () => {
     let server: MongoMemoryServer;
@@ -30,6 +31,7 @@ describe('tests for /auth', () => {
     });
 
     afterAll(async () => {
+        await mongoose.connection.close();
         await client.close();
         await server.stop();
     });

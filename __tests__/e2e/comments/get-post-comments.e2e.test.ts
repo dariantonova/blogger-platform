@@ -10,6 +10,7 @@ import {DEFAULT_QUERY_VALUES} from "../../../src/helpers/query-params-values";
 import {commentsQueryRepository} from "../../../src/features/comments/comments.query.repository";
 import {postsTestManager} from "../../test-managers/posts-test-manager";
 import {invalidPageNumbers, invalidPageSizes} from "../../datasets/validation/query-validation-data";
+import mongoose from "mongoose";
 
 describe('tests for get post comments endpoint', () => {
     let server: MongoMemoryServer;
@@ -90,6 +91,7 @@ describe('tests for get post comments endpoint', () => {
     });
 
     afterAll(async () => {
+        await mongoose.connection.close();
         await client.close();
         await server.stop();
     });

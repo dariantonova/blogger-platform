@@ -1,12 +1,12 @@
-import {deviceAuthSessionsCollection} from "../../db/db";
-import {DeviceAuthSessionDbType, DeviceAuthSessionDTO} from "./types/auth.types";
+import {DeviceAuthSessionModel} from "../../db/db";
+import {DeviceAuthSessionDBType, DeviceAuthSessionDTO} from "./types/auth.types";
 
 export const deviceAuthSessionsRepository = {
     async deleteAllDeviceAuthSessions() {
-        await deviceAuthSessionsCollection.drop();
+        await DeviceAuthSessionModel.deleteMany({});
     },
     async createDeviceAuthSession({ userId, deviceId, iat, deviceName, ip, exp }: DeviceAuthSessionDTO): Promise<string> {
-        const deviceAuthSession: DeviceAuthSessionDbType = {
+        const deviceAuthSession: DeviceAuthSessionDBType = {
             userId,
             deviceId,
             iat,
@@ -14,35 +14,35 @@ export const deviceAuthSessionsRepository = {
             ip,
             exp,
         };
-        const insertInfo = await deviceAuthSessionsCollection.insertOne(deviceAuthSession);
-        return insertInfo.insertedId.toString();
+        const insertInfo = await DeviceAuthSessionModel.create(deviceAuthSession);
+        return insertInfo._id.toString();
     },
     async updateDeviceAuthSession(deviceId: string, iat: Date, exp: Date, ip: string): Promise<boolean> {
-        const updateInfo = await deviceAuthSessionsCollection.updateOne(
+        const updateInfo = await DeviceAuthSessionModel.updateOne(
             { deviceId },
-            { $set: { iat, exp, ip } }
+            { iat, exp, ip }
         );
         return updateInfo.matchedCount === 1;
     },
     async isActiveSession(deviceId: string, iat: Date): Promise<boolean> {
-        const deviceAuthSession = await deviceAuthSessionsCollection
+        const deviceAuthSession = await DeviceAuthSessionModel
             .findOne({ deviceId, iat });
         return !!deviceAuthSession;
     },
     async terminateSession(deviceId: string): Promise<boolean> {
         const filterObj = { deviceId };
-        const deleteInfo = await deviceAuthSessionsCollection.deleteOne(filterObj);
+        const deleteInfo = await DeviceAuthSessionModel.deleteOne(filterObj);
         return deleteInfo.deletedCount === 1;
     },
     async deleteUserSessions(userId: string) {
         const filterObj = { userId };
-        await deviceAuthSessionsCollection.deleteMany(filterObj);
+        await DeviceAuthSessionModel.deleteMany(filterObj);
     },
     async terminateAllOtherUserSessions(userId: string, currentDeviceId: string) {
         const filterObj = { userId, deviceId: { $ne: currentDeviceId } };
-        await deviceAuthSessionsCollection.deleteMany(filterObj);
+        await DeviceAuthSessionModel.deleteMany(filterObj);
     },
-    async findSessionByDeviceId(deviceId: string): Promise<DeviceAuthSessionDbType | null> {
-        return deviceAuthSessionsCollection.findOne({ deviceId }, { projection: { _id: 0 } });
+    async findSessionByDeviceId(deviceId: string): Promise<DeviceAuthSessionDBType | null> {
+        return DeviceAuthSessionModel.findOne({ deviceId }, { _id: 0 }).lean();
     },
 };

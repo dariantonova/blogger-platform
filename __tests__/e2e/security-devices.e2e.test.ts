@@ -11,12 +11,12 @@ import {req} from "../test-helpers";
 import {Cookie, CookieAccessInfo} from "cookiejar";
 import {SETTINGS} from "../../src/settings";
 import {defaultRefreshTokenLife} from "../datasets/authorization-data";
+import mongoose from "mongoose";
 
 
 describe('tests for /security/devices', () => {
     let server: MongoMemoryServer;
     let createUsersData: CreateUserInputModel[];
-    let createdUserIds: string[];
     let refreshTokens: { user1: string[], user2: string[] } = { user1: [], user2: [] };
     let deviceIds: { user1: string[], user2: string[] } = { user1: [], user2: [] };
 
@@ -46,11 +46,9 @@ describe('tests for /security/devices', () => {
             },
         ];
 
-        createdUserIds = [];
         for (const createUserData of createUsersData) {
-            const createUserResponse = await usersTestManager.createUser(createUserData,
+            await usersTestManager.createUser(createUserData,
                 HTTP_STATUSES.CREATED_201);
-            createdUserIds.push(createUserResponse.body.id);
         }
 
         const user2Data = createUsersData[1];
@@ -61,6 +59,7 @@ describe('tests for /security/devices', () => {
     });
 
     afterAll(async () => {
+        await mongoose.connection.close();
         await client.close();
         await server.stop();
     });

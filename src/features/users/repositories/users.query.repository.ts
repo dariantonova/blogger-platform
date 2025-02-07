@@ -1,6 +1,6 @@
 import {Paginator, SortDirections, UserDBType} from "../../../types/types";
 import {UserViewModel} from "../models/UserViewModel";
-import {usersCollection} from "../../../db/db";
+import {UserModel} from "../../../db/db";
 
 export const usersQueryRepository = {
     async findUsers(sortBy: string, sortDirection: SortDirections,
@@ -34,12 +34,12 @@ export const usersQueryRepository = {
             _id: 1,
         };
 
-        const foundUsers = await usersCollection
-            .find(filterObj, { projection: { _id: 0 } })
+        const foundUsers = await UserModel
+            .find(filterObj, { _id: 0 })
             .sort(sortObj)
             .skip((pageNumber - 1) * pageSize)
             .limit(pageSize)
-            .toArray() as UserDBType[];
+            .lean();
         const totalCount = await this.countUsers(searchLoginTerm, searchEmailTerm);
         const pagesCount = Math.ceil(totalCount / pageSize);
 
@@ -69,12 +69,12 @@ export const usersQueryRepository = {
             });
         }
 
-        return usersCollection.countDocuments(filterObj);
+        return UserModel.countDocuments(filterObj);
     },
     async findUserById(id: string): Promise<UserViewModel | null> {
-        const filterObj: any = { isDeleted: false, id: id };
-        const foundUser = await usersCollection
-            .findOne(filterObj, { projection: { _id: 0 } });
+        const filterObj: any = { isDeleted: false, id };
+        const foundUser = await UserModel
+            .findOne(filterObj, { _id: 0 }).lean();
         return foundUser ? this.mapToOutput(foundUser) : null;
     },
     async mapToOutput(dbUser: UserDBType): Promise<UserViewModel> {

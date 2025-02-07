@@ -1,5 +1,5 @@
 import {CommentDBType, CommentType} from "./comments.types";
-import {commentsCollection} from "../../db/db";
+import {CommentModel} from "../../db/db";
 import {SortDirections} from "../../types/types";
 import {ObjectId, WithId} from "mongodb";
 
@@ -12,8 +12,8 @@ export const commentsRepository = {
             createdAt: comment.createdAt,
             isDeleted: false,
         };
-        const insertInfo = await commentsCollection.insertOne(dbComment);
-        return insertInfo.insertedId.toString();
+        const insertInfo = await CommentModel.create(dbComment);
+        return insertInfo._id.toString();
     },
     async findPostComments(postId: string, sortBy: string, sortDirection: SortDirections,
                            pageNumber: number, pageSize: number): Promise<CommentType[]> {
@@ -32,12 +32,12 @@ export const commentsRepository = {
             sortObj._id = sortDirection === SortDirections.ASC ? 1 : -1;
         }
 
-        const foundComments = await commentsCollection
+        const foundComments = await CommentModel
             .find(filterObj)
             .sort(sortObj)
             .skip((pageNumber - 1) * pageSize)
             .limit(pageSize)
-            .toArray();
+            .lean();
 
         return Promise.all(foundComments.map(this.mapToBusinessEntity));
     },
@@ -51,33 +51,33 @@ export const commentsRepository = {
         };
     },
     async deleteAllComments() {
-        await commentsCollection.drop();
+        await CommentModel.deleteMany({});
     },
     async findCommentById(id: string): Promise<CommentType | null> {
         const filterObj = { isDeleted: false, _id: new ObjectId(id) };
-        const foundComment = await commentsCollection.findOne(filterObj);
+        const foundComment = await CommentModel.findOne(filterObj).lean();
         return foundComment ? this.mapToBusinessEntity(foundComment) : null;
     },
     async deleteComment(id: string): Promise<boolean> {
-        const updateInfo = await commentsCollection.updateOne(
+        const updateInfo = await CommentModel.updateOne(
             { isDeleted: false, _id: new ObjectId(id) },
-            { $set: { isDeleted: true } }
+            { isDeleted: true }
         );
 
         return updateInfo.modifiedCount === 1;
     },
     async updateComment(id: string, content: string): Promise<boolean> {
-        const updateInfo = await commentsCollection.updateOne(
+        const updateInfo = await CommentModel.updateOne(
             { isDeleted: false, _id: new ObjectId(id) },
-            { $set: { content } }
+            { content }
         );
 
         return updateInfo.matchedCount === 1;
     },
     async deletePostComments(postId: string) {
-        await commentsCollection.updateMany(
+        await CommentModel.updateMany(
             { isDeleted: false, postId },
-            { $set: { isDeleted: true } }
+            { isDeleted: true }
         );
     },
 };

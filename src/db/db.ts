@@ -1,19 +1,95 @@
-import {AttemptDbType, BlogDBType, DBType, PostDBType, UserDBType} from "../types/types";
-import {Collection, MongoClient} from "mongodb";
+import {AttemptDBType, BlogDBType, DBType, PostDBType, UserDBType} from "../types/types";
+import {Collection, MongoClient, WithId} from "mongodb";
 import {SETTINGS} from "../settings";
 import {CommentDBType} from "../features/comments/comments.types";
-import {DeviceAuthSessionDbType} from "../features/auth/types/auth.types";
+import {DeviceAuthSessionDBType} from "../features/auth/types/auth.types";
+import * as mongoose from "mongoose";
+
+const { Schema }  = mongoose;
+
+const blogSchema = new Schema<WithId<BlogDBType>>({
+    id: { type: String, required: true },
+    name: { type: String, required: true },
+    description: { type: String, required: true },
+    websiteUrl: { type: String, required: true },
+    isDeleted: { type: Boolean, required: true },
+    createdAt: { type: String, required: true },
+    isMembership: { type: Boolean, required: true },
+});
+
+const postSchema = new Schema<WithId<PostDBType>>({
+    id: { type: String, required: true },
+    title: { type: String, required: true },
+    shortDescription: { type: String, required: true },
+    content: { type: String, required: true },
+    blogId: { type: String, required: true },
+    blogName: { type: String, required: true },
+    isDeleted: { type: Boolean, required: true },
+    createdAt: { type: String, required: true },
+});
+
+const userSchema = new Schema<WithId<UserDBType>>({
+    id: { type: String, required: true },
+    login: { type: String, required: true },
+    email: { type: String, required: true },
+    createdAt: { type: Date, required: true },
+    passwordHash: { type: String, required: true },
+    confirmationInfo: {
+        confirmationCode: { type: String, default: '' },
+        expirationDate: { type: Date, required: true },
+        isConfirmed: { type: Boolean, required: true },
+    },
+    isDeleted: { type: Boolean, required: true },
+});
+
+const commentSchema = new Schema<WithId<CommentDBType>>({
+    content: { type: String, required: true },
+    postId: { type: String, required: true },
+    commentatorInfo: {
+        userId: { type: String, required: true },
+        userLogin: { type: String, required: true },
+    },
+    createdAt: { type: String, required: true },
+    isDeleted: { type: Boolean, required: true },
+});
+
+const deviceAuthSessionSchema = new Schema<WithId<DeviceAuthSessionDBType>>({
+    userId: { type: String, required: true },
+    deviceId: { type: String, required: true },
+    iat: { type: Date, required: true },
+    deviceName: { type: String, required: true },
+    ip: { type: String, required: true },
+    exp: { type: Date, required: true },
+});
+
+const attemptSchema = new Schema<WithId<AttemptDBType>>({
+    ip: { type: String, required: true },
+    url: { type: String, required: true },
+    date: { type: Date, required: true },
+});
+
+export const BlogModel = mongoose.model('blogs', blogSchema);
+export const PostModel = mongoose.model('posts', postSchema);
+export const UserModel = mongoose.model('users', userSchema);
+export const CommentModel = mongoose.model('comments', commentSchema);
+export const DeviceAuthSessionModel = mongoose.model('device-auth-sessions', deviceAuthSessionSchema);
+export const AttemptModel = mongoose.model('attempts', attemptSchema);
 
 export let client: MongoClient;
 export let blogsCollection: Collection<BlogDBType>;
 export let postsCollection: Collection<PostDBType>;
 export let usersCollection: Collection<UserDBType>;
 export let commentsCollection: Collection<CommentDBType>;
-export let deviceAuthSessionsCollection: Collection<DeviceAuthSessionDbType>;
-export let attemptsCollection: Collection<AttemptDbType>;
+export let deviceAuthSessionsCollection: Collection<DeviceAuthSessionDBType>;
+export let attemptsCollection: Collection<AttemptDBType>;
 
 export const runDb = async (url: string): Promise<boolean> => {
     try {
+        const urlDelimiter = url.endsWith('/') ? '' : '/';
+
+        await mongoose.connect(url + urlDelimiter + SETTINGS.DB_NAME);
+        console.log('Successfully connected to mongo server via Mongoose');
+
         client = new MongoClient(url);
         const db = client.db(SETTINGS.DB_NAME);
 
@@ -21,17 +97,18 @@ export const runDb = async (url: string): Promise<boolean> => {
         postsCollection = db.collection<PostDBType>('posts');
         usersCollection = db.collection<UserDBType>('users');
         commentsCollection = db.collection<CommentDBType>('comments');
-        deviceAuthSessionsCollection = db.collection<DeviceAuthSessionDbType>('device-auth-sessions');
-        attemptsCollection = db.collection<AttemptDbType>('attempts');
+        deviceAuthSessionsCollection = db.collection<DeviceAuthSessionDBType>('device-auth-sessions');
+        attemptsCollection = db.collection<AttemptDBType>('attempts');
 
         await client.connect();
         await db.command({ ping: 1 });
-        console.log('Successfully connected to mongo server');
+        console.log('Successfully connected to mongo server via MongoClient');
         return true;
     }
     catch {
         console.log('Cannot connect to mongo server');
         await client.close();
+        await mongoose.disconnect();
         return false;
     }
 };
@@ -142,8 +219,8 @@ const posts: PostDBType[] = [
 
 const users: UserDBType[] = [];
 const comments: CommentDBType[] = [];
-const deviceAuthSessions: DeviceAuthSessionDbType[] = [];
-const attempts: AttemptDbType[] = [];
+const deviceAuthSessions: DeviceAuthSessionDBType[] = [];
+const attempts: AttemptDBType[] = [];
 
 export const initialDb: DBType = {
     blogs,

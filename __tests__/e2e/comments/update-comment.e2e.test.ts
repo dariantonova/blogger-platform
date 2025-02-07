@@ -13,6 +13,7 @@ import {authTestManager} from "../../test-managers/auth-test-manager";
 import {validCommentFieldInput} from "../../datasets/validation/comments-validation-data";
 import {commentsTestManager} from "../../test-managers/comments-test-manager";
 import {defaultAccessTokenLife} from "../../datasets/authorization-data";
+import mongoose from "mongoose";
 
 
 describe('tests for update comment endpoint', () => {
@@ -35,6 +36,7 @@ describe('tests for update comment endpoint', () => {
     });
 
     afterAll(async () => {
+        await mongoose.connection.close();
         await client.close();
         await server.stop();
     });
