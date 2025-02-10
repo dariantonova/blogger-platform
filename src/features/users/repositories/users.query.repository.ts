@@ -100,5 +100,3 @@ export class UsersQueryRepository {
         );
     };
 }
-
-export const usersQueryRepository = new UsersQueryRepository();

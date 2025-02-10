@@ -9,13 +9,10 @@ import {ResultStatus} from "../../common/result/resultStatus";
 import {resultStatusToHttp} from "../../common/result/resultStatusToHttp";
 import {HTTP_STATUSES} from "../../utils";
 
-class SecurityDevicesController {
-    private securityDevicesService: SecurityDevicesService;
-    private deviceAuthSessionsQueryRepository: DeviceAuthSessionsQueryRepository;
-    constructor() {
-        this.securityDevicesService = new SecurityDevicesService();
-        this.deviceAuthSessionsQueryRepository = new DeviceAuthSessionsQueryRepository();
-    }
+export class SecurityDevicesController {
+    constructor(protected securityDevicesService: SecurityDevicesService,
+                protected deviceAuthSessionsQueryRepository: DeviceAuthSessionsQueryRepository
+    ) {}
 
     async getDeviceSessions (req: Request, res: Response<DeviceViewModel[]>) {
         const user = req.user as UserDBType;
@@ -47,5 +44,3 @@ class SecurityDevicesController {
         res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
     };
 }
-
-export const securityDevicesController = new SecurityDevicesController();

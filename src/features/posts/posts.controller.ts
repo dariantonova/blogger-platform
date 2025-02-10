@@ -16,7 +16,7 @@ import {CreatePostInputModel} from "./models/CreatePostInputModel";
 import {UpdatePostInputModel} from "./models/UpdatePostInputModel";
 import {PostsService} from "./posts.service";
 import {QueryPostsModel} from "./models/QueryPostsModel";
-import {PostsQueryRepository, postsQueryRepository} from "./repositories/posts.query.repository";
+import {PostsQueryRepository} from "./repositories/posts.query.repository";
 import {getPostsQueryParamsValues, getQueryParamsValues} from "../../helpers/query-params-values";
 import {CommentType, CommentViewModel, CreateCommentInputModel} from "../comments/comments.types";
 import {CommentsService} from "../comments/comments.service";
@@ -24,6 +24,7 @@ import {ResultStatus} from "../../common/result/resultStatus";
 import {resultStatusToHttp} from "../../common/result/resultStatusToHttp";
 import {CommentsQueryRepository} from "../comments/comments.query.repository";
 import {QueryCommentsModel} from "./models/QueryCommentsModel";
+import {postsQueryRepository} from "../../composition-root";
 
 export const createPostsPaginator = async (items: PostDBType[], page: number, pageSize: number,
                                      pagesCount: number, totalCount: number): Promise<Paginator<PostViewModel>> => {
@@ -40,17 +41,12 @@ export const createPostsPaginator = async (items: PostDBType[], page: number, pa
     );
 };
 
-class PostsController {
-    private postsService: PostsService;
-    private postsQueryRepository: PostsQueryRepository;
-    private commentsService: CommentsService;
-    private commentsQueryRepository: CommentsQueryRepository;
-    constructor() {
-        this.postsService = new PostsService();
-        this.postsQueryRepository = new PostsQueryRepository();
-        this.commentsService = new CommentsService();
-        this.commentsQueryRepository = new CommentsQueryRepository();
-    }
+export class PostsController {
+    constructor(protected postsService: PostsService,
+                protected postsQueryRepository: PostsQueryRepository,
+                protected commentsService: CommentsService,
+                protected commentsQueryRepository: CommentsQueryRepository
+    ) {}
 
     async getPosts (req: RequestWithQuery<QueryPostsModel>,
                     res: Response<Paginator<PostViewModel>>) {
@@ -195,5 +191,3 @@ class PostsController {
         res.json(output);
     };
 }
-
-export const postsController = new PostsController();

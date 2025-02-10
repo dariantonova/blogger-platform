@@ -29,5 +29,3 @@ export class BlogsRepository {
         return BlogModel.findOne(filterObj, { _id: 0 }).lean();
     };
 }
-
-export const blogsRepository = new BlogsRepository();

@@ -28,5 +28,3 @@ export class NodemailerService {
         return transporter.sendMail(mail);
     };
 }
-
-export const nodemailerService = new NodemailerService();

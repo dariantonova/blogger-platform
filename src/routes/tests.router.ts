@@ -1,13 +1,15 @@
 import {Request, Response, Router} from 'express';
 import {HTTP_STATUSES} from "../utils";
-import {blogsService} from "../features/blogs/blogs.service";
-import {postsService} from "../features/posts/posts.service";
-import {usersService} from "../features/users/users.service";
-import {commentsService} from "../features/comments/comments.service";
 import {RequestWithBody} from "../types/types";
-import {emailManager} from "../application/email.manager";
-import {authService} from "../features/auth/auth.service";
-import {attemptsService} from "../application/attempts.service";
+import {
+    attemptsService,
+    authService,
+    blogsService,
+    commentsService,
+    emailManager,
+    postsService,
+    usersService
+} from "../composition-root";
 
 const router = Router();
 

@@ -4,12 +4,9 @@ import {DeviceAuthSessionsRepository} from "../auth/device-auth-sessions.reposit
 import {ResultStatus} from "../../common/result/resultStatus";
 
 export class SecurityDevicesService {
-    private deviceAuthSessionsRepository: DeviceAuthSessionsRepository;
-    private jwtService: JwtService;
-    constructor() {
-        this.deviceAuthSessionsRepository = new DeviceAuthSessionsRepository();
-        this.jwtService = new JwtService();
-    }
+    constructor(protected deviceAuthSessionsRepository: DeviceAuthSessionsRepository,
+                protected jwtService: JwtService
+    ) {}
 
     async terminateAllOtherDeviceSessions(refreshToken: string): Promise<Result<null>> {
         const refTokenPayload = await this.jwtService.decodeRefreshToken(refreshToken);
@@ -58,5 +55,3 @@ export class SecurityDevicesService {
         };
     };
 }
-
-export const securityDevicesService = new SecurityDevicesService();

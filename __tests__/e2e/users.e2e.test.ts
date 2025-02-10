@@ -5,7 +5,6 @@ import {SETTINGS} from "../../src/settings";
 import {HTTP_STATUSES} from "../../src/utils";
 import {invalidAuthValues} from "../datasets/authorization-data";
 import {usersTestManager} from "../test-managers/users-test-manager";
-import {usersQueryRepository} from "../../src/features/users/repositories/users.query.repository";
 import {DEFAULT_QUERY_VALUES} from "../../src/helpers/query-params-values";
 import {UserDBType} from "../../src/types/types";
 import {invalidPageNumbers, invalidPageSizes} from "../datasets/validation/query-validation-data";
@@ -16,6 +15,7 @@ import {requestsLimit} from "../../src/middlewares/rate-limiting-middleware";
 import {LoginInputModel} from "../../src/features/auth/types/auth.types";
 import {authTestManager} from "../test-managers/auth-test-manager";
 import mongoose from "mongoose";
+import {usersQueryRepository} from "../../src/composition-root";
 
 
 describe('tests for /users', () => {

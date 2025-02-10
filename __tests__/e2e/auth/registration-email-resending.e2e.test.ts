@@ -6,12 +6,11 @@ import {authTestManager} from "../../test-managers/auth-test-manager";
 import {HTTP_STATUSES} from "../../../src/utils";
 import {RegistrationEmailResending} from "../../../src/features/auth/types/auth.types";
 import {requestsLimit} from "../../../src/middlewares/rate-limiting-middleware";
-import {usersService} from "../../../src/features/users/users.service";
-import {attemptsService} from "../../../src/application/attempts.service";
 import {defaultNumberOfAttemptsLimit} from "../../datasets/common-data";
 import {CreateUserInputModel} from "../../../src/features/users/models/CreateUserInputModel";
 import {validUserFieldInput} from "../../datasets/validation/users-validation-data";
 import mongoose from "mongoose";
+import {attemptsService, usersService} from "../../../src/composition-root";
 
 describe('tests for registration email resending', () => {
     let server: MongoMemoryServer;

@@ -60,5 +60,3 @@ export class UsersRepository {
         await UserModel.deleteMany({});
     };
 }
-
-export const usersRepository = new UsersRepository();

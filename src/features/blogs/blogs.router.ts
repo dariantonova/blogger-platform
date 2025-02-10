@@ -1,6 +1,5 @@
 import {Router} from 'express';
 import {basicAuthorizationMiddleware} from "../../middlewares/basic-authorization-middleware";
-import {blogsController} from "./blogs.controller";
 import {
     descriptionFieldValidator,
     nameFieldValidator,
@@ -17,6 +16,7 @@ import {
     titleFieldValidator
 } from "../../validation/field-validators/posts-field-validators";
 import {queryValidationErrorMiddleware} from "../../validation/query-validation-error-middleware";
+import {blogsController} from "../../composition-root";
 
 const router = Router();
 

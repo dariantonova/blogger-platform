@@ -13,14 +13,10 @@ export const confirmationCodeLifetime = {
 };
 
 export class UsersService {
-    private usersRepository: UsersRepository;
-    private deviceAuthSessionsRepository: DeviceAuthSessionsRepository;
-    private cryptoService: CryptoService;
-    constructor() {
-        this.usersRepository = new UsersRepository();
-        this.deviceAuthSessionsRepository = new DeviceAuthSessionsRepository();
-        this.cryptoService = new CryptoService();
-    }
+    constructor(protected usersRepository: UsersRepository,
+                protected deviceAuthSessionsRepository: DeviceAuthSessionsRepository,
+                protected cryptoService: CryptoService
+    ) {}
 
     async createUser(login: string, email: string, password: string, isConfirmed: boolean): Promise<Result<string | null>> {
         const userWithLogin = await this.usersRepository.findUserByLogin(login);
@@ -101,5 +97,3 @@ export class UsersService {
         return this.usersRepository.findUserById(id);
     };
 }
-
-export const usersService = new UsersService();

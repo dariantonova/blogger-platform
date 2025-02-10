@@ -4,14 +4,10 @@ import {BlogsRepository} from "../blogs/repositories/blogs.repository";
 import {CommentsRepository} from "../comments/comments.repository";
 
 export class PostsService {
-    private postsRepository: PostsRepository;
-    private blogsRepository: BlogsRepository;
-    private commentsRepository: CommentsRepository;
-    constructor() {
-        this.postsRepository = new PostsRepository();
-        this.blogsRepository = new BlogsRepository();
-        this.commentsRepository = new CommentsRepository();
-    }
+    constructor(protected postsRepository: PostsRepository,
+                protected blogsRepository: BlogsRepository,
+                protected commentsRepository: CommentsRepository
+    ) {}
 
     async deletePost(id: string): Promise<boolean> {
         const isDeleted = await this.postsRepository.deletePost(id);
@@ -70,5 +66,3 @@ export class PostsService {
         return this.postsRepository.findPostById(id);
     };
 }
-
-export const postsService = new PostsService();

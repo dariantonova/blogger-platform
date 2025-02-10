@@ -7,10 +7,10 @@ import {client, runDb, setDb} from "../../../src/db/db";
 import {usersTestManager} from "../../test-managers/users-test-manager";
 import {HTTP_STATUSES} from "../../../src/utils";
 import {DEFAULT_QUERY_VALUES} from "../../../src/helpers/query-params-values";
-import {commentsQueryRepository} from "../../../src/features/comments/comments.query.repository";
 import {postsTestManager} from "../../test-managers/posts-test-manager";
 import {invalidPageNumbers, invalidPageSizes} from "../../datasets/validation/query-validation-data";
 import mongoose from "mongoose";
+import {commentsQueryRepository} from "../../../src/composition-root";
 
 describe('tests for get post comments endpoint', () => {
     let server: MongoMemoryServer;

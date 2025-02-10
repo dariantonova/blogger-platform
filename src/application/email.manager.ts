@@ -1,10 +1,7 @@
 import {NodemailerService} from "./nodemailer.service";
 
 export class EmailManager {
-    private nodemailerService: NodemailerService;
-    constructor() {
-        this.nodemailerService = new NodemailerService();
-    }
+    constructor(protected nodemailerService: NodemailerService) {}
 
     async sendRegistrationMessage(email: string, confirmationCode: string) {
         const subject = 'Finish registration';
@@ -16,5 +13,3 @@ export class EmailManager {
         return this.nodemailerService.sendEmail(email, subject, message);
     };
 }
-
-export const emailManager = new EmailManager();

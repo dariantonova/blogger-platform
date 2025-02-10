@@ -38,5 +38,3 @@ export class DeviceAuthSessionsRepository {
         return DeviceAuthSessionModel.findOne({ deviceId }, { _id: 0 }).lean();
     };
 }
-
-export const deviceAuthSessionsRepository = new DeviceAuthSessionsRepository();

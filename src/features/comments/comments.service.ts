@@ -7,14 +7,10 @@ import {ResultStatus} from "../../common/result/resultStatus";
 import {SortDirections} from "../../types/types";
 
 export class CommentsService {
-    private commentsRepository: CommentsRepository;
-    private postsService: PostsService;
-    private usersService: UsersService;
-    constructor() {
-        this.commentsRepository = new CommentsRepository();
-        this.postsService = new PostsService();
-        this.usersService = new UsersService();
-    }
+    constructor(protected commentsRepository: CommentsRepository,
+                protected postsService: PostsService,
+                protected usersService: UsersService
+    ) {}
 
     async createComment(postId: string, userId: string, content: string): Promise<Result<string | null>> {
         const post = await this.postsService.findPostById(postId);
@@ -140,5 +136,3 @@ export class CommentsService {
         };
     };
 }
-
-export const commentsService = new CommentsService();

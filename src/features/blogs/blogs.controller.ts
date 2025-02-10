@@ -15,7 +15,7 @@ import {CreateBlogInputModel} from "./models/CreateBlogInputModel";
 import {UpdateBlogInputModel} from "./models/UpdateBlogInputModel";
 import {BlogsService} from "./blogs.service";
 import {QueryBlogsModel} from "./models/QueryBlogsModel";
-import {BlogsQueryRepository, blogsQueryRepository} from "./repositories/blogs.query.repository";
+import {BlogsQueryRepository} from "./repositories/blogs.query.repository";
 import {getBlogsQueryParamsValues, getPostsQueryParamsValues} from "../../helpers/query-params-values";
 import {QueryPostsModel} from "../posts/models/QueryPostsModel";
 import {PostViewModel} from "../posts/models/PostViewModel";
@@ -23,6 +23,7 @@ import {URIParamsPostBlogIdModel} from "./models/URIParamsPostBlogIdModel";
 import {PostsQueryRepository} from "../posts/repositories/posts.query.repository";
 import {PostsService} from "../posts/posts.service";
 import {CreateBlogPostInputModel} from "./models/CreateBlogPostInputModel";
+import {blogsQueryRepository} from "../../composition-root";
 
 export const createBlogsPaginator = (items: BlogDBType[], page: number, pageSize: number,
                                      pagesCount: number, totalCount: number): Paginator<BlogViewModel> => {
@@ -37,17 +38,12 @@ export const createBlogsPaginator = (items: BlogDBType[], page: number, pageSize
     );
 };
 
-class BlogsController {
-    private blogsService: BlogsService;
-    private blogsQueryRepository: BlogsQueryRepository;
-    private postsService: PostsService;
-    private postsQueryRepository: PostsQueryRepository;
-    constructor() {
-        this.blogsService = new BlogsService();
-        this.blogsQueryRepository = new BlogsQueryRepository();
-        this.postsService = new PostsService();
-        this.postsQueryRepository = new PostsQueryRepository();
-    }
+export class BlogsController {
+    constructor(protected blogsService: BlogsService,
+                protected blogsQueryRepository: BlogsQueryRepository,
+                protected postsService: PostsService,
+                protected postsQueryRepository: PostsQueryRepository,
+    ) {}
 
     async getBlogs (req: RequestWithQuery<QueryBlogsModel>,
                     res: Response<Paginator<BlogViewModel>>) {
@@ -59,7 +55,7 @@ class BlogsController {
             pageNumber
         } = getBlogsQueryParamsValues(req);
 
-        const output = await blogsQueryRepository.findBlogs(
+        const output = await this.blogsQueryRepository.findBlogs(
             searchNameTerm, sortBy, sortDirection, pageNumber, pageSize
         );
 
@@ -67,7 +63,7 @@ class BlogsController {
     };
     async getBlog (req: RequestWithParams<URIParamsBlogIdModel>,
                    res: Response<BlogViewModel>) {
-        const foundBlog = await blogsQueryRepository.findBlogById(req.params.id);
+        const foundBlog = await this.blogsQueryRepository.findBlogById(req.params.id);
         if (!foundBlog) {
             res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
             return;
@@ -90,7 +86,7 @@ class BlogsController {
             req.body.name, req.body.description, req.body.websiteUrl
         );
 
-        const createdBlog = await blogsQueryRepository.findBlogById(createdBlogId);
+        const createdBlog = await this.blogsQueryRepository.findBlogById(createdBlogId);
         if (!createdBlog) {
             res.sendStatus(HTTP_STATUSES.INTERNAL_SERVER_ERROR_500);
             return;
@@ -160,5 +156,3 @@ class BlogsController {
             .json(createdPost);
     };
 }
-
-export const blogsController = new BlogsController();

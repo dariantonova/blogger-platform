@@ -18,13 +18,10 @@ import {JwtService} from "../../application/jwt.service";
 const defaultIp = 'Unknown';
 const defaultDeviceName = 'Unknown';
 
-class AuthController {
-    private authService: AuthService;
-    private jwtService: JwtService;
-    constructor() {
-        this.authService = new AuthService();
-        this.jwtService = new JwtService();
-    }
+export class AuthController {
+    constructor(protected authService: AuthService,
+                protected jwtService: JwtService
+    ) {}
 
     async loginUser (req: RequestWithBody<LoginInputModel>,
                      res: Response<LoginSuccessViewModel>) {
@@ -139,5 +136,3 @@ class AuthController {
         res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
     };
 }
-
-export const authController = new AuthController();

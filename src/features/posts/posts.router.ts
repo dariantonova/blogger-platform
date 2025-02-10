@@ -1,5 +1,4 @@
 import {Router} from "express";
-import {postsController} from "./posts.controller";
 import {basicAuthorizationMiddleware} from "../../middlewares/basic-authorization-middleware";
 import {
     blogIdFieldValidator,
@@ -12,6 +11,7 @@ import {pageNumberQueryParamValidator, pageSizeQueryParamValidator} from "../../
 import {bearerAuthorizationMiddleware} from "../../middlewares/bearer-authorization-middleware";
 import {contentCommentFieldValidator} from "../../validation/field-validators/comments-field-validators";
 import {queryValidationErrorMiddleware} from "../../validation/query-validation-error-middleware";
+import {postsController} from "../../composition-root";
 
 const router = Router();
 

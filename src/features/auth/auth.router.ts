@@ -5,7 +5,6 @@ import {
     passwordAuthValidator
 } from "../../validation/field-validators/auth-field-validators";
 import {errorsResultMiddleware} from "../../validation/errors-result-middleware";
-import {authController} from "./auth.controller";
 import {bearerAuthorizationMiddleware} from "../../middlewares/bearer-authorization-middleware";
 import {
     emailFieldValidator,
@@ -15,6 +14,7 @@ import {
 import {refreshTokenVerification} from "./middlewares/refresh-token-verification";
 import {rateLimitingMiddleware} from "../../middlewares/rate-limiting-middleware";
 import {noActiveDeviceSessionExists} from "./middlewares/no-active-device-session-exists";
+import {authController} from "../../composition-root";
 
 const router = Router();
 

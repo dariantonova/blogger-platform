@@ -11,13 +11,10 @@ import {URIParamsUserIdModel} from "./models/URIParamsUserIdModel";
 import {ResultStatus} from "../../common/result/resultStatus";
 import {resultStatusToHttp} from "../../common/result/resultStatusToHttp";
 
-class UsersController {
-    private usersService: UsersService;
-    private usersQueryRepository: UsersQueryRepository;
-    constructor() {
-        this.usersService = new UsersService();
-        this.usersQueryRepository = new UsersQueryRepository();
-    }
+export class UsersController {
+    constructor(protected usersService: UsersService,
+                protected usersQueryRepository: UsersQueryRepository
+    ) {}
 
     async getUsers (req: RequestWithQuery<QueryUsersModel>,
                     res: Response<Paginator<UserViewModel>>) {
@@ -71,5 +68,3 @@ class UsersController {
         res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
     };
 }
-
-export const usersController = new UsersController();

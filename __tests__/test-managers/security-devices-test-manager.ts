@@ -3,7 +3,7 @@ import {SETTINGS} from "../../src/settings";
 import {LoginInputModel} from "../../src/features/auth/types/auth.types";
 import {HTTP_STATUSES} from "../../src/utils";
 import {Cookie, CookieAccessInfo} from "cookiejar";
-import {jwtService} from "../../src/application/jwt.service";
+import {jwtService} from "../../src/composition-root";
 
 export const securityDevicesTestManager = {
     async getDeviceSessions(refToken: string, expectedStatusCode: number) {

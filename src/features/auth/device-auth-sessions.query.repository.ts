@@ -18,5 +18,3 @@ export class DeviceAuthSessionsQueryRepository {
         );
     };
 }
-
-export const deviceAuthSessionsQueryRepository = new DeviceAuthSessionsQueryRepository();

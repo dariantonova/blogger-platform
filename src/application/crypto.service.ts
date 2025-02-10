@@ -9,5 +9,3 @@ export class CryptoService {
         return bcrypt.compare(password, passwordHash);
     };
 }
-
-export const cryptoService = new CryptoService();

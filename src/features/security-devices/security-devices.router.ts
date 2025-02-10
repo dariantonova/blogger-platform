@@ -1,6 +1,6 @@
 import {Router} from "express";
 import {refreshTokenVerification} from "../auth/middlewares/refresh-token-verification";
-import {securityDevicesController} from "./security-devices.controller";
+import {securityDevicesController} from "../../composition-root";
 
 const router = Router();
 

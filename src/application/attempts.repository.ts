@@ -14,5 +14,3 @@ export class AttemptsRepository {
         await AttemptModel.create(attempt);
     };
 }
-
-export const attemptsRepository = new AttemptsRepository();

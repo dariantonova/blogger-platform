@@ -1,10 +1,10 @@
 import {Router} from "express";
-import {commentsController} from "./comments.controller";
 import {bearerAuthorizationMiddleware} from "../../middlewares/bearer-authorization-middleware";
 import {contentCommentFieldValidator} from "../../validation/field-validators/comments-field-validators";
 import {errorsResultMiddleware} from "../../validation/errors-result-middleware";
 import {idUriParamValidator} from "../../validation/uri-params-validators";
 import {uriParamsValidationErrorMiddleware} from "../../validation/uri-params-validation-error-middleware";
+import {commentsController} from "../../composition-root";
 
 const router = Router();
 

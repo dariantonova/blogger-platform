@@ -1,7 +1,7 @@
 import {NextFunction, Request, Response} from "express";
 import {HTTP_STATUSES} from "../utils";
-import {authService} from "../features/auth/auth.service";
 import {ResultStatus} from "../common/result/resultStatus";
+import {authService} from "../composition-root";
 
 export const bearerAuthorizationMiddleware = async (req: Request, res: Response, next: NextFunction) => {
     const authHeader = req.headers.authorization;

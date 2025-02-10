@@ -7,10 +7,9 @@ import {authTestManager} from "../../test-managers/auth-test-manager";
 import {UserDBType} from "../../../src/types/types";
 import {CreateUserInputModel} from "../../../src/features/users/models/CreateUserInputModel";
 import {requestsLimit} from "../../../src/middlewares/rate-limiting-middleware";
-import {attemptsService} from "../../../src/application/attempts.service";
 import {defaultNumberOfAttemptsLimit} from "../../datasets/common-data";
-import {usersService} from "../../../src/features/users/users.service";
 import mongoose from "mongoose";
+import {attemptsService, usersService} from "../../../src/composition-root";
 
 describe('tests for registration endpoint', () => {
     let server: MongoMemoryServer;

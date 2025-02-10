@@ -11,8 +11,8 @@ import {LoginInputModel, MeViewModel} from "../../../src/features/auth/types/aut
 import {defaultAccessTokenLife} from "../../datasets/authorization-data";
 import {requestsLimit} from "../../../src/middlewares/rate-limiting-middleware";
 import {defaultNumberOfAttemptsLimit} from "../../datasets/common-data";
-import {attemptsService} from "../../../src/application/attempts.service";
 import mongoose from "mongoose";
+import {attemptsService} from "../../../src/composition-root";
 
 describe('tests for /auth', () => {
     let server: MongoMemoryServer;

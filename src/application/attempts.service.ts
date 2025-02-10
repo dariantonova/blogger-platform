@@ -1,10 +1,7 @@
 import {AttemptsRepository} from "./attempts.repository";
 
 export class AttemptsService {
-    private attemptsRepository: AttemptsRepository;
-    constructor() {
-        this.attemptsRepository = new AttemptsRepository();
-    }
+    constructor(protected attemptsRepository: AttemptsRepository) {}
 
     async deleteAllAttempts() {
         return this.attemptsRepository.deleteAllAttempts();
@@ -16,5 +13,3 @@ export class AttemptsService {
         return this.attemptsRepository.createAttempt(ip, url, new Date());
     };
 }
-
-export const attemptsService = new AttemptsService();

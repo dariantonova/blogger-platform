@@ -58,5 +58,3 @@ export class PostsRepository {
         return PostModel.findOne(filterObj, { _id: 0 }).lean();
     };
 }
-
-export const postsRepository = new PostsRepository();

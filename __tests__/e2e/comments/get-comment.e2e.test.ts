@@ -8,8 +8,8 @@ import {usersTestManager} from "../../test-managers/users-test-manager";
 import {HTTP_STATUSES} from "../../../src/utils";
 import {CommentDBType} from "../../../src/features/comments/comments.types";
 import {ObjectId, WithId} from "mongodb";
-import {commentsQueryRepository} from "../../../src/features/comments/comments.query.repository";
 import mongoose from "mongoose";
+import {commentsQueryRepository} from "../../../src/composition-root";
 
 describe('test for get comment endpoint', () => {
     let server: MongoMemoryServer;

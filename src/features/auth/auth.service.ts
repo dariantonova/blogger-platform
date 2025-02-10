@@ -11,20 +11,13 @@ import {randomUUID} from "node:crypto";
 import {DeviceAuthSessionsRepository} from "./device-auth-sessions.repository";
 
 export class AuthService {
-    private deviceAuthSessionsRepository: DeviceAuthSessionsRepository;
-    private usersService: UsersService;
-    private usersRepository: UsersRepository;
-    private cryptoService: CryptoService;
-    private jwtService: JwtService;
-    private emailManager: EmailManager;
-    constructor() {
-        this.deviceAuthSessionsRepository = new DeviceAuthSessionsRepository();
-        this.usersService = new UsersService();
-        this.usersRepository = new UsersRepository();
-        this.cryptoService = new CryptoService();
-        this.jwtService = new JwtService();
-        this.emailManager = new EmailManager();
-    }
+    constructor(protected deviceAuthSessionsRepository: DeviceAuthSessionsRepository,
+                protected usersService: UsersService,
+                protected usersRepository: UsersRepository,
+                protected cryptoService: CryptoService,
+                protected jwtService: JwtService,
+                protected emailManager: EmailManager
+    ) {}
 
     async loginUser(loginOrEmail: string, password: string, deviceName: string, ip: string)
         : Promise<Result<TokenPair | null>> {
@@ -317,5 +310,3 @@ export class AuthService {
         };
     };
 }
-
-export const authService = new AuthService();

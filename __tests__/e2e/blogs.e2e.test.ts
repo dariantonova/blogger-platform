@@ -10,7 +10,6 @@ import {MongoMemoryServer} from "mongodb-memory-server";
 import {UpdateBlogInputModel} from "../../src/features/blogs/models/UpdateBlogInputModel";
 import {invalidAuthValues} from "../datasets/authorization-data";
 import {invalidUrls, validBlogFieldInput} from "../datasets/validation/blogs-validation-data";
-import {blogsQueryRepository} from "../../src/features/blogs/repositories/blogs.query.repository";
 import {createBlogsPaginator} from "../../src/features/blogs/blogs.controller";
 import {DEFAULT_QUERY_VALUES} from "../../src/helpers/query-params-values";
 import {invalidPageNumbers, invalidPageSizes} from "../datasets/validation/query-validation-data";
@@ -18,6 +17,7 @@ import {createPostsPaginator} from "../../src/features/posts/posts.controller";
 import {validPostFieldInput} from "../datasets/validation/posts-validation-data";
 import {CreateBlogPostInputModel} from "../../src/features/blogs/models/CreateBlogPostInputModel";
 import mongoose from "mongoose";
+import {blogsQueryRepository} from "../../src/composition-root";
 
 describe('tests for /blogs', () => {
     let server: MongoMemoryServer;

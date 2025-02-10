@@ -14,14 +14,13 @@ import {validPostFieldInput} from "../datasets/validation/posts-validation-data"
 import {createPostsPaginator} from "../../src/features/posts/posts.controller";
 import {DEFAULT_QUERY_VALUES} from "../../src/helpers/query-params-values";
 import {invalidPageNumbers, invalidPageSizes} from "../datasets/validation/query-validation-data";
-import {postsQueryRepository} from "../../src/features/posts/repositories/posts.query.repository";
 import {ObjectId, WithId} from "mongodb";
 import {CommentDBType} from "../../src/features/comments/comments.types";
 import {usersTestManager} from "../test-managers/users-test-manager";
 import {CreateUserInputModel} from "../../src/features/users/models/CreateUserInputModel";
-import {commentsRepository} from "../../src/features/comments/comments.repository";
 import {requestsLimit} from "../../src/middlewares/rate-limiting-middleware";
 import mongoose from "mongoose";
+import {commentsRepository, postsQueryRepository} from "../../src/composition-root";
 
 describe('tests for /posts', () => {
     let server: MongoMemoryServer;

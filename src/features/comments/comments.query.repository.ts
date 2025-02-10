@@ -44,5 +44,3 @@ export class CommentsQueryRepository {
         return CommentModel.countDocuments(filterObj);
     };
 }
-
-export const commentsQueryRepository = new CommentsQueryRepository();

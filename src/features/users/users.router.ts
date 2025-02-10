@@ -1,5 +1,4 @@
 import {Router} from "express";
-import {usersController} from "./users.controller";
 import {pageNumberQueryParamValidator, pageSizeQueryParamValidator} from "../../validation/query-params-validators";
 import {basicAuthorizationMiddleware} from "../../middlewares/basic-authorization-middleware";
 import {
@@ -9,6 +8,7 @@ import {
 } from "../../validation/field-validators/users-field-validators";
 import {errorsResultMiddleware} from "../../validation/errors-result-middleware";
 import {queryValidationErrorMiddleware} from "../../validation/query-validation-error-middleware";
+import {usersController} from "../../composition-root";
 
 const router = Router();
 

@@ -3,7 +3,7 @@ import {SETTINGS} from "../../src/settings";
 import {CommentDBType} from "../../src/features/comments/comments.types";
 import {WithId} from "mongodb";
 import {HTTP_STATUSES} from "../../src/utils";
-import {commentsQueryRepository} from "../../src/features/comments/comments.query.repository";
+import {commentsQueryRepository} from "../../src/composition-root";
 
 export const commentsTestManager = {
     async deleteComment(commentId: string, auth: string, expectedStatusCode: number) {

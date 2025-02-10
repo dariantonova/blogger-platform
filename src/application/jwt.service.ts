@@ -39,5 +39,3 @@ export class JwtService {
         return jwt.decode(token) as RefreshTokenPayload;
     };
 }
-
-export const jwtService = new JwtService();

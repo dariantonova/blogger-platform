@@ -3,12 +3,9 @@ import {BlogsRepository} from "./repositories/blogs.repository";
 import {PostsRepository} from "../posts/repositories/posts.repository";
 
 export class BlogsService {
-    private blogsRepository: BlogsRepository;
-    private postsRepository: PostsRepository;
-    constructor() {
-        this.blogsRepository = new BlogsRepository();
-        this.postsRepository = new PostsRepository();
-    }
+    constructor(protected blogsRepository: BlogsRepository,
+                protected postsRepository: PostsRepository
+    ) {}
 
     async deleteBlog(id: string): Promise<boolean> {
         const isBlogDeleted = await this.blogsRepository.deleteBlog(id);
@@ -47,5 +44,3 @@ export class BlogsService {
         return this.blogsRepository.deleteAllBlogs();
     };
 }
-
-export const blogsService = new BlogsService();

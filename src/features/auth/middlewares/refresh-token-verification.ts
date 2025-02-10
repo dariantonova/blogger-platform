@@ -1,7 +1,7 @@
 import {NextFunction, Request, Response} from "express";
-import {authService} from "../auth.service";
 import {ResultStatus} from "../../../common/result/resultStatus";
 import {HTTP_STATUSES} from "../../../utils";
+import {authService} from "../../../composition-root";
 
 export const refreshTokenVerification = async (req: Request, res: Response, next: NextFunction) => {
     const refreshToken = req.cookies.refreshToken;

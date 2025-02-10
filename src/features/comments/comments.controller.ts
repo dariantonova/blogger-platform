@@ -7,13 +7,10 @@ import {CommentsService} from "./comments.service";
 import {ResultStatus} from "../../common/result/resultStatus";
 import {resultStatusToHttp} from "../../common/result/resultStatusToHttp";
 
-class CommentsController {
-    private commentsService: CommentsService;
-    private commentsQueryRepository: CommentsQueryRepository;
-    constructor() {
-        this.commentsService = new CommentsService();
-        this.commentsQueryRepository = new CommentsQueryRepository();
-    }
+export class CommentsController {
+    constructor(protected commentsService: CommentsService,
+                protected commentsQueryRepository: CommentsQueryRepository
+    ) {}
 
     async getComment (req: RequestWithParams<URIParamsCommentIdModel>,
                       res: Response<CommentViewModel>){
@@ -49,5 +46,3 @@ class CommentsController {
         res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
     };
 }
-
-export const commentsController = new CommentsController();
