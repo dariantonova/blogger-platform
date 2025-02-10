@@ -1,7 +1,7 @@
 import {DeviceAuthSessionModel} from "../../db/db";
 import {DeviceAuthSessionDBType} from "./types/auth.types";
 
-class DeviceAuthSessionsRepository {
+export class DeviceAuthSessionsRepository {
     async deleteAllDeviceAuthSessions() {
         await DeviceAuthSessionModel.deleteMany({});
     };

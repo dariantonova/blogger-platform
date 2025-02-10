@@ -24,37 +24,37 @@ router.get('/',
     pageNumberQueryParamValidator,
     pageSizeQueryParamValidator,
     queryValidationErrorMiddleware,
-    blogsController.getBlogs);
+    blogsController.getBlogs.bind(blogsController));
 router.get('/:id',
-    blogsController.getBlog);
+    blogsController.getBlog.bind(blogsController));
 router.delete('/:id',
     basicAuthorizationMiddleware,
-    blogsController.deleteBlog);
+    blogsController.deleteBlog.bind(blogsController));
 router.post('/',
     basicAuthorizationMiddleware,
     nameFieldValidator,
     descriptionFieldValidator,
     websiteUrlFieldValidator,
     errorsResultMiddleware,
-    blogsController.createBlog);
+    blogsController.createBlog.bind(blogsController));
 router.put('/:id',
     basicAuthorizationMiddleware,
     nameFieldValidator,
     descriptionFieldValidator,
     websiteUrlFieldValidator,
     errorsResultMiddleware,
-    blogsController.updateBlog);
+    blogsController.updateBlog.bind(blogsController));
 router.get('/:blogId/posts',
     pageNumberQueryParamValidator,
     pageSizeQueryParamValidator,
     queryValidationErrorMiddleware,
-    blogsController.getBlogPosts);
+    blogsController.getBlogPosts.bind(blogsController));
 router.post('/:blogId/posts',
     basicAuthorizationMiddleware,
     titleFieldValidator,
     shortDescriptionFieldValidator,
     contentFieldValidator,
     errorsResultMiddleware,
-    blogsController.createBlogPost);
+    blogsController.createBlogPost.bind(blogsController));
 
 export { router as blogsRouter };

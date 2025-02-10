@@ -1,7 +1,7 @@
 import {AttemptModel} from "../db/db";
 import {AttemptDBType} from "../types/types";
 
-class AttemptsRepository {
+export class AttemptsRepository {
     async deleteAllAttempts() {
         await AttemptModel.deleteMany({});
     };

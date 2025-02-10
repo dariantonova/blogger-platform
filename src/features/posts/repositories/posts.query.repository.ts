@@ -2,7 +2,7 @@ import {Paginator, PostDBType, SortDirections} from "../../../types/types";
 import {PostModel} from "../../../db/db";
 import {PostViewModel} from "../models/PostViewModel";
 
-class PostsQueryRepository {
+export class PostsQueryRepository {
     async findPosts(sortBy: string, sortDirection: SortDirections,
                     pageNumber: number, pageSize: number): Promise<Paginator<PostViewModel>> {
         const filterObj: any = { isDeleted: false };

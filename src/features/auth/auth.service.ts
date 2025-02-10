@@ -1,16 +1,31 @@
-import {usersRepository} from "../users/repositories/users.repository";
-import {cryptoService} from "../../application/crypto.service";
-import {jwtService} from "../../application/jwt.service";
+import {UsersRepository} from "../users/repositories/users.repository";
+import {CryptoService} from "../../application/crypto.service";
+import {JwtService} from "../../application/jwt.service";
 import {FieldError, UserDBType} from "../../types/types";
 import {Result} from "../../common/result/result.type";
-import {usersService} from "../users/users.service";
+import {UsersService} from "../users/users.service";
 import {ResultStatus} from "../../common/result/resultStatus";
-import {emailManager} from "../../application/email.manager";
+import {EmailManager} from "../../application/email.manager";
 import {DeviceAuthSessionDBType, TokenPair} from "./types/auth.types";
-import {deviceAuthSessionsRepository} from "./device-auth-sessions.repository";
 import {randomUUID} from "node:crypto";
+import {DeviceAuthSessionsRepository} from "./device-auth-sessions.repository";
 
-class AuthService {
+export class AuthService {
+    private deviceAuthSessionsRepository: DeviceAuthSessionsRepository;
+    private usersService: UsersService;
+    private usersRepository: UsersRepository;
+    private cryptoService: CryptoService;
+    private jwtService: JwtService;
+    private emailManager: EmailManager;
+    constructor() {
+        this.deviceAuthSessionsRepository = new DeviceAuthSessionsRepository();
+        this.usersService = new UsersService();
+        this.usersRepository = new UsersRepository();
+        this.cryptoService = new CryptoService();
+        this.jwtService = new JwtService();
+        this.emailManager = new EmailManager();
+    }
+
     async loginUser(loginOrEmail: string, password: string, deviceName: string, ip: string)
         : Promise<Result<TokenPair | null>> {
         const user = await this._checkCredentials(loginOrEmail, password);
@@ -33,21 +48,21 @@ class AuthService {
         };
     };
     async _createTokenPair(user: UserDBType, deviceId: string): Promise<TokenPair> {
-        const accessToken = await jwtService.createAccessToken(user);
-        const refreshToken = await jwtService.createRefreshToken(user, deviceId);
+        const accessToken = await this.jwtService.createAccessToken(user);
+        const refreshToken = await this.jwtService.createRefreshToken(user, deviceId);
         return { accessToken, refreshToken };
     };
     async _checkCredentials(loginOrEmail: string, password: string): Promise<UserDBType | null> {
-        const user = await usersRepository.findUserByLoginOrEmail(loginOrEmail);
+        const user = await this.usersRepository.findUserByLoginOrEmail(loginOrEmail);
         if (!user) {
             return null;
         }
 
-        const isPasswordCorrect = await cryptoService.compareHash(password, user.passwordHash);
+        const isPasswordCorrect = await this.cryptoService.compareHash(password, user.passwordHash);
         return isPasswordCorrect ? user : null;
     };
     async _createDeviceAuthSession(refreshToken: string, deviceName: string, ip: string) {
-        const refTokenPayload = await jwtService.decodeRefreshToken(refreshToken);
+        const refTokenPayload = await this.jwtService.decodeRefreshToken(refreshToken);
         const userId = refTokenPayload.userId;
         const iat = new Date(refTokenPayload.iat * 1000);
         const exp = new Date(refTokenPayload.exp * 1000);
@@ -61,13 +76,13 @@ class AuthService {
             exp
         );
 
-        await deviceAuthSessionsRepository.createDeviceAuthSession(deviceAuthSession);
+        await this.deviceAuthSessionsRepository.createDeviceAuthSession(deviceAuthSession);
     };
     async _updateDeviceAuthSession(newRefreshToken: string, newIp: string): Promise<boolean> {
-        const newRefTokenPayload = await jwtService
+        const newRefTokenPayload = await this.jwtService
             .decodeRefreshToken(newRefreshToken);
 
-        return deviceAuthSessionsRepository.updateDeviceAuthSession(
+        return this.deviceAuthSessionsRepository.updateDeviceAuthSession(
             newRefTokenPayload.deviceId,
             new Date(newRefTokenPayload.iat * 1000),
             new Date(newRefTokenPayload.exp * 1000),
@@ -75,13 +90,13 @@ class AuthService {
         );
     };
     async registerUser(login: string, email: string, password: string): Promise<Result<null>> {
-        const createUserResult = await usersService.createUser(login, email, password, false);
+        const createUserResult = await this.usersService.createUser(login, email, password, false);
         if (createUserResult.status !== ResultStatus.SUCCESS) {
             return createUserResult as Result<null>;
         }
 
         const createdUserId = createUserResult.data as string;
-        const createdUser = await usersRepository.findUserById(createdUserId);
+        const createdUser = await this.usersRepository.findUserById(createdUserId);
         if (!createdUser) {
             return {
                 status: ResultStatus.INTERNAL_SERVER_ERROR,
@@ -90,7 +105,7 @@ class AuthService {
             };
         }
 
-        emailManager.sendRegistrationMessage(email, createdUser.confirmationInfo.confirmationCode)
+        this.emailManager.sendRegistrationMessage(email, createdUser.confirmationInfo.confirmationCode)
             .catch(err => console.log('Email send error: ' + err));
 
         return {
@@ -100,7 +115,7 @@ class AuthService {
         };
     };
     async confirmRegistration(confirmationCode: string): Promise<Result<null>> {
-        const user = await usersRepository.findUserByConfirmationCode(confirmationCode);
+        const user = await this.usersRepository.findUserByConfirmationCode(confirmationCode);
         if (!user) {
             const error = new FieldError(
                 'code',
@@ -136,7 +151,7 @@ class AuthService {
             };
         }
 
-        const isRegistrationConfirmed = await usersRepository.confirmUserRegistration(user.id);
+        const isRegistrationConfirmed = await this.usersRepository.confirmUserRegistration(user.id);
         if (!isRegistrationConfirmed) {
             return {
                 status: ResultStatus.INTERNAL_SERVER_ERROR,
@@ -152,7 +167,7 @@ class AuthService {
         };
     };
     async resendRegistrationEmail(email: string): Promise<Result<null>> {
-        const user = await usersRepository.findUserByEmail(email);
+        const user = await this.usersRepository.findUserByEmail(email);
         if (!user) {
             const error = new FieldError(
                 'email',
@@ -177,8 +192,8 @@ class AuthService {
             };
         }
 
-        const newConfirmationInfo = usersService.generateConfirmationInfo(false);
-        const isConfirmationInfoUpdated = await usersRepository.updateUserConfirmationInfo(
+        const newConfirmationInfo = this.usersService.generateConfirmationInfo(false);
+        const isConfirmationInfoUpdated = await this.usersRepository.updateUserConfirmationInfo(
             user.id, newConfirmationInfo
         );
         if (!isConfirmationInfoUpdated) {
@@ -189,7 +204,7 @@ class AuthService {
             };
         }
 
-        emailManager.sendRegistrationMessage(email, newConfirmationInfo.confirmationCode)
+        this.emailManager.sendRegistrationMessage(email, newConfirmationInfo.confirmationCode)
             .catch(err => console.log('Email send error: ' + err));
 
         return {
@@ -199,10 +214,10 @@ class AuthService {
         };
     };
     async deleteAllDeviceAuthSessions() {
-        return deviceAuthSessionsRepository.deleteAllDeviceAuthSessions();
+        return this.deviceAuthSessionsRepository.deleteAllDeviceAuthSessions();
     };
     async verifyAccessToken(accessToken: string): Promise<Result<UserDBType | null>> {
-        const userId = await jwtService.verifyAccessToken(accessToken);
+        const userId = await this.jwtService.verifyAccessToken(accessToken);
         if (!userId) {
             return {
                 status: ResultStatus.UNAUTHORIZED,
@@ -211,7 +226,7 @@ class AuthService {
             };
         }
 
-        const user = await usersService.findUserById(userId);
+        const user = await this.usersService.findUserById(userId);
         if (!user) {
             return {
                 status: ResultStatus.UNAUTHORIZED,
@@ -227,7 +242,7 @@ class AuthService {
         };
     };
     async verifyRefreshToken(refreshToken: string): Promise<Result<UserDBType | null>> {
-        const decoded = await jwtService.verifyRefreshToken(refreshToken);
+        const decoded = await this.jwtService.verifyRefreshToken(refreshToken);
         if (!decoded) {
             return {
                 status: ResultStatus.UNAUTHORIZED,
@@ -240,7 +255,7 @@ class AuthService {
         const deviceId = decoded.deviceId;
         const iat = new Date(decoded.iat * 1000);
 
-        const user = await usersService.findUserById(userId);
+        const user = await this.usersService.findUserById(userId);
         if (!user) {
             return {
                 status: ResultStatus.UNAUTHORIZED,
@@ -249,7 +264,7 @@ class AuthService {
             };
         }
 
-        const isRefTokenInWhitelist = await deviceAuthSessionsRepository.isActiveSession(deviceId, iat);
+        const isRefTokenInWhitelist = await this.deviceAuthSessionsRepository.isActiveSession(deviceId, iat);
         if (!isRefTokenInWhitelist) {
             return {
                 status: ResultStatus.UNAUTHORIZED,
@@ -265,7 +280,7 @@ class AuthService {
         };
     };
     async refreshToken(tokenToRevoke: string, user: UserDBType, ip: string): Promise<Result<TokenPair | null>> {
-        const tokenToRevokePayload = await jwtService.decodeRefreshToken(tokenToRevoke);
+        const tokenToRevokePayload = await this.jwtService.decodeRefreshToken(tokenToRevoke);
         const deviceId = tokenToRevokePayload.deviceId;
         const newTokenPair = await this._createTokenPair(user, deviceId);
 
@@ -285,8 +300,8 @@ class AuthService {
         };
     };
     async logoutUser(tokenToRevoke: string): Promise<Result<null>> {
-        const tokenPayload = await jwtService.decodeRefreshToken(tokenToRevoke);
-        const isSessionTerminated = await deviceAuthSessionsRepository.terminateSession(tokenPayload.deviceId);
+        const tokenPayload = await this.jwtService.decodeRefreshToken(tokenToRevoke);
+        const isSessionTerminated = await this.deviceAuthSessionsRepository.terminateSession(tokenPayload.deviceId);
         if (!isSessionTerminated) {
             return {
                 status: ResultStatus.INTERNAL_SERVER_ERROR,

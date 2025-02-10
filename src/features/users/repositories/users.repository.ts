@@ -1,7 +1,7 @@
 import {ConfirmationInfoType, UserDBType} from "../../../types/types";
 import {UserModel} from "../../../db/db";
 
-class UsersRepository {
+export class UsersRepository {
     async createUser(createdUser: UserDBType) {
         await UserModel.create(createdUser);
     };

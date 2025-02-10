@@ -11,18 +11,18 @@ const router = Router();
 router.get('/:id',
     idUriParamValidator,
     uriParamsValidationErrorMiddleware,
-    commentsController.getComment);
+    commentsController.getComment.bind(commentsController));
 router.delete('/:id',
     bearerAuthorizationMiddleware,
     idUriParamValidator,
     uriParamsValidationErrorMiddleware,
-    commentsController.deleteComment);
+    commentsController.deleteComment.bind(commentsController));
 router.put('/:id',
     bearerAuthorizationMiddleware,
     idUriParamValidator,
     uriParamsValidationErrorMiddleware,
     contentCommentFieldValidator,
     errorsResultMiddleware,
-    commentsController.updateComment);
+    commentsController.updateComment.bind(commentsController));
 
 export { router as commentsRouter };

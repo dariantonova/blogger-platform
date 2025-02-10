@@ -19,12 +19,12 @@ router.get('/',
     pageNumberQueryParamValidator,
     pageSizeQueryParamValidator,
     queryValidationErrorMiddleware,
-    postsController.getPosts);
+    postsController.getPosts.bind(postsController));
 router.get('/:id',
-    postsController.getPost);
+    postsController.getPost.bind(postsController));
 router.delete('/:id',
     basicAuthorizationMiddleware,
-    postsController.deletePost);
+    postsController.deletePost.bind(postsController));
 router.post('/',
     basicAuthorizationMiddleware,
     titleFieldValidator,
@@ -32,7 +32,7 @@ router.post('/',
     contentFieldValidator,
     blogIdFieldValidator,
     errorsResultMiddleware,
-    postsController.createPost);
+    postsController.createPost.bind(postsController));
 router.put('/:id',
     basicAuthorizationMiddleware,
     titleFieldValidator,
@@ -40,16 +40,16 @@ router.put('/:id',
     contentFieldValidator,
     blogIdFieldValidator,
     errorsResultMiddleware,
-    postsController.updatePost);
+    postsController.updatePost.bind(postsController));
 router.post('/:postId/comments',
     bearerAuthorizationMiddleware,
     contentCommentFieldValidator,
     errorsResultMiddleware,
-    postsController.createPostComment);
+    postsController.createPostComment.bind(postsController));
 router.get('/:postId/comments',
     pageNumberQueryParamValidator,
     pageSizeQueryParamValidator,
     queryValidationErrorMiddleware,
-    postsController.getPostComments);
+    postsController.getPostComments.bind(postsController));
 
 export { router as postsRouter };

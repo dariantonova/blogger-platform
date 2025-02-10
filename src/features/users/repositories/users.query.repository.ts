@@ -2,7 +2,7 @@ import {Paginator, SortDirections, UserDBType} from "../../../types/types";
 import {UserViewModel} from "../models/UserViewModel";
 import {UserModel} from "../../../db/db";
 
-class UsersQueryRepository {
+export class UsersQueryRepository {
     async findUsers(sortBy: string, sortDirection: SortDirections,
                     pageNumber: number, pageSize: number,
                     searchLoginTerm: string | null,

@@ -17,16 +17,16 @@ router.get('/',
     pageNumberQueryParamValidator,
     pageSizeQueryParamValidator,
     queryValidationErrorMiddleware,
-    usersController.getUsers);
+    usersController.getUsers.bind(usersController));
 router.post('/',
     basicAuthorizationMiddleware,
     loginFieldValidator,
     passwordFieldValidator,
     emailFieldValidator,
     errorsResultMiddleware,
-    usersController.createUser);
+    usersController.createUser.bind(usersController));
 router.delete('/:id',
     basicAuthorizationMiddleware,
-    usersController.deleteUser);
+    usersController.deleteUser.bind(usersController));
 
 export { router as usersRouter };

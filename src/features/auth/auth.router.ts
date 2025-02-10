@@ -24,32 +24,32 @@ router.post('/login',
     loginOrEmailAuthValidator,
     passwordAuthValidator,
     errorsResultMiddleware,
-    authController.loginUser);
+    authController.loginUser.bind(authController));
 router.get('/me',
     bearerAuthorizationMiddleware,
-    authController.getCurrentUserInfo);
+    authController.getCurrentUserInfo.bind(authController));
 router.post('/registration',
     rateLimitingMiddleware,
     loginFieldValidator,
     passwordFieldValidator,
     emailFieldValidator,
     errorsResultMiddleware,
-    authController.registerUser);
+    authController.registerUser.bind(authController));
 router.post('/registration-confirmation',
     rateLimitingMiddleware,
     confirmationCodeValidator,
     errorsResultMiddleware,
-    authController.confirmRegistration);
+    authController.confirmRegistration.bind(authController));
 router.post('/registration-email-resending',
     rateLimitingMiddleware,
     emailFieldValidator,
     errorsResultMiddleware,
-    authController.resendRegistrationEmail);
+    authController.resendRegistrationEmail.bind(authController));
 router.post('/refresh-token',
     refreshTokenVerification,
-    authController.refreshToken);
+    authController.refreshToken.bind(authController));
 router.post('/logout',
     refreshTokenVerification,
-    authController.logoutUser);
+    authController.logoutUser.bind(authController));
 
 export { router as authRouter };

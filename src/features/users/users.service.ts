@@ -1,20 +1,29 @@
 import {ConfirmationInfoType, FieldError, UserDBType} from "../../types/types";
-import {usersRepository} from "./repositories/users.repository";
-import {cryptoService} from "../../application/crypto.service";
+import {UsersRepository} from "./repositories/users.repository";
+import {CryptoService} from "../../application/crypto.service";
 import {randomUUID} from "node:crypto";
 import {add} from "date-fns";
 import {Result} from "../../common/result/result.type";
 import {ResultStatus} from "../../common/result/resultStatus";
-import {deviceAuthSessionsRepository} from "../auth/device-auth-sessions.repository";
+import {DeviceAuthSessionsRepository} from "../auth/device-auth-sessions.repository";
 
 export const confirmationCodeLifetime = {
     hours: 1,
     minutes: 30,
 };
 
-class UsersService {
+export class UsersService {
+    private usersRepository: UsersRepository;
+    private deviceAuthSessionsRepository: DeviceAuthSessionsRepository;
+    private cryptoService: CryptoService;
+    constructor() {
+        this.usersRepository = new UsersRepository();
+        this.deviceAuthSessionsRepository = new DeviceAuthSessionsRepository();
+        this.cryptoService = new CryptoService();
+    }
+
     async createUser(login: string, email: string, password: string, isConfirmed: boolean): Promise<Result<string | null>> {
-        const userWithLogin = await usersRepository.findUserByLogin(login);
+        const userWithLogin = await this.usersRepository.findUserByLogin(login);
         if (userWithLogin) {
             const error = new FieldError(
                 'login',
@@ -27,7 +36,7 @@ class UsersService {
             };
         }
 
-        const userWithEmail = await usersRepository.findUserByEmail(email);
+        const userWithEmail = await this.usersRepository.findUserByEmail(email);
         if (userWithEmail) {
             const error = new FieldError(
                 'email',
@@ -40,7 +49,7 @@ class UsersService {
             };
         }
 
-        const passwordHash = await cryptoService.generateHash(password);
+        const passwordHash = await this.cryptoService.generateHash(password);
 
         const confirmationInfo = this.generateConfirmationInfo(isConfirmed);
 
@@ -54,7 +63,7 @@ class UsersService {
             false
         );
 
-        await usersRepository.createUser(createdUser);
+        await this.usersRepository.createUser(createdUser);
 
         return {
             status: ResultStatus.SUCCESS,
@@ -77,19 +86,19 @@ class UsersService {
         );
     };
     async deleteUser(id: string): Promise<boolean> {
-        const isUserDeleted = await usersRepository.deleteUser(id);
+        const isUserDeleted = await this.usersRepository.deleteUser(id);
 
         if (isUserDeleted) {
-            await deviceAuthSessionsRepository.deleteUserSessions(id);
+            await this.deviceAuthSessionsRepository.deleteUserSessions(id);
         }
 
         return isUserDeleted;
     };
     async deleteAllUsers() {
-        await usersRepository.deleteAllUsers();
+        await this.usersRepository.deleteAllUsers();
     };
     async findUserById(id: string) {
-        return usersRepository.findUserById(id);
+        return this.usersRepository.findUserById(id);
     };
 }
 

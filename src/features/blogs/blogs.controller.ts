@@ -13,15 +13,15 @@ import {URIParamsBlogIdModel} from "./models/URIParamsBlogIdModel";
 import {HTTP_STATUSES} from "../../utils";
 import {CreateBlogInputModel} from "./models/CreateBlogInputModel";
 import {UpdateBlogInputModel} from "./models/UpdateBlogInputModel";
-import {blogsService} from "./blogs.service";
+import {BlogsService} from "./blogs.service";
 import {QueryBlogsModel} from "./models/QueryBlogsModel";
-import {blogsQueryRepository} from "./repositories/blogs.query.repository";
+import {BlogsQueryRepository, blogsQueryRepository} from "./repositories/blogs.query.repository";
 import {getBlogsQueryParamsValues, getPostsQueryParamsValues} from "../../helpers/query-params-values";
 import {QueryPostsModel} from "../posts/models/QueryPostsModel";
 import {PostViewModel} from "../posts/models/PostViewModel";
 import {URIParamsPostBlogIdModel} from "./models/URIParamsPostBlogIdModel";
-import {postsQueryRepository} from "../posts/repositories/posts.query.repository";
-import {postsService} from "../posts/posts.service";
+import {PostsQueryRepository} from "../posts/repositories/posts.query.repository";
+import {PostsService} from "../posts/posts.service";
 import {CreateBlogPostInputModel} from "./models/CreateBlogPostInputModel";
 
 export const createBlogsPaginator = (items: BlogDBType[], page: number, pageSize: number,
@@ -38,6 +38,17 @@ export const createBlogsPaginator = (items: BlogDBType[], page: number, pageSize
 };
 
 class BlogsController {
+    private blogsService: BlogsService;
+    private blogsQueryRepository: BlogsQueryRepository;
+    private postsService: PostsService;
+    private postsQueryRepository: PostsQueryRepository;
+    constructor() {
+        this.blogsService = new BlogsService();
+        this.blogsQueryRepository = new BlogsQueryRepository();
+        this.postsService = new PostsService();
+        this.postsQueryRepository = new PostsQueryRepository();
+    }
+
     async getBlogs (req: RequestWithQuery<QueryBlogsModel>,
                     res: Response<Paginator<BlogViewModel>>) {
         const {
@@ -65,7 +76,7 @@ class BlogsController {
         res.json(foundBlog);
     };
     async deleteBlog (req: RequestWithParams<URIParamsBlogIdModel>, res: Response) {
-        const isDeleted = await blogsService.deleteBlog(req.params.id);
+        const isDeleted = await this.blogsService.deleteBlog(req.params.id);
         if (!isDeleted) {
             res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
             return;
@@ -75,7 +86,7 @@ class BlogsController {
     };
     async createBlog (req: RequestWithBody<CreateBlogInputModel>,
                       res: Response<BlogViewModel>) {
-        const createdBlogId = await blogsService.createBlog(
+        const createdBlogId = await this.blogsService.createBlog(
             req.body.name, req.body.description, req.body.websiteUrl
         );
 
@@ -91,7 +102,7 @@ class BlogsController {
     };
     async updateBlog (req: RequestWithParamsAndBody<URIParamsBlogIdModel, UpdateBlogInputModel>,
                       res: Response) {
-        const isUpdated = await blogsService.updateBlog(
+        const isUpdated = await this.blogsService.updateBlog(
             req.params.id, req.body.name, req.body.description, req.body.websiteUrl
         );
         if (!isUpdated) {
@@ -111,7 +122,7 @@ class BlogsController {
             pageNumber
         } = getPostsQueryParamsValues(req);
 
-        const foundPosts = await postsService.findBlogPosts(
+        const foundPosts = await this.postsService.findBlogPosts(
             blogId, sortBy, sortDirection, pageNumber, pageSize
         );
         if (!foundPosts) {
@@ -119,10 +130,10 @@ class BlogsController {
             return;
         }
 
-        const totalCount = await postsQueryRepository.countBlogPosts(blogId);
+        const totalCount = await this.postsQueryRepository.countBlogPosts(blogId);
         const pagesCount = Math.ceil(totalCount / pageSize);
 
-        const output = await postsQueryRepository.createPostsPaginator(
+        const output = await this.postsQueryRepository.createPostsPaginator(
             foundPosts, pageNumber, pageSize, pagesCount, totalCount
         );
 
@@ -130,7 +141,7 @@ class BlogsController {
     };
     async createBlogPost (req: RequestWithParamsAndBody<URIParamsPostBlogIdModel, CreateBlogPostInputModel>,
                           res: Response<PostViewModel>) {
-        const createdPostId = await postsService.createPost(
+        const createdPostId = await this.postsService.createPost(
             req.body.title, req.body.shortDescription, req.body.content, req.params.blogId
         );
         if (!createdPostId) {
@@ -138,7 +149,7 @@ class BlogsController {
             return;
         }
 
-        const createdPost = await postsQueryRepository.findPostById(createdPostId);
+        const createdPost = await this.postsQueryRepository.findPostById(createdPostId);
         if (!createdPost) {
             res.sendStatus(HTTP_STATUSES.INTERNAL_SERVER_ERROR_500);
             return;

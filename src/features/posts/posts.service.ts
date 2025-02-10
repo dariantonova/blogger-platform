@@ -1,20 +1,29 @@
 import {PostDBType, SortDirections} from "../../types/types";
-import {postsRepository} from "./repositories/posts.repository";
-import {blogsRepository} from "../blogs/repositories/blogs.repository";
-import {commentsRepository} from "../comments/comments.repository";
+import {PostsRepository} from "./repositories/posts.repository";
+import {BlogsRepository} from "../blogs/repositories/blogs.repository";
+import {CommentsRepository} from "../comments/comments.repository";
 
-class PostsService {
+export class PostsService {
+    private postsRepository: PostsRepository;
+    private blogsRepository: BlogsRepository;
+    private commentsRepository: CommentsRepository;
+    constructor() {
+        this.postsRepository = new PostsRepository();
+        this.blogsRepository = new BlogsRepository();
+        this.commentsRepository = new CommentsRepository();
+    }
+
     async deletePost(id: string): Promise<boolean> {
-        const isDeleted = await postsRepository.deletePost(id);
+        const isDeleted = await this.postsRepository.deletePost(id);
 
         if (isDeleted) {
-            await commentsRepository.deletePostComments(id);
+            await this.commentsRepository.deletePostComments(id);
         }
 
         return isDeleted;
     };
     async createPost(title: string, shortDescription: string, content: string, blogId: string): Promise<string | null> {
-        const blog = await blogsRepository.findBlogById(blogId);
+        const blog = await this.blogsRepository.findBlogById(blogId);
         if (!blog) {
             return null;
         }
@@ -30,35 +39,35 @@ class PostsService {
             new Date().toISOString()
         );
 
-        await postsRepository.createPost(createdPost);
+        await this.postsRepository.createPost(createdPost);
 
         return createdPost.id;
     };
     async updatePost(id: string, title: string, shortDescription: string,
                      content: string, blogId: string): Promise<boolean> {
-        const blog = await blogsRepository.findBlogById(blogId);
+        const blog = await this.blogsRepository.findBlogById(blogId);
         if (!blog) {
             throw new Error(`New blog of post doesn't exist`);
         }
 
-        return postsRepository.updatePost(id, title, shortDescription, content, blogId, blog.name);
+        return this.postsRepository.updatePost(id, title, shortDescription, content, blogId, blog.name);
     };
     async deleteAllPosts() {
-        return postsRepository.deleteAllPosts();
+        return this.postsRepository.deleteAllPosts();
     };
     async findBlogPosts(blogId: string, sortBy: string, sortDirection: SortDirections,
                         pageNumber: number, pageSize: number): Promise<PostDBType[] | null> {
-        const blog = await blogsRepository.findBlogById(blogId);
+        const blog = await this.blogsRepository.findBlogById(blogId);
         if (!blog) {
             return null;
         }
 
-        return postsRepository.findBlogPosts(
+        return this.postsRepository.findBlogPosts(
             blogId, sortBy, sortDirection, pageNumber, pageSize
         );
     };
     async findPostById(id: string): Promise<PostDBType | null> {
-        return postsRepository.findPostById(id);
+        return this.postsRepository.findPostById(id);
     };
 }
 

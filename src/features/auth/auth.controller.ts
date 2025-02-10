@@ -1,8 +1,7 @@
 import {APIErrorResult, RequestWithBody, UserDBType} from "../../types/types";
 import {Request, Response} from "express";
-import {authService} from "./auth.service";
+import {AuthService} from "./auth.service";
 import {HTTP_STATUSES} from "../../utils";
-
 import {
     LoginInputModel,
     LoginSuccessViewModel,
@@ -14,18 +13,25 @@ import {
 import {CreateUserInputModel} from "../users/models/CreateUserInputModel";
 import {ResultStatus} from "../../common/result/resultStatus";
 import {resultStatusToHttp} from "../../common/result/resultStatusToHttp";
-import {jwtService} from "../../application/jwt.service";
+import {JwtService} from "../../application/jwt.service";
 
 const defaultIp = 'Unknown';
 const defaultDeviceName = 'Unknown';
 
 class AuthController {
+    private authService: AuthService;
+    private jwtService: JwtService;
+    constructor() {
+        this.authService = new AuthService();
+        this.jwtService = new JwtService();
+    }
+
     async loginUser (req: RequestWithBody<LoginInputModel>,
                      res: Response<LoginSuccessViewModel>) {
         const ip = req.ip || defaultIp;
         const deviceName = req.headers['user-agent'] || defaultDeviceName;
 
-        const result = await authService.loginUser(
+        const result = await this.authService.loginUser(
             req.body.loginOrEmail, req.body.password, deviceName, ip
         );
 
@@ -36,7 +42,7 @@ class AuthController {
 
         const tokenPair = result.data as TokenPair;
 
-        await authController._sendTokenPair(res, tokenPair);
+        await this._sendTokenPair(res, tokenPair);
     };
     async getCurrentUserInfo (req: Request, res: Response<MeViewModel>) {
         const user = req.user as UserDBType;
@@ -49,7 +55,7 @@ class AuthController {
     };
     async registerUser (req: RequestWithBody<CreateUserInputModel>,
                         res: Response<APIErrorResult>) {
-        const registerUserResult = await authService.registerUser(
+        const registerUserResult = await this.authService.registerUser(
             req.body.login, req.body.email, req.body.password
         );
 
@@ -67,7 +73,7 @@ class AuthController {
     };
     async confirmRegistration (req: RequestWithBody<RegistrationConfirmationCodeModel>,
                                res: Response<APIErrorResult>) {
-        const result = await authService.confirmRegistration(req.body.code);
+        const result = await this.authService.confirmRegistration(req.body.code);
 
         if (result.status !== ResultStatus.SUCCESS) {
             const error = new APIErrorResult(result.extensions);
@@ -81,7 +87,7 @@ class AuthController {
     };
     async resendRegistrationEmail (req: RequestWithBody<RegistrationEmailResending>,
                                    res: Response<APIErrorResult>) {
-        const result = await authService.resendRegistrationEmail(req.body.email);
+        const result = await this.authService.resendRegistrationEmail(req.body.email);
 
         if (result.status !== ResultStatus.SUCCESS) {
             const error = new APIErrorResult(result.extensions);
@@ -98,7 +104,7 @@ class AuthController {
         const user = req.user as UserDBType;
         const ip = req.ip || defaultIp;
 
-        const result = await authService.refreshToken(tokenToRevoke, user, ip);
+        const result = await this.authService.refreshToken(tokenToRevoke, user, ip);
         if (result.status !== ResultStatus.SUCCESS) {
             res.sendStatus(resultStatusToHttp(result.status));
             return;
@@ -106,11 +112,11 @@ class AuthController {
 
         const tokenPair = result.data as TokenPair;
 
-        await authController._sendTokenPair(res, tokenPair);
+        await this._sendTokenPair(res, tokenPair);
     };
     async _sendTokenPair (res: Response<LoginSuccessViewModel>,
                           { accessToken, refreshToken }: TokenPair) {
-        const refTokenPayload = await jwtService.decodeRefreshToken(refreshToken);
+        const refTokenPayload = await this.jwtService.decodeRefreshToken(refreshToken);
 
         res.cookie('refreshToken', refreshToken, {
             httpOnly: true,
@@ -124,7 +130,7 @@ class AuthController {
     async logoutUser (req: Request, res: Response) {
         const tokenToRevoke = req.cookies.refreshToken;
 
-        const result = await authService.logoutUser(tokenToRevoke);
+        const result = await this.authService.logoutUser(tokenToRevoke);
         if (result.status !== ResultStatus.SUCCESS) {
             res.sendStatus(resultStatusToHttp(result.status));
             return;

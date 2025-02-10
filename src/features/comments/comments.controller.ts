@@ -1,16 +1,23 @@
 import {RequestWithParams, RequestWithParamsAndBody} from "../../types/types";
 import {CommentViewModel, UpdateCommentInputModel, URIParamsCommentIdModel} from "./comments.types";
 import {Response} from 'express';
-import {commentsQueryRepository} from "./comments.query.repository";
+import {CommentsQueryRepository} from "./comments.query.repository";
 import {HTTP_STATUSES} from "../../utils";
-import {commentsService} from "./comments.service";
+import {CommentsService} from "./comments.service";
 import {ResultStatus} from "../../common/result/resultStatus";
 import {resultStatusToHttp} from "../../common/result/resultStatusToHttp";
 
 class CommentsController {
+    private commentsService: CommentsService;
+    private commentsQueryRepository: CommentsQueryRepository;
+    constructor() {
+        this.commentsService = new CommentsService();
+        this.commentsQueryRepository = new CommentsQueryRepository();
+    }
+
     async getComment (req: RequestWithParams<URIParamsCommentIdModel>,
                       res: Response<CommentViewModel>){
-        const foundComment = await commentsQueryRepository.findCommentById(req.params.id);
+        const foundComment = await this.commentsQueryRepository.findCommentById(req.params.id);
         if (!foundComment) {
             res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
             return;
@@ -19,7 +26,7 @@ class CommentsController {
         res.json(foundComment);
     };
     async deleteComment (req: RequestWithParams<URIParamsCommentIdModel>, res: Response) {
-        const result = await commentsService.deleteComment(req.params.id, req.user!.id);
+        const result = await this.commentsService.deleteComment(req.params.id, req.user!.id);
 
         if (result.status !== ResultStatus.SUCCESS) {
             res.sendStatus(resultStatusToHttp(result.status));
@@ -30,7 +37,7 @@ class CommentsController {
     };
     async updateComment (req: RequestWithParamsAndBody<URIParamsCommentIdModel, UpdateCommentInputModel>,
                          res: Response) {
-        const result = await commentsService.updateComment(
+        const result = await this.commentsService.updateComment(
             req.params.id, req.user!.id, req.body.content
         );
 

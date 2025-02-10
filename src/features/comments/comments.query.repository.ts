@@ -3,7 +3,7 @@ import {CommentModel} from "../../db/db";
 import {ObjectId, WithId} from "mongodb";
 import {Paginator} from "../../types/types";
 
-class CommentsQueryRepository {
+export class CommentsQueryRepository {
     async findCommentById(id: string): Promise<CommentViewModel | null> {
         const filterObj: any = { isDeleted: false, _id: new ObjectId(id) };
         const comment = await CommentModel.findOne(filterObj).lean();

@@ -3,7 +3,7 @@ import {CommentModel} from "../../db/db";
 import {SortDirections} from "../../types/types";
 import {ObjectId, WithId} from "mongodb";
 
-class CommentsRepository {
+export class CommentsRepository {
     async createComment(content: string, postId: string,
                         commentatorInfo: CommentatorInfo, createdAt: string): Promise<string> {
         const dbComment = new CommentDBType(

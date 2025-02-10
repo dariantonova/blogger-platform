@@ -1,14 +1,19 @@
-import {attemptsRepository} from "./attempts.repository";
+import {AttemptsRepository} from "./attempts.repository";
 
-class AttemptsService {
+export class AttemptsService {
+    private attemptsRepository: AttemptsRepository;
+    constructor() {
+        this.attemptsRepository = new AttemptsRepository();
+    }
+
     async deleteAllAttempts() {
-        return attemptsRepository.deleteAllAttempts();
+        return this.attemptsRepository.deleteAllAttempts();
     };
     async countAttemptsFromDate(ip: string, url: string, fromDate: Date) {
-        return attemptsRepository.countAttemptsFromDate(ip, url, fromDate);
+        return this.attemptsRepository.countAttemptsFromDate(ip, url, fromDate);
     };
     async createAttempt(ip: string, url: string) {
-        return attemptsRepository.createAttempt(ip, url, new Date());
+        return this.attemptsRepository.createAttempt(ip, url, new Date());
     };
 }
 

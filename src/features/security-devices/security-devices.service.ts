@@ -1,12 +1,19 @@
 import {Result} from "../../common/result/result.type";
-import {jwtService} from "../../application/jwt.service";
-import {deviceAuthSessionsRepository} from "../auth/device-auth-sessions.repository";
+import {JwtService} from "../../application/jwt.service";
+import {DeviceAuthSessionsRepository} from "../auth/device-auth-sessions.repository";
 import {ResultStatus} from "../../common/result/resultStatus";
 
-class SecurityDevicesService {
+export class SecurityDevicesService {
+    private deviceAuthSessionsRepository: DeviceAuthSessionsRepository;
+    private jwtService: JwtService;
+    constructor() {
+        this.deviceAuthSessionsRepository = new DeviceAuthSessionsRepository();
+        this.jwtService = new JwtService();
+    }
+
     async terminateAllOtherDeviceSessions(refreshToken: string): Promise<Result<null>> {
-        const refTokenPayload = await jwtService.decodeRefreshToken(refreshToken);
-        await deviceAuthSessionsRepository.terminateAllOtherUserSessions(
+        const refTokenPayload = await this.jwtService.decodeRefreshToken(refreshToken);
+        await this.deviceAuthSessionsRepository.terminateAllOtherUserSessions(
             refTokenPayload.userId, refTokenPayload.deviceId
         );
 
@@ -17,7 +24,7 @@ class SecurityDevicesService {
         };
     };
     async terminateDeviceSession(deviceId: string, currentUserId: string): Promise<Result<null>> {
-        const deviceAuthSession = await deviceAuthSessionsRepository
+        const deviceAuthSession = await this.deviceAuthSessionsRepository
             .findSessionByDeviceId(deviceId);
         if (!deviceAuthSession) {
             return {
@@ -35,7 +42,7 @@ class SecurityDevicesService {
             };
         }
 
-        const isSessionTerminated = await deviceAuthSessionsRepository.terminateSession(deviceId);
+        const isSessionTerminated = await this.deviceAuthSessionsRepository.terminateSession(deviceId);
         if (!isSessionTerminated) {
             return {
                 status: ResultStatus.INTERNAL_SERVER_ERROR,

@@ -6,12 +6,12 @@ const router = Router();
 
 router.get('/',
     refreshTokenVerification,
-    securityDevicesController.getDeviceSessions);
+    securityDevicesController.getDeviceSessions.bind(securityDevicesController));
 router.delete('/',
     refreshTokenVerification,
-    securityDevicesController.terminateAllOtherDeviceSessions);
+    securityDevicesController.terminateAllOtherDeviceSessions.bind(securityDevicesController));
 router.delete('/:deviceId',
     refreshTokenVerification,
-    securityDevicesController.terminateDeviceSession);
+    securityDevicesController.terminateDeviceSession.bind(securityDevicesController));
 
 export { router as securityDevicesRouter };

@@ -1,7 +1,7 @@
 import {DeviceAuthSessionDBType, DeviceViewModel} from "./types/auth.types";
 import {DeviceAuthSessionModel} from "../../db/db";
 
-class DeviceAuthSessionsQueryRepository {
+export class DeviceAuthSessionsQueryRepository {
     async findUserSessions(userId: string): Promise<DeviceViewModel[]> {
         const deviceAuthSessions = await DeviceAuthSessionModel
             .find({ userId }, { _id: 0 })

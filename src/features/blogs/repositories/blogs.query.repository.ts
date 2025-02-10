@@ -2,7 +2,7 @@ import {BlogDBType, Paginator, SortDirections} from "../../../types/types";
 import {BlogModel} from "../../../db/db";
 import {BlogViewModel} from "../models/BlogViewModel";
 
-class BlogsQueryRepository {
+export class BlogsQueryRepository {
     async findBlogs(searchNameTerm: string | null,
                     sortBy: string, sortDirection: SortDirections,
                     pageNumber: number, pageSize: number): Promise<Paginator<BlogViewModel>> {

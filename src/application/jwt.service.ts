@@ -9,7 +9,7 @@ type RefreshTokenPayload = {
     iat: number,
 };
 
-class JwtService {
+export class JwtService {
     async createAccessToken(user: UserDBType): Promise<string> {
         return jwt.sign({ userId: user.id }, SETTINGS.ACCESS_JWT_SECRET,
             { expiresIn: SETTINGS.ACCESS_JWT_LIFE });

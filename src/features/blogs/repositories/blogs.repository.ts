@@ -1,7 +1,7 @@
 import {BlogDBType} from "../../../types/types";
 import {BlogModel} from "../../../db/db";
 
-class BlogsRepository {
+export class BlogsRepository {
     async deleteBlog(id: string): Promise<boolean> {
         const updateBlogInfo = await BlogModel.updateOne(
             { isDeleted: false, id },

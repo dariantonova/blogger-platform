@@ -1,14 +1,23 @@
 import {Result} from "../../common/result/result.type";
-import {postsService} from "../posts/posts.service";
-import {usersService} from "../users/users.service";
+import {PostsService} from "../posts/posts.service";
+import {UsersService} from "../users/users.service";
 import {CommentatorInfo, CommentType} from "./comments.types";
-import {commentsRepository} from "./comments.repository";
+import {CommentsRepository} from "./comments.repository";
 import {ResultStatus} from "../../common/result/resultStatus";
 import {SortDirections} from "../../types/types";
 
-class CommentsService {
+export class CommentsService {
+    private commentsRepository: CommentsRepository;
+    private postsService: PostsService;
+    private usersService: UsersService;
+    constructor() {
+        this.commentsRepository = new CommentsRepository();
+        this.postsService = new PostsService();
+        this.usersService = new UsersService();
+    }
+
     async createComment(postId: string, userId: string, content: string): Promise<Result<string | null>> {
-        const post = await postsService.findPostById(postId);
+        const post = await this.postsService.findPostById(postId);
         if (!post) {
             return {
                 status: ResultStatus.NOT_FOUND,
@@ -17,7 +26,7 @@ class CommentsService {
             };
         }
 
-        const user = await usersService.findUserById(userId);
+        const user = await this.usersService.findUserById(userId);
         if (!user) {
             return {
                 status: ResultStatus.UNAUTHORIZED,
@@ -27,7 +36,7 @@ class CommentsService {
         }
 
         const commentatorInfo = new CommentatorInfo(user.id, user.login);
-        const newCommentId = await commentsRepository.createComment(
+        const newCommentId = await this.commentsRepository.createComment(
             content,
             postId,
             commentatorInfo,
@@ -41,7 +50,7 @@ class CommentsService {
     };
     async getPostComments(postId: string, sortBy: string, sortDirection: SortDirections,
                           pageNumber: number, pageSize: number): Promise<Result<CommentType[] | null>> {
-        const post = await postsService.findPostById(postId);
+        const post = await this.postsService.findPostById(postId);
         if (!post) {
             return {
                 status: ResultStatus.NOT_FOUND,
@@ -50,7 +59,7 @@ class CommentsService {
             };
         }
 
-        const foundComments = await commentsRepository.findPostComments(
+        const foundComments = await this.commentsRepository.findPostComments(
             postId, sortBy, sortDirection, pageNumber, pageSize
         );
         return {
@@ -60,10 +69,10 @@ class CommentsService {
         }
     };
     async deleteAllComments() {
-        await commentsRepository.deleteAllComments();
+        await this.commentsRepository.deleteAllComments();
     };
     async deleteComment(commentId: string, currentUserId: string): Promise<Result<null>> {
-        const comment = await commentsRepository.findCommentById(commentId);
+        const comment = await this.commentsRepository.findCommentById(commentId);
 
         if (!comment) {
             return {
@@ -81,7 +90,7 @@ class CommentsService {
             };
         }
 
-        const isDeleted = await commentsRepository.deleteComment(commentId);
+        const isDeleted = await this.commentsRepository.deleteComment(commentId);
         if (!isDeleted) {
             return {
                 status: ResultStatus.INTERNAL_SERVER_ERROR,
@@ -97,7 +106,7 @@ class CommentsService {
         };
     };
     async updateComment(commentId: string, currentUserId: string, content: string): Promise<Result<null>> {
-        const comment = await commentsRepository.findCommentById(commentId);
+        const comment = await this.commentsRepository.findCommentById(commentId);
 
         if (!comment) {
             return {
@@ -115,7 +124,7 @@ class CommentsService {
             }
         }
 
-        const isUpdated = await commentsRepository.updateComment(commentId, content);
+        const isUpdated = await this.commentsRepository.updateComment(commentId, content);
         if (!isUpdated) {
             return {
                 status: ResultStatus.INTERNAL_SERVER_ERROR,

@@ -1,13 +1,20 @@
 import {BlogDBType} from "../../types/types";
-import {blogsRepository} from "./repositories/blogs.repository";
-import {postsRepository} from "../posts/repositories/posts.repository";
+import {BlogsRepository} from "./repositories/blogs.repository";
+import {PostsRepository} from "../posts/repositories/posts.repository";
 
-class BlogsService {
+export class BlogsService {
+    private blogsRepository: BlogsRepository;
+    private postsRepository: PostsRepository;
+    constructor() {
+        this.blogsRepository = new BlogsRepository();
+        this.postsRepository = new PostsRepository();
+    }
+
     async deleteBlog(id: string): Promise<boolean> {
-        const isBlogDeleted = await blogsRepository.deleteBlog(id);
+        const isBlogDeleted = await this.blogsRepository.deleteBlog(id);
 
         if (isBlogDeleted) {
-            await postsRepository.deleteBlogPosts(id);
+            await this.postsRepository.deleteBlogPosts(id);
         }
 
         return isBlogDeleted;
@@ -23,21 +30,21 @@ class BlogsService {
             false
         );
 
-        await blogsRepository.createBlog(createdBlog);
+        await this.blogsRepository.createBlog(createdBlog);
 
         return createdBlog.id;
     };
     async updateBlog(id: string, name: string, description: string, websiteUrl: string): Promise<boolean> {
-        const isBlogUpdated = await blogsRepository.updateBlog(id, name, description, websiteUrl);
+        const isBlogUpdated = await this.blogsRepository.updateBlog(id, name, description, websiteUrl);
 
         if (isBlogUpdated) {
-            await postsRepository.updatePostsBlogNames(id, name);
+            await this.postsRepository.updatePostsBlogNames(id, name);
         }
 
         return isBlogUpdated;
     };
     async deleteAllBlogs() {
-        return blogsRepository.deleteAllBlogs();
+        return this.blogsRepository.deleteAllBlogs();
     };
 }
 

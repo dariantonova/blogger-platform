@@ -1,7 +1,7 @@
 import {PostModel} from "../../../db/db";
 import {PostDBType, SortDirections} from "../../../types/types";
 
-class PostsRepository {
+export class PostsRepository {
     async deletePost(id: string): Promise<boolean> {
         const updatePostInfo = await PostModel.updateOne(
             { isDeleted: false, id },

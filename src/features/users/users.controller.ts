@@ -3,15 +3,22 @@ import {QueryUsersModel} from "./models/QueryUsersModel";
 import {UserViewModel} from "./models/UserViewModel";
 import {Response} from "express";
 import {getUsersQueryParamsValues} from "../../helpers/query-params-values";
-import {usersQueryRepository} from "./repositories/users.query.repository";
+import {UsersQueryRepository} from "./repositories/users.query.repository";
 import {CreateUserInputModel} from "./models/CreateUserInputModel";
-import {usersService} from "./users.service";
+import {UsersService} from "./users.service";
 import {HTTP_STATUSES} from "../../utils";
 import {URIParamsUserIdModel} from "./models/URIParamsUserIdModel";
 import {ResultStatus} from "../../common/result/resultStatus";
 import {resultStatusToHttp} from "../../common/result/resultStatusToHttp";
 
 class UsersController {
+    private usersService: UsersService;
+    private usersQueryRepository: UsersQueryRepository;
+    constructor() {
+        this.usersService = new UsersService();
+        this.usersQueryRepository = new UsersQueryRepository();
+    }
+
     async getUsers (req: RequestWithQuery<QueryUsersModel>,
                     res: Response<Paginator<UserViewModel>>) {
         const {
@@ -23,7 +30,7 @@ class UsersController {
             searchEmailTerm
         } = getUsersQueryParamsValues(req);
 
-        const foundUsers = await usersQueryRepository.findUsers(
+        const foundUsers = await this.usersQueryRepository.findUsers(
             sortBy, sortDirection, pageNumber, pageSize, searchLoginTerm, searchEmailTerm
         );
 
@@ -31,7 +38,7 @@ class UsersController {
     };
     async createUser (req: RequestWithBody<CreateUserInputModel>,
                       res: Response<UserViewModel | APIErrorResult>) {
-        const result = await usersService.createUser(
+        const result = await this.usersService.createUser(
             req.body.login, req.body.email, req.body.password, true
         );
 
@@ -44,7 +51,7 @@ class UsersController {
         }
 
         const createdUserId = result.data as string;
-        const createdUser = await usersQueryRepository.findUserById(createdUserId);
+        const createdUser = await this.usersQueryRepository.findUserById(createdUserId);
         if (!createdUser) {
             res.sendStatus(HTTP_STATUSES.INTERNAL_SERVER_ERROR_500);
             return;
@@ -55,7 +62,7 @@ class UsersController {
             .json(createdUser);
     };
     async deleteUser (req: RequestWithParams<URIParamsUserIdModel>, res: Response) {
-        const isDeleted = await usersService.deleteUser(req.params.id);
+        const isDeleted = await this.usersService.deleteUser(req.params.id);
         if (!isDeleted) {
             res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
             return;
