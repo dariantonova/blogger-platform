@@ -7,14 +7,14 @@ import {ResultStatus} from "../../common/result/resultStatus";
 import {resultStatusToHttp} from "../../common/result/resultStatusToHttp";
 import {HTTP_STATUSES} from "../../utils";
 
-export const securityDevicesController = {
-    getDeviceSessions: async (req: Request, res: Response<DeviceViewModel[]>) => {
+class SecurityDevicesController {
+    async getDeviceSessions (req: Request, res: Response<DeviceViewModel[]>) {
         const user = req.user as UserDBType;
         const deviceSessions = await deviceAuthSessionsQueryRepository.findUserSessions(user.id);
 
         res.json(deviceSessions);
-    },
-    terminateAllOtherDeviceSessions: async (req: Request, res: Response) => {
+    };
+    async terminateAllOtherDeviceSessions (req: Request, res: Response) {
         const refreshToken = req.cookies.refreshToken;
 
         const result = await securityDevicesService.terminateAllOtherDeviceSessions(refreshToken);
@@ -24,8 +24,8 @@ export const securityDevicesController = {
         }
 
         res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
-    },
-    terminateDeviceSession: async (req: RequestWithParams<{ deviceId: string }>, res: Response) => {
+    };
+    async terminateDeviceSession (req: RequestWithParams<{ deviceId: string }>, res: Response) {
         const deviceIdToTerminate = req.params.deviceId;
         const user = req.user as UserDBType;
 
@@ -36,5 +36,7 @@ export const securityDevicesController = {
         }
 
         res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
-    },
-};
+    };
+}
+
+export const securityDevicesController = new SecurityDevicesController();

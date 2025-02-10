@@ -7,11 +7,12 @@ export type LoginSuccessViewModel = {
     accessToken: string,
 };
 
-export type MeViewModel = {
-    email: string,
-    login: string,
-    userId: string,
-};
+export class MeViewModel {
+    constructor(public email: string,
+                public login: string,
+                public userId: string
+    ) {}
+}
 
 export type RegistrationConfirmationCodeModel = {
     code: string,
@@ -21,32 +22,26 @@ export type RegistrationEmailResending = {
     email: string,
 };
 
-export type TokenPair = {
-    accessToken: string,
-    refreshToken: string,
-};
+export class TokenPair {
+    constructor(public accessToken: string,
+                public refreshToken: string
+    ) {}
+}
 
-export type DeviceAuthSessionDTO = {
-    userId: string,
-    deviceId: string,
-    iat: Date,
-    deviceName: string,
-    ip: string,
-    exp: Date,
-};
+export class DeviceAuthSessionDBType {
+    constructor(public userId: string,
+                public deviceId: string,
+                public iat: Date,
+                public deviceName: string,
+                public ip: string,
+                public exp: Date
+    ) {}
+}
 
-export type DeviceAuthSessionDBType = {
-    userId: string,
-    deviceId: string,
-    iat: Date,
-    deviceName: string,
-    ip: string,
-    exp: Date,
-};
-
-export type DeviceViewModel = {
-    ip: string,
-    title: string,
-    lastActiveDate: string,
-    deviceId: string,
-};
+export class DeviceViewModel {
+    constructor(public ip: string,
+                public title: string,
+                public lastActiveDate: string,
+                public deviceId: string
+    ) {}
+}

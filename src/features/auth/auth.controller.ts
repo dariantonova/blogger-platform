@@ -19,9 +19,9 @@ import {jwtService} from "../../application/jwt.service";
 const defaultIp = 'Unknown';
 const defaultDeviceName = 'Unknown';
 
-export const authController = {
-    loginUser: async (req: RequestWithBody<LoginInputModel>,
-                      res: Response<LoginSuccessViewModel>) => {
+class AuthController {
+    async loginUser (req: RequestWithBody<LoginInputModel>,
+                     res: Response<LoginSuccessViewModel>) {
         const ip = req.ip || defaultIp;
         const deviceName = req.headers['user-agent'] || defaultDeviceName;
 
@@ -37,18 +37,18 @@ export const authController = {
         const tokenPair = result.data as TokenPair;
 
         await authController._sendTokenPair(res, tokenPair);
-    },
-    getCurrentUserInfo: async (req: Request, res: Response<MeViewModel>) => {
+    };
+    async getCurrentUserInfo (req: Request, res: Response<MeViewModel>) {
         const user = req.user as UserDBType;
-        const userInfo: MeViewModel = {
-            email: user.email,
-            login: user.login,
-            userId: user.id,
-        };
+        const userInfo = new MeViewModel(
+            user.email,
+            user.login,
+            user.id
+        );
         res.json(userInfo);
-    },
-    registerUser: async (req: RequestWithBody<CreateUserInputModel>,
-                         res: Response<APIErrorResult>) => {
+    };
+    async registerUser (req: RequestWithBody<CreateUserInputModel>,
+                        res: Response<APIErrorResult>) {
         const registerUserResult = await authService.registerUser(
             req.body.login, req.body.email, req.body.password
         );
@@ -64,40 +64,36 @@ export const authController = {
         }
 
         res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
-    },
-    confirmRegistration: async (req: RequestWithBody<RegistrationConfirmationCodeModel>,
-                                res: Response<APIErrorResult>) => {
-        const confirmRegistrationResult = await authService.confirmRegistration(req.body.code);
+    };
+    async confirmRegistration (req: RequestWithBody<RegistrationConfirmationCodeModel>,
+                               res: Response<APIErrorResult>) {
+        const result = await authService.confirmRegistration(req.body.code);
 
-        if (confirmRegistrationResult.status !== ResultStatus.SUCCESS) {
-            const error: APIErrorResult = {
-                errorsMessages: confirmRegistrationResult.extensions,
-            };
+        if (result.status !== ResultStatus.SUCCESS) {
+            const error = new APIErrorResult(result.extensions);
             res
-                .status(resultStatusToHttp(confirmRegistrationResult.status))
+                .status(resultStatusToHttp(result.status))
                 .json(error);
             return;
         }
 
         res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
-    },
-    resendRegistrationEmail: async (req: RequestWithBody<RegistrationEmailResending>,
-                                    res: Response<APIErrorResult>) => {
-        const resendRegistrationEmailResult = await authService.resendRegistrationEmail(req.body.email);
+    };
+    async resendRegistrationEmail (req: RequestWithBody<RegistrationEmailResending>,
+                                   res: Response<APIErrorResult>) {
+        const result = await authService.resendRegistrationEmail(req.body.email);
 
-        if (resendRegistrationEmailResult.status !== ResultStatus.SUCCESS) {
-            const error: APIErrorResult = {
-                errorsMessages: resendRegistrationEmailResult.extensions,
-            };
+        if (result.status !== ResultStatus.SUCCESS) {
+            const error = new APIErrorResult(result.extensions);
             res
-                .status(resultStatusToHttp(resendRegistrationEmailResult.status))
+                .status(resultStatusToHttp(result.status))
                 .json(error);
             return;
         }
 
         res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
-    },
-    refreshToken: async (req: Request, res: Response<LoginSuccessViewModel>) => {
+    };
+    async refreshToken (req: Request, res: Response<LoginSuccessViewModel>) {
         const tokenToRevoke = req.cookies.refreshToken;
         const user = req.user as UserDBType;
         const ip = req.ip || defaultIp;
@@ -111,9 +107,9 @@ export const authController = {
         const tokenPair = result.data as TokenPair;
 
         await authController._sendTokenPair(res, tokenPair);
-    },
-    _sendTokenPair: async (res: Response<LoginSuccessViewModel>,
-                           { accessToken, refreshToken }: TokenPair) => {
+    };
+    async _sendTokenPair (res: Response<LoginSuccessViewModel>,
+                          { accessToken, refreshToken }: TokenPair) {
         const refTokenPayload = await jwtService.decodeRefreshToken(refreshToken);
 
         res.cookie('refreshToken', refreshToken, {
@@ -124,8 +120,8 @@ export const authController = {
         });
 
         res.json({ accessToken });
-    },
-    logoutUser: async (req: Request, res: Response) => {
+    };
+    async logoutUser (req: Request, res: Response) {
         const tokenToRevoke = req.cookies.refreshToken;
 
         const result = await authService.logoutUser(tokenToRevoke);
@@ -135,5 +131,7 @@ export const authController = {
         }
 
         res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
-    },
-};
+    };
+}
+
+export const authController = new AuthController();

@@ -1,14 +1,13 @@
 import {Result} from "../../common/result/result.type";
 import {postsService} from "../posts/posts.service";
 import {usersService} from "../users/users.service";
-import {CommentType} from "./comments.types";
+import {CommentatorInfo, CommentType} from "./comments.types";
 import {commentsRepository} from "./comments.repository";
 import {ResultStatus} from "../../common/result/resultStatus";
 import {SortDirections} from "../../types/types";
 
-export const commentsService = {
+class CommentsService {
     async createComment(postId: string, userId: string, content: string): Promise<Result<string | null>> {
-        // check post exists
         const post = await postsService.findPostById(postId);
         if (!post) {
             return {
@@ -18,7 +17,6 @@ export const commentsService = {
             };
         }
 
-        // check user exists
         const user = await usersService.findUserById(userId);
         if (!user) {
             return {
@@ -28,27 +26,21 @@ export const commentsService = {
             };
         }
 
-        // create comment
-        const newComment: Omit<CommentType, 'id'> = {
+        const commentatorInfo = new CommentatorInfo(user.id, user.login);
+        const newCommentId = await commentsRepository.createComment(
             content,
             postId,
-            commentatorInfo: {
-                userId: user.id,
-                userLogin: user.login,
-            },
-            createdAt: new Date().toISOString(),
-        };
-
-        const newCommentId = await commentsRepository.createComment(newComment);
+            commentatorInfo,
+            new Date().toISOString()
+        );
         return {
             status: ResultStatus.SUCCESS,
             data: newCommentId,
             extensions: [],
         }
-    },
+    };
     async getPostComments(postId: string, sortBy: string, sortDirection: SortDirections,
                           pageNumber: number, pageSize: number): Promise<Result<CommentType[] | null>> {
-        // check post exists
         const post = await postsService.findPostById(postId);
         if (!post) {
             return {
@@ -66,10 +58,10 @@ export const commentsService = {
             data: foundComments,
             extensions: [],
         }
-    },
+    };
     async deleteAllComments() {
         await commentsRepository.deleteAllComments();
-    },
+    };
     async deleteComment(commentId: string, currentUserId: string): Promise<Result<null>> {
         const comment = await commentsRepository.findCommentById(commentId);
 
@@ -103,7 +95,7 @@ export const commentsService = {
             data: null,
             extensions: [],
         };
-    },
+    };
     async updateComment(commentId: string, currentUserId: string, content: string): Promise<Result<null>> {
         const comment = await commentsRepository.findCommentById(commentId);
 
@@ -137,5 +129,7 @@ export const commentsService = {
             data: null,
             extensions: [],
         };
-    },
-};
+    };
+}
+
+export const commentsService = new CommentsService();

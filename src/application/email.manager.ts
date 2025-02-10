@@ -1,6 +1,6 @@
 import {nodemailerService} from "./nodemailer.service";
 
-export const emailManager = {
+class EmailManager {
     async sendRegistrationMessage(email: string, confirmationCode: string) {
         const subject = 'Finish registration';
         const message =
@@ -9,5 +9,7 @@ export const emailManager = {
             `     <a href='https://somesite.com/confirm-email?code=${confirmationCode}'>complete registration</a>\n`+
             ' </p>\n';
         return nodemailerService.sendEmail(email, subject, message);
-    },
-};
+    };
+}
+
+export const emailManager = new EmailManager();

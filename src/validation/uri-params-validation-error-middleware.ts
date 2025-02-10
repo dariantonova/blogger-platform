@@ -3,8 +3,8 @@ import {Paginator} from "../types/types";
 import {validationResult} from "express-validator";
 import {HTTP_STATUSES} from "../utils";
 
-export const paramsValidationErrorMiddleware = (req: Request,
-                                               res: Response<Paginator<any>>, next: NextFunction) => {
+export const uriParamsValidationErrorMiddleware = (req: Request,
+                                                   res: Response<Paginator<any>>, next: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);

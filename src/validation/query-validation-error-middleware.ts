@@ -6,13 +6,13 @@ export const queryValidationErrorMiddleware = (req: Request,
                                                res: Response<Paginator<any>>, next: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        const output: Paginator<any> = {
-            pagesCount: 0,
-            page: 0,
-            pageSize: 0,
-            totalCount: 0,
-            items: [],
-        };
+        const output = new Paginator<any>(
+            [],
+            0,
+            0,
+            0,
+            0
+        );
 
         res.json(output);
         return;

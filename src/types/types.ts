@@ -9,76 +9,85 @@ export type RequestWithParamsAndBody<T, B> = Request<T, {}, B>;
 export type RequestWithQuery<T> = Request<{}, {}, {}, T>;
 export type RequestWithParamsAndQuery<T, B> = Request<T, {}, {}, B>;
 
-export type FieldError = {
-    message: string | null,
-    field: string | null,
-};
+export class FieldError {
+    constructor(public field: string | null,
+                public message: string | null
+    ) {}
+}
 
-export type APIErrorResult = {
-    errorsMessages: FieldError[] | null,
-};
+export class APIErrorResult {
+    constructor(public errorsMessages: FieldError[] | null
+    ) {}
+}
 
-export type BlogDBType = {
-    id: string,
-    name: string,
-    description: string,
-    websiteUrl: string,
-    isDeleted: boolean,
-    createdAt: string,
-    isMembership: boolean,
-};
+export class BlogDBType {
+    constructor(public id: string,
+                public name: string,
+                public description: string,
+                public websiteUrl: string,
+                public isDeleted: boolean,
+                public createdAt: string,
+                public isMembership: boolean
+    ) {}
+}
 
-export type PostDBType = {
-    id: string,
-    title: string,
-    shortDescription: string,
-    content: string,
-    blogId: string,
-    blogName: string,
-    isDeleted: boolean,
-    createdAt: string,
-};
+export class PostDBType {
+    constructor(public id: string,
+                public title: string,
+                public shortDescription: string,
+                public content: string,
+                public blogId: string,
+                public blogName: string,
+                public isDeleted: boolean,
+                public createdAt: string
+    ) {}
+}
 
-export type ConfirmationInfoType = {
-    confirmationCode: string,
-    expirationDate: Date,
-    isConfirmed: boolean,
-};
+export class ConfirmationInfoType {
+    constructor(public confirmationCode: string,
+                public expirationDate: Date,
+                public isConfirmed: boolean
+    ) {}
+}
 
-export type UserDBType = {
-    id: string,
-    login: string,
-    email: string,
-    createdAt: Date,
-    passwordHash: string,
-    confirmationInfo: ConfirmationInfoType,
-    isDeleted: boolean,
-};
+export class UserDBType {
+    constructor(public id: string,
+                public login: string,
+                public email: string,
+                public createdAt: Date,
+                public passwordHash: string,
+                public confirmationInfo: ConfirmationInfoType,
+                public isDeleted: boolean
+    ) {}
+}
 
-export type AttemptDBType = {
-    ip: string,
-    url: string,
-    date: Date,
-};
+export class AttemptDBType {
+    constructor(public ip: string,
+                public url: string,
+                public date: Date
+    ) {}
+}
 
-export type DBType = {
-    blogs: OptionalId<BlogDBType>[],
-    posts: OptionalId<PostDBType>[],
-    users: OptionalId<UserDBType>[],
-    comments: OptionalId<CommentDBType>[],
-    deviceAuthSessions: OptionalId<DeviceAuthSessionDBType>[],
-    attempts: OptionalId<AttemptDBType>[],
-};
+export class DBType {
+    constructor(public blogs: OptionalId<BlogDBType>[],
+                public posts: OptionalId<PostDBType>[],
+                public users: OptionalId<UserDBType>[],
+                public comments: OptionalId<CommentDBType>[],
+                public deviceAuthSessions: OptionalId<DeviceAuthSessionDBType>[],
+                public attempts: OptionalId<AttemptDBType>[]
+    ) {}
+}
 
 export enum SortDirections {
     ASC = 'asc',
     DESC = 'desc',
 }
 
-export type Paginator<T> = {
-    pagesCount?: number,
-    page?: number,
-    pageSize?: number,
-    totalCount?: number,
-    items: T[],
-};
+export class Paginator<T> {
+    constructor(public items: T[],
+                public pagesCount?: number,
+                public page?: number,
+                public pageSize?: number,
+                public totalCount?: number
+    ) {}
+}

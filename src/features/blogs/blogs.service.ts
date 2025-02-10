@@ -2,7 +2,7 @@ import {BlogDBType} from "../../types/types";
 import {blogsRepository} from "./repositories/blogs.repository";
 import {postsRepository} from "../posts/repositories/posts.repository";
 
-export const blogsService = {
+class BlogsService {
     async deleteBlog(id: string): Promise<boolean> {
         const isBlogDeleted = await blogsRepository.deleteBlog(id);
 
@@ -11,22 +11,22 @@ export const blogsService = {
         }
 
         return isBlogDeleted;
-    },
+    };
     async createBlog(name: string, description: string, websiteUrl: string): Promise<string> {
-        const createdBlog: BlogDBType = {
-            id: String(+new Date()),
+        const createdBlog = new BlogDBType(
+            String(+new Date()),
             name,
             description,
             websiteUrl,
-            isDeleted: false,
-            createdAt: new Date().toISOString(),
-            isMembership: false,
-        };
+            false,
+            new Date().toISOString(),
+            false
+        );
 
         await blogsRepository.createBlog(createdBlog);
 
         return createdBlog.id;
-    },
+    };
     async updateBlog(id: string, name: string, description: string, websiteUrl: string): Promise<boolean> {
         const isBlogUpdated = await blogsRepository.updateBlog(id, name, description, websiteUrl);
 
@@ -35,8 +35,10 @@ export const blogsService = {
         }
 
         return isBlogUpdated;
-    },
+    };
     async deleteAllBlogs() {
         return blogsRepository.deleteAllBlogs();
-    },
-};
+    };
+}
+
+export const blogsService = new BlogsService();

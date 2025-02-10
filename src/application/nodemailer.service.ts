@@ -16,7 +16,7 @@ transporter.verify(function (error) {
     }
 });
 
-export const nodemailerService = {
+class NodemailerService {
     async sendEmail(email: string, subject: string, message: string) {
         const mail = {
             from: `DaricioDeveloper <${process.env.EMAIL}>`,
@@ -26,5 +26,7 @@ export const nodemailerService = {
         };
 
         return transporter.sendMail(mail);
-    },
-};
+    };
+}
+
+export const nodemailerService = new NodemailerService();

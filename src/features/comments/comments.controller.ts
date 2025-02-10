@@ -7,9 +7,9 @@ import {commentsService} from "./comments.service";
 import {ResultStatus} from "../../common/result/resultStatus";
 import {resultStatusToHttp} from "../../common/result/resultStatusToHttp";
 
-export const commentsController = {
-    getComment: async (req: RequestWithParams<URIParamsCommentIdModel>,
-                       res: Response<CommentViewModel>)=> {
+class CommentsController {
+    async getComment (req: RequestWithParams<URIParamsCommentIdModel>,
+                      res: Response<CommentViewModel>){
         const foundComment = await commentsQueryRepository.findCommentById(req.params.id);
         if (!foundComment) {
             res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
@@ -17,8 +17,8 @@ export const commentsController = {
         }
 
         res.json(foundComment);
-    },
-    deleteComment: async (req: RequestWithParams<URIParamsCommentIdModel>, res: Response) => {
+    };
+    async deleteComment (req: RequestWithParams<URIParamsCommentIdModel>, res: Response) {
         const result = await commentsService.deleteComment(req.params.id, req.user!.id);
 
         if (result.status !== ResultStatus.SUCCESS) {
@@ -27,9 +27,9 @@ export const commentsController = {
         }
 
         res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
-    },
-    updateComment: async (req: RequestWithParamsAndBody<URIParamsCommentIdModel, UpdateCommentInputModel>,
-                          res: Response) => {
+    };
+    async updateComment (req: RequestWithParamsAndBody<URIParamsCommentIdModel, UpdateCommentInputModel>,
+                         res: Response) {
         const result = await commentsService.updateComment(
             req.params.id, req.user!.id, req.body.content
         );
@@ -40,5 +40,7 @@ export const commentsController = {
         }
 
         res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
-    },
-};
+    };
+}
+
+export const commentsController = new CommentsController();

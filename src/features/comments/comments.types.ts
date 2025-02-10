@@ -6,33 +6,37 @@ export type UpdateCommentInputModel = {
     content: string,
 };
 
-export type CommentatorInfo = {
-    userId: string,
-    userLogin: string,
-};
+export class CommentatorInfo {
+    constructor(public userId: string,
+                public userLogin: string
+    ) {}
+}
 
-export type CommentDBType = {
-    content: string,
-    postId: string,
-    commentatorInfo: CommentatorInfo,
-    createdAt: string,
-    isDeleted: boolean,
-};
+export class CommentDBType {
+    constructor(public content: string,
+                public postId: string,
+                public commentatorInfo: CommentatorInfo,
+                public createdAt: string,
+                public isDeleted: boolean
+    ) {}
+}
 
-export type CommentType = {
-    id: string,
-    content: string,
-    postId: string,
-    commentatorInfo: CommentatorInfo,
-    createdAt: string,
-};
+export class CommentType {
+    constructor(public id: string,
+                public content: string,
+                public postId: string,
+                public commentatorInfo: CommentatorInfo,
+                public createdAt: string
+    ) {}
+}
 
-export type CommentViewModel = {
-    id: string,
-    content: string,
-    commentatorInfo: CommentatorInfo,
-    createdAt: string,
-};
+export class CommentViewModel {
+    constructor(public id: string,
+                public content: string,
+                public commentatorInfo: CommentatorInfo,
+                public createdAt: string
+    ) {}
+}
 
 export type URIParamsCommentIdModel = {
     id: string,

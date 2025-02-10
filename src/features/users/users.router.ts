@@ -8,6 +8,7 @@ import {
     passwordFieldValidator
 } from "../../validation/field-validators/users-field-validators";
 import {errorsResultMiddleware} from "../../validation/errors-result-middleware";
+import {queryValidationErrorMiddleware} from "../../validation/query-validation-error-middleware";
 
 const router = Router();
 
@@ -15,6 +16,7 @@ router.get('/',
     basicAuthorizationMiddleware,
     pageNumberQueryParamValidator,
     pageSizeQueryParamValidator,
+    queryValidationErrorMiddleware,
     usersController.getUsers);
 router.post('/',
     basicAuthorizationMiddleware,

@@ -3,7 +3,7 @@ import {postsRepository} from "./repositories/posts.repository";
 import {blogsRepository} from "../blogs/repositories/blogs.repository";
 import {commentsRepository} from "../comments/comments.repository";
 
-export const postsService = {
+class PostsService {
     async deletePost(id: string): Promise<boolean> {
         const isDeleted = await postsRepository.deletePost(id);
 
@@ -12,28 +12,28 @@ export const postsService = {
         }
 
         return isDeleted;
-    },
+    };
     async createPost(title: string, shortDescription: string, content: string, blogId: string): Promise<string | null> {
         const blog = await blogsRepository.findBlogById(blogId);
         if (!blog) {
             return null;
         }
 
-        const createdPost: PostDBType = {
-            id: String(+new Date()),
+        const createdPost = new PostDBType(
+            String(+new Date()),
             title,
             shortDescription,
             content,
             blogId,
-            blogName: blog.name,
-            isDeleted: false,
-            createdAt: new Date().toISOString(),
-        };
+            blog.name,
+            false,
+            new Date().toISOString()
+        );
 
         await postsRepository.createPost(createdPost);
 
         return createdPost.id;
-    },
+    };
     async updatePost(id: string, title: string, shortDescription: string,
                      content: string, blogId: string): Promise<boolean> {
         const blog = await blogsRepository.findBlogById(blogId);
@@ -42,10 +42,10 @@ export const postsService = {
         }
 
         return postsRepository.updatePost(id, title, shortDescription, content, blogId, blog.name);
-    },
+    };
     async deleteAllPosts() {
         return postsRepository.deleteAllPosts();
-    },
+    };
     async findBlogPosts(blogId: string, sortBy: string, sortDirection: SortDirections,
                         pageNumber: number, pageSize: number): Promise<PostDBType[] | null> {
         const blog = await blogsRepository.findBlogById(blogId);
@@ -56,8 +56,10 @@ export const postsService = {
         return postsRepository.findBlogPosts(
             blogId, sortBy, sortDirection, pageNumber, pageSize
         );
-    },
+    };
     async findPostById(id: string): Promise<PostDBType | null> {
         return postsRepository.findPostById(id);
-    },
-};
+    };
+}
+
+export const postsService = new PostsService();

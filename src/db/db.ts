@@ -174,47 +174,45 @@ export const setDb = async (dataset?: Partial<DBType>) => {
 };
 
 const blogs: BlogDBType[] = [
-    {
-        id: '1',
-        name: 'blog 1',
-        description: 'superblog 1',
-        websiteUrl: 'https://superblog.com/1',
-        isDeleted: false,
-        createdAt: '2024-12-15T05:32:26.882Z',
-        isMembership: false,
-    },
-    {
-        id: '2',
-        name: 'blog 2',
-        description: 'superblog 2',
-        websiteUrl: 'https://superblog.com/2',
-        isDeleted: false,
-        createdAt: '2024-12-16T05:32:26.882Z',
-        isMembership: false,
-    },
+    new BlogDBType(
+        '1',
+        'blog 1',
+        'superblog 1',
+        'https://superblog.com/1',
+        false,
+        '2024-12-15T05:32:26.882Z',
+        false,
+    ),
+    new BlogDBType(
+        '2',
+        'blog 2',
+        'superblog 2',
+        'https://superblog.com/2',
+        false,
+        '2024-12-16T05:32:26.882Z',
+        false,
+    )
 ];
 
 const posts: PostDBType[] = [
-    {
-        id: '1',
-        title: 'post 1',
-        shortDescription: 'superpost 1',
-        content: 'content of superpost 1',
-        blogId: '2',
-        blogName: 'blog 2',
-        isDeleted: false,
-        createdAt: '2024-12-15T05:32:26.882Z',
-    },
-    {
-        id: '2',
-        title: 'post 2',
-        shortDescription: 'superpost 2',
-        content: 'content of superpost 2',
-        blogId: '1',
-        blogName: 'blog 1',
-        isDeleted: false,
-        createdAt: '2024-12-16T05:32:26.882Z',
-    },
+    new PostDBType(
+        '1',
+        'post 1',
+        'superpost 1',
+        'content of superpost 1',
+        '2',
+        'blog 2',
+        false,
+        '2024-12-15T05:32:26.882Z'),
+    new PostDBType(
+        '2',
+        'post 2',
+        'superpost 2',
+        'content of superpost 2',
+        '1',
+        'blog 1',
+        false,
+        '2024-12-16T05:32:26.882Z')
 ];
 
 const users: UserDBType[] = [];
@@ -222,11 +220,11 @@ const comments: CommentDBType[] = [];
 const deviceAuthSessions: DeviceAuthSessionDBType[] = [];
 const attempts: AttemptDBType[] = [];
 
-export const initialDb: DBType = {
+export const initialDb = new DBType(
     blogs,
     posts,
     users,
     comments,
     deviceAuthSessions,
-    attempts,
-};
+    attempts
+);

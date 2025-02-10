@@ -6,11 +6,11 @@ import {Result} from "../../common/result/result.type";
 import {usersService} from "../users/users.service";
 import {ResultStatus} from "../../common/result/resultStatus";
 import {emailManager} from "../../application/email.manager";
-import {DeviceAuthSessionDTO, TokenPair} from "./types/auth.types";
+import {DeviceAuthSessionDBType, TokenPair} from "./types/auth.types";
 import {deviceAuthSessionsRepository} from "./device-auth-sessions.repository";
 import {randomUUID} from "node:crypto";
 
-export const authService = {
+class AuthService {
     async loginUser(loginOrEmail: string, password: string, deviceName: string, ip: string)
         : Promise<Result<TokenPair | null>> {
         const user = await this._checkCredentials(loginOrEmail, password);
@@ -31,12 +31,12 @@ export const authService = {
             data: tokenPair,
             extensions: [],
         };
-    },
+    };
     async _createTokenPair(user: UserDBType, deviceId: string): Promise<TokenPair> {
         const accessToken = await jwtService.createAccessToken(user);
         const refreshToken = await jwtService.createRefreshToken(user, deviceId);
         return { accessToken, refreshToken };
-    },
+    };
     async _checkCredentials(loginOrEmail: string, password: string): Promise<UserDBType | null> {
         const user = await usersRepository.findUserByLoginOrEmail(loginOrEmail);
         if (!user) {
@@ -45,24 +45,24 @@ export const authService = {
 
         const isPasswordCorrect = await cryptoService.compareHash(password, user.passwordHash);
         return isPasswordCorrect ? user : null;
-    },
+    };
     async _createDeviceAuthSession(refreshToken: string, deviceName: string, ip: string) {
         const refTokenPayload = await jwtService.decodeRefreshToken(refreshToken);
         const userId = refTokenPayload.userId;
         const iat = new Date(refTokenPayload.iat * 1000);
         const exp = new Date(refTokenPayload.exp * 1000);
         const deviceId = refTokenPayload.deviceId;
-        const deviceAuthSession: DeviceAuthSessionDTO = {
+        const deviceAuthSession = new DeviceAuthSessionDBType(
             userId,
             deviceId,
             iat,
             deviceName,
             ip,
-            exp,
-        };
+            exp
+        );
 
         await deviceAuthSessionsRepository.createDeviceAuthSession(deviceAuthSession);
-    },
+    };
     async _updateDeviceAuthSession(newRefreshToken: string, newIp: string): Promise<boolean> {
         const newRefTokenPayload = await jwtService
             .decodeRefreshToken(newRefreshToken);
@@ -73,7 +73,7 @@ export const authService = {
             new Date(newRefTokenPayload.exp * 1000),
             newIp
         );
-    },
+    };
     async registerUser(login: string, email: string, password: string): Promise<Result<null>> {
         const createUserResult = await usersService.createUser(login, email, password, false);
         if (createUserResult.status !== ResultStatus.SUCCESS) {
@@ -90,8 +90,7 @@ export const authService = {
             };
         }
 
-        const confirmationCode = createdUser.confirmationInfo.confirmationCode;
-        emailManager.sendRegistrationMessage(email, confirmationCode)
+        emailManager.sendRegistrationMessage(email, createdUser.confirmationInfo.confirmationCode)
             .catch(err => console.log('Email send error: ' + err));
 
         return {
@@ -99,14 +98,13 @@ export const authService = {
             data: null,
             extensions: [],
         };
-    },
+    };
     async confirmRegistration(confirmationCode: string): Promise<Result<null>> {
         const user = await usersRepository.findUserByConfirmationCode(confirmationCode);
         if (!user) {
-            const error: FieldError = {
-                field: 'code',
-                message: 'Confirmation code is incorrect',
-            };
+            const error = new FieldError(
+                'code',
+                'Confirmation code is incorrect');
             return {
                 status: ResultStatus.BAD_REQUEST,
                 data: null,
@@ -115,10 +113,10 @@ export const authService = {
         }
 
         if (user.confirmationInfo.isConfirmed) {
-            const error: FieldError = {
-                field: 'code',
-                message: 'Confirmation code has already been applied',
-            };
+            const error = new FieldError(
+                'code',
+                'Confirmation code has already been applied'
+            );
             return {
                 status: ResultStatus.BAD_REQUEST,
                 data: null,
@@ -127,10 +125,10 @@ export const authService = {
         }
 
         if (new Date() > user.confirmationInfo.expirationDate) {
-            const error: FieldError = {
-                field: 'code',
-                message: 'Confirmation code is expired',
-            };
+            const error = new FieldError(
+                'code',
+                'Confirmation code is expired'
+            );
             return {
                 status: ResultStatus.BAD_REQUEST,
                 data: null,
@@ -152,14 +150,14 @@ export const authService = {
             data: null,
             extensions: [],
         };
-    },
+    };
     async resendRegistrationEmail(email: string): Promise<Result<null>> {
         const user = await usersRepository.findUserByEmail(email);
         if (!user) {
-            const error: FieldError = {
-                field: 'email',
-                message: 'No user with such email',
-            };
+            const error = new FieldError(
+                'email',
+                'No user with such email'
+            );
             return {
                 status: ResultStatus.BAD_REQUEST,
                 data: null,
@@ -168,10 +166,10 @@ export const authService = {
         }
 
         if (user.confirmationInfo.isConfirmed) {
-            const error: FieldError = {
-                field: 'email',
-                message: 'Email is already confirmed',
-            };
+            const error = new FieldError(
+                'email',
+                'Email is already confirmed'
+            );
             return {
                 status: ResultStatus.BAD_REQUEST,
                 data: null,
@@ -199,10 +197,10 @@ export const authService = {
             data: null,
             extensions: [],
         };
-    },
+    };
     async deleteAllDeviceAuthSessions() {
         return deviceAuthSessionsRepository.deleteAllDeviceAuthSessions();
-    },
+    };
     async verifyAccessToken(accessToken: string): Promise<Result<UserDBType | null>> {
         const userId = await jwtService.verifyAccessToken(accessToken);
         if (!userId) {
@@ -227,7 +225,7 @@ export const authService = {
             data: user,
             extensions: [],
         };
-    },
+    };
     async verifyRefreshToken(refreshToken: string): Promise<Result<UserDBType | null>> {
         const decoded = await jwtService.verifyRefreshToken(refreshToken);
         if (!decoded) {
@@ -265,7 +263,7 @@ export const authService = {
             data: user,
             extensions: [],
         };
-    },
+    };
     async refreshToken(tokenToRevoke: string, user: UserDBType, ip: string): Promise<Result<TokenPair | null>> {
         const tokenToRevokePayload = await jwtService.decodeRefreshToken(tokenToRevoke);
         const deviceId = tokenToRevokePayload.deviceId;
@@ -285,7 +283,7 @@ export const authService = {
             data: newTokenPair,
             extensions: [],
         };
-    },
+    };
     async logoutUser(tokenToRevoke: string): Promise<Result<null>> {
         const tokenPayload = await jwtService.decodeRefreshToken(tokenToRevoke);
         const isSessionTerminated = await deviceAuthSessionsRepository.terminateSession(tokenPayload.deviceId);
@@ -302,5 +300,7 @@ export const authService = {
             data: null,
             extensions: [],
         };
-    },
-};
+    };
+}
+
+export const authService = new AuthService();

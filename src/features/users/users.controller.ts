@@ -2,7 +2,6 @@ import {APIErrorResult, Paginator, RequestWithBody, RequestWithParams, RequestWi
 import {QueryUsersModel} from "./models/QueryUsersModel";
 import {UserViewModel} from "./models/UserViewModel";
 import {Response} from "express";
-import {validationResult} from "express-validator";
 import {getUsersQueryParamsValues} from "../../helpers/query-params-values";
 import {usersQueryRepository} from "./repositories/users.query.repository";
 import {CreateUserInputModel} from "./models/CreateUserInputModel";
@@ -12,22 +11,9 @@ import {URIParamsUserIdModel} from "./models/URIParamsUserIdModel";
 import {ResultStatus} from "../../common/result/resultStatus";
 import {resultStatusToHttp} from "../../common/result/resultStatusToHttp";
 
-export const usersController = {
-    getUsers: async (req: RequestWithQuery<QueryUsersModel>,
-                     res: Response<Paginator<UserViewModel>>) => {
-        const validationErrors = validationResult(req);
-        if (!validationErrors.isEmpty()) {
-            const output: Paginator<UserViewModel> = {
-                pagesCount: 0,
-                page: 0,
-                pageSize: 0,
-                totalCount: 0,
-                items: [],
-            };
-            res.json(output);
-            return;
-        }
-
+class UsersController {
+    async getUsers (req: RequestWithQuery<QueryUsersModel>,
+                    res: Response<Paginator<UserViewModel>>) {
         const {
             sortBy,
             sortDirection,
@@ -42,24 +28,22 @@ export const usersController = {
         );
 
         res.json(foundUsers);
-    },
-    createUser: async (req: RequestWithBody<CreateUserInputModel>,
-                       res: Response<UserViewModel | APIErrorResult>) => {
-        const createUserResult = await usersService.createUser(
+    };
+    async createUser (req: RequestWithBody<CreateUserInputModel>,
+                      res: Response<UserViewModel | APIErrorResult>) {
+        const result = await usersService.createUser(
             req.body.login, req.body.email, req.body.password, true
         );
 
-        if (createUserResult.status !== ResultStatus.SUCCESS) {
-            const error: APIErrorResult = {
-                errorsMessages: createUserResult.extensions,
-            };
+        if (result.status !== ResultStatus.SUCCESS) {
+            const error = new APIErrorResult(result.extensions);
             res
-                .status(resultStatusToHttp(createUserResult.status))
+                .status(resultStatusToHttp(result.status))
                 .json(error);
             return;
         }
 
-        const createdUserId = createUserResult.data as string;
+        const createdUserId = result.data as string;
         const createdUser = await usersQueryRepository.findUserById(createdUserId);
         if (!createdUser) {
             res.sendStatus(HTTP_STATUSES.INTERNAL_SERVER_ERROR_500);
@@ -69,8 +53,8 @@ export const usersController = {
         res
             .status(HTTP_STATUSES.CREATED_201)
             .json(createdUser);
-    },
-    deleteUser: async (req: RequestWithParams<URIParamsUserIdModel>, res: Response) => {
+    };
+    async deleteUser (req: RequestWithParams<URIParamsUserIdModel>, res: Response) {
         const isDeleted = await usersService.deleteUser(req.params.id);
         if (!isDeleted) {
             res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
@@ -78,5 +62,7 @@ export const usersController = {
         }
 
         res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
-    },
-};
+    };
+}
+
+export const usersController = new UsersController();

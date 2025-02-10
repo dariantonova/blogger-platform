@@ -12,14 +12,14 @@ export const confirmationCodeLifetime = {
     minutes: 30,
 };
 
-export const usersService = {
+class UsersService {
     async createUser(login: string, email: string, password: string, isConfirmed: boolean): Promise<Result<string | null>> {
         const userWithLogin = await usersRepository.findUserByLogin(login);
         if (userWithLogin) {
-            const error: FieldError = {
-                field: 'login',
-                message: 'Login must be unique',
-            };
+            const error = new FieldError(
+                'login',
+                'Login must be unique'
+            );
             return {
                 status: ResultStatus.BAD_REQUEST,
                 data: null,
@@ -29,10 +29,10 @@ export const usersService = {
 
         const userWithEmail = await usersRepository.findUserByEmail(email);
         if (userWithEmail) {
-            const error: FieldError = {
-                field: 'email',
-                message: 'Email must be unique',
-            };
+            const error = new FieldError(
+                'email',
+                'Email must be unique'
+            );
             return {
                 status: ResultStatus.BAD_REQUEST,
                 data: null,
@@ -44,15 +44,15 @@ export const usersService = {
 
         const confirmationInfo = this.generateConfirmationInfo(isConfirmed);
 
-        const createdUser: UserDBType = {
-            id: String(+new Date()),
+        const createdUser = new UserDBType(
+            String(+new Date()),
             login,
             email,
-            createdAt: new Date(),
+            new Date(),
             passwordHash,
             confirmationInfo,
-            isDeleted: false,
-        }
+            false
+        );
 
         await usersRepository.createUser(createdUser);
 
@@ -61,21 +61,21 @@ export const usersService = {
             data: createdUser.id,
             extensions: [],
         };
-    },
+    };
     generateConfirmationInfo(isConfirmed: boolean): ConfirmationInfoType {
         if (isConfirmed) {
-            return {
-                confirmationCode: '',
-                expirationDate: new Date(),
-                isConfirmed: true,
-            };
+            return new ConfirmationInfoType(
+                '',
+                new Date(),
+                true
+            );
         }
-        return {
-            confirmationCode: randomUUID(),
-            expirationDate: add(new Date(), confirmationCodeLifetime),
-            isConfirmed: false,
-        };
-    },
+        return new ConfirmationInfoType(
+            randomUUID(),
+            add(new Date(), confirmationCodeLifetime),
+            false
+        );
+    };
     async deleteUser(id: string): Promise<boolean> {
         const isUserDeleted = await usersRepository.deleteUser(id);
 
@@ -84,11 +84,13 @@ export const usersService = {
         }
 
         return isUserDeleted;
-    },
+    };
     async deleteAllUsers() {
         await usersRepository.deleteAllUsers();
-    },
+    };
     async findUserById(id: string) {
         return usersRepository.findUserById(id);
-    },
-};
+    };
+}
+
+export const usersService = new UsersService();

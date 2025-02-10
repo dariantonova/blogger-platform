@@ -2,7 +2,7 @@ import {Paginator, SortDirections, UserDBType} from "../../../types/types";
 import {UserViewModel} from "../models/UserViewModel";
 import {UserModel} from "../../../db/db";
 
-export const usersQueryRepository = {
+class UsersQueryRepository {
     async findUsers(sortBy: string, sortDirection: SortDirections,
                     pageNumber: number, pageSize: number,
                     searchLoginTerm: string | null,
@@ -18,9 +18,9 @@ export const usersQueryRepository = {
         }
 
         if (searchLoginTerm) {
-           searchTerms.push({
-               login: { $regex: searchLoginTerm, $options: 'i' }
-           });
+            searchTerms.push({
+                login: { $regex: searchLoginTerm, $options: 'i' }
+            });
         }
 
         if (searchEmailTerm) {
@@ -44,7 +44,7 @@ export const usersQueryRepository = {
         const pagesCount = Math.ceil(totalCount / pageSize);
 
         return this.createUsersPaginator(foundUsers, pageNumber, pageSize, pagesCount, totalCount);
-    },
+    };
     async countUsers(searchLoginTerm: string | null,
                      searchEmailTerm: string | null): Promise<number> {
         const filterConditions: any[] = [
@@ -70,33 +70,35 @@ export const usersQueryRepository = {
         }
 
         return UserModel.countDocuments(filterObj);
-    },
+    };
     async findUserById(id: string): Promise<UserViewModel | null> {
         const filterObj: any = { isDeleted: false, id };
         const foundUser = await UserModel
             .findOne(filterObj, { _id: 0 }).lean();
         return foundUser ? this.mapToOutput(foundUser) : null;
-    },
+    };
     async mapToOutput(dbUser: UserDBType): Promise<UserViewModel> {
-        return {
-            id: dbUser.id,
-            login: dbUser.login,
-            email: dbUser.email,
-            createdAt: dbUser.createdAt.toISOString(),
-        };
-    },
+        return new UserViewModel(
+            dbUser.id,
+            dbUser.login,
+            dbUser.email,
+            dbUser.createdAt.toISOString()
+        );
+    };
     async createUsersPaginator(items: UserDBType[], page: number, pageSize: number,
                                pagesCount: number, totalCount: number): Promise<Paginator<UserViewModel>> {
         const itemsViewModels = await Promise.all(
             items.map(this.mapToOutput)
         );
 
-        return {
+        return new Paginator<UserViewModel>(
+            itemsViewModels,
             pagesCount,
             page,
             pageSize,
-            totalCount,
-            items: itemsViewModels,
-        };
-    },
-};
+            totalCount
+        );
+    };
+}
+
+export const usersQueryRepository = new UsersQueryRepository();

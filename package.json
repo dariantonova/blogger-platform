@@ -8,7 +8,7 @@
   "scripts": {
     "watch": "tsc -w",
     "dev": "nodemon --inspect dist/index.js",
-    "jest": "jest --runInBand"
+    "jest": "jest --runInBand --detectOpenHandles"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",

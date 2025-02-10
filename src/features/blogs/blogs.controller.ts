@@ -17,7 +17,6 @@ import {blogsService} from "./blogs.service";
 import {QueryBlogsModel} from "./models/QueryBlogsModel";
 import {blogsQueryRepository} from "./repositories/blogs.query.repository";
 import {getBlogsQueryParamsValues, getPostsQueryParamsValues} from "../../helpers/query-params-values";
-import {validationResult} from "express-validator";
 import {QueryPostsModel} from "../posts/models/QueryPostsModel";
 import {PostViewModel} from "../posts/models/PostViewModel";
 import {URIParamsPostBlogIdModel} from "./models/URIParamsPostBlogIdModel";
@@ -29,32 +28,18 @@ export const createBlogsPaginator = (items: BlogDBType[], page: number, pageSize
                                      pagesCount: number, totalCount: number): Paginator<BlogViewModel> => {
     const itemsViewModels: BlogViewModel[] = items.map(blogsQueryRepository.mapToOutput);
 
-    return {
+    return new Paginator<BlogViewModel>(
+        itemsViewModels,
         pagesCount,
         page,
         pageSize,
-        totalCount,
-        items: itemsViewModels,
-    };
+        totalCount
+    );
 };
 
-export const blogsController = {
-    getBlogs: async (req: RequestWithQuery<QueryBlogsModel>,
-                     res: Response<Paginator<BlogViewModel>>) => {
-        const validationErrors = validationResult(req);
-        if (!validationErrors.isEmpty()) {
-            const output: Paginator<BlogViewModel> = {
-                pagesCount: 0,
-                page: 0,
-                pageSize: 0,
-                totalCount: 0,
-                items: [],
-            };
-
-            res.json(output);
-            return;
-        }
-
+class BlogsController {
+    async getBlogs (req: RequestWithQuery<QueryBlogsModel>,
+                    res: Response<Paginator<BlogViewModel>>) {
         const {
             searchNameTerm,
             sortBy,
@@ -68,9 +53,9 @@ export const blogsController = {
         );
 
         res.json(output);
-    },
-    getBlog: async (req: RequestWithParams<URIParamsBlogIdModel>,
-              res: Response<BlogViewModel>) => {
+    };
+    async getBlog (req: RequestWithParams<URIParamsBlogIdModel>,
+                   res: Response<BlogViewModel>) {
         const foundBlog = await blogsQueryRepository.findBlogById(req.params.id);
         if (!foundBlog) {
             res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
@@ -78,8 +63,8 @@ export const blogsController = {
         }
 
         res.json(foundBlog);
-    },
-    deleteBlog: async (req: RequestWithParams<URIParamsBlogIdModel>, res: Response) => {
+    };
+    async deleteBlog (req: RequestWithParams<URIParamsBlogIdModel>, res: Response) {
         const isDeleted = await blogsService.deleteBlog(req.params.id);
         if (!isDeleted) {
             res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
@@ -87,9 +72,9 @@ export const blogsController = {
         }
 
         res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
-    },
-    createBlog: async (req: RequestWithBody<CreateBlogInputModel>,
-                 res: Response<BlogViewModel>) => {
+    };
+    async createBlog (req: RequestWithBody<CreateBlogInputModel>,
+                      res: Response<BlogViewModel>) {
         const createdBlogId = await blogsService.createBlog(
             req.body.name, req.body.description, req.body.websiteUrl
         );
@@ -103,9 +88,9 @@ export const blogsController = {
         res
             .status(HTTP_STATUSES.CREATED_201)
             .json(createdBlog);
-    },
-    updateBlog: async (req: RequestWithParamsAndBody<URIParamsBlogIdModel, UpdateBlogInputModel>,
-                 res: Response) => {
+    };
+    async updateBlog (req: RequestWithParamsAndBody<URIParamsBlogIdModel, UpdateBlogInputModel>,
+                      res: Response) {
         const isUpdated = await blogsService.updateBlog(
             req.params.id, req.body.name, req.body.description, req.body.websiteUrl
         );
@@ -115,23 +100,9 @@ export const blogsController = {
         }
 
         res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
-    },
-    getBlogPosts: async (req: RequestWithParamsAndQuery<URIParamsPostBlogIdModel, QueryPostsModel>,
-                         res: Response<Paginator<PostViewModel>>) => {
-        const validationErrors = validationResult(req);
-        if (!validationErrors.isEmpty()) {
-            const output: Paginator<PostViewModel> = {
-                pagesCount: 0,
-                page: 0,
-                pageSize: 0,
-                totalCount: 0,
-                items: [],
-            };
-
-            res.json(output);
-            return;
-        }
-
+    };
+    async getBlogPosts (req: RequestWithParamsAndQuery<URIParamsPostBlogIdModel, QueryPostsModel>,
+                        res: Response<Paginator<PostViewModel>>) {
         const blogId = req.params.blogId;
         const {
             sortBy,
@@ -156,9 +127,9 @@ export const blogsController = {
         );
 
         res.json(output);
-    },
-    createBlogPost: async (req: RequestWithParamsAndBody<URIParamsPostBlogIdModel, CreateBlogPostInputModel>,
-                             res: Response<PostViewModel>) => {
+    };
+    async createBlogPost (req: RequestWithParamsAndBody<URIParamsPostBlogIdModel, CreateBlogPostInputModel>,
+                          res: Response<PostViewModel>) {
         const createdPostId = await postsService.createPost(
             req.body.title, req.body.shortDescription, req.body.content, req.params.blogId
         );
@@ -176,5 +147,7 @@ export const blogsController = {
         res
             .status(HTTP_STATUSES.CREATED_201)
             .json(createdPost);
-    },
-};
+    };
+}
+
+export const blogsController = new BlogsController();

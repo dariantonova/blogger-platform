@@ -18,6 +18,7 @@ const router = Router();
 router.get('/',
     pageNumberQueryParamValidator,
     pageSizeQueryParamValidator,
+    queryValidationErrorMiddleware,
     postsController.getPosts);
 router.get('/:id',
     postsController.getPost);

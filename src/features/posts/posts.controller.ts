@@ -1,12 +1,13 @@
 import {Response} from 'express';
 import {PostViewModel} from "./models/PostViewModel";
 import {
-    APIErrorResult,
+    APIErrorResult, FieldError,
     Paginator,
     PostDBType,
     RequestWithBody,
     RequestWithParams,
-    RequestWithParamsAndBody, RequestWithParamsAndQuery,
+    RequestWithParamsAndBody,
+    RequestWithParamsAndQuery,
     RequestWithQuery
 } from "../../types/types";
 import {URIParamsPostIdModel} from "./models/URIParamsPostIdModel";
@@ -17,7 +18,6 @@ import {postsService} from "./posts.service";
 import {QueryPostsModel} from "./models/QueryPostsModel";
 import {postsQueryRepository} from "./repositories/posts.query.repository";
 import {getPostsQueryParamsValues, getQueryParamsValues} from "../../helpers/query-params-values";
-import {validationResult} from "express-validator";
 import {CommentType, CommentViewModel, CreateCommentInputModel} from "../comments/comments.types";
 import {commentsService} from "../comments/comments.service";
 import {ResultStatus} from "../../common/result/resultStatus";
@@ -31,18 +31,18 @@ export const createPostsPaginator = async (items: PostDBType[], page: number, pa
         items.map(postsQueryRepository.mapToOutput)
     );
 
-    return {
+    return new Paginator<PostViewModel>(
+        itemsViewModels,
         pagesCount,
         page,
         pageSize,
-        totalCount,
-        items: itemsViewModels,
-    };
+        totalCount
+    );
 };
 
-export const postsController = {
-    getPosts: async (req: RequestWithQuery<QueryPostsModel>,
-                     res: Response<Paginator<PostViewModel>>) => {
+class PostsController {
+    async getPosts (req: RequestWithQuery<QueryPostsModel>,
+                    res: Response<Paginator<PostViewModel>>) {
         const {
             sortBy,
             sortDirection,
@@ -50,27 +50,14 @@ export const postsController = {
             pageNumber
         } = getPostsQueryParamsValues(req);
 
-        const validationErrors = validationResult(req);
-        if (!validationErrors.isEmpty()) {
-            const output: Paginator<PostViewModel> = {
-                pagesCount: 0,
-                page: 0,
-                pageSize: 0,
-                totalCount: 0,
-                items: [],
-            };
-            res.json(output);
-            return;
-        }
-
         const output = await postsQueryRepository.findPosts(
             sortBy, sortDirection, pageNumber, pageSize
         );
 
         res.json(output);
-    },
-    getPost: async (req: RequestWithParams<URIParamsPostIdModel>,
-                    res: Response<PostViewModel>) => {
+    };
+    async getPost (req: RequestWithParams<URIParamsPostIdModel>,
+                   res: Response<PostViewModel>) {
         const foundPost = await postsQueryRepository.findPostById(req.params.id);
         if (!foundPost) {
             res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
@@ -78,8 +65,8 @@ export const postsController = {
         }
 
         res.json(foundPost);
-    },
-    deletePost: async (req: RequestWithParams<URIParamsPostIdModel>, res: Response) => {
+    };
+    async deletePost (req: RequestWithParams<URIParamsPostIdModel>, res: Response) {
         const isDeleted = await postsService.deletePost(req.params.id);
         if (!isDeleted) {
             res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
@@ -87,25 +74,21 @@ export const postsController = {
         }
 
         res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
-    },
-    createPost: async (req: RequestWithBody<CreatePostInputModel>,
-                 res: Response<PostViewModel | APIErrorResult>) => {
+    };
+    async createPost (req: RequestWithBody<CreatePostInputModel>,
+                      res: Response<PostViewModel | APIErrorResult>) {
         const createdPostId = await postsService.createPost(
             req.body.title, req.body.shortDescription, req.body.content, req.body.blogId
         );
         if (!createdPostId) {
-            const error: APIErrorResult = {
-                errorsMessages: [
-                    {
-                        message: 'Blog id does not exist',
-                        field: 'blogId',
-                    }
-                ],
-            };
+            const fieldError = new FieldError(
+                'blogId',
+                'Blog does not exist');
+            const errorResult = new APIErrorResult([fieldError]);
 
             res
                 .status(HTTP_STATUSES.BAD_REQUEST_400)
-                .json(error);
+                .json(errorResult);
             return;
         }
 
@@ -118,9 +101,9 @@ export const postsController = {
         res
             .status(HTTP_STATUSES.CREATED_201)
             .json(createdPost);
-    },
-    updatePost: async (req: RequestWithParamsAndBody<URIParamsPostIdModel, UpdatePostInputModel>,
-                 res: Response<APIErrorResult>) => {
+    };
+    async updatePost (req: RequestWithParamsAndBody<URIParamsPostIdModel, UpdatePostInputModel>,
+                      res: Response<APIErrorResult>) {
         try {
             const isUpdated = await postsService.updatePost(
                 req.params.id, req.body.title, req.body.shortDescription, req.body.content, req.body.blogId
@@ -133,22 +116,18 @@ export const postsController = {
             res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
         }
         catch (err) {
-            const error: APIErrorResult = {
-                errorsMessages: [
-                    {
-                        field: 'blogId',
-                        message: 'Blog does not exist'
-                    }
-                ],
-            };
+            const fieldError = new FieldError(
+                'blogId',
+                'Blog does not exist');
+            const errorResult = new APIErrorResult([fieldError]);
 
             res
                 .status(HTTP_STATUSES.BAD_REQUEST_400)
-                .json(error);
+                .json(errorResult);
         }
-    },
-    createPostComment: async (req: RequestWithParamsAndBody<{ postId: string }, CreateCommentInputModel>,
-                              res: Response<CommentViewModel>) => {
+    };
+    async createPostComment (req: RequestWithParamsAndBody<{ postId: string }, CreateCommentInputModel>,
+                             res: Response<CommentViewModel>) {
         const result = await commentsService.createComment(
             req.params.postId, req.user!.id, req.body.content
         );
@@ -168,9 +147,9 @@ export const postsController = {
         res
             .status(HTTP_STATUSES.CREATED_201)
             .json(createdComment);
-    },
-    getPostComments: async (req: RequestWithParamsAndQuery<{ postId: string }, QueryCommentsModel>,
-                            res: Response<Paginator<CommentViewModel>>) => {
+    };
+    async getPostComments (req: RequestWithParamsAndQuery<{ postId: string }, QueryCommentsModel>,
+                           res: Response<Paginator<CommentViewModel>>) {
         const postId = req.params.postId;
         const {
             sortBy,
@@ -195,13 +174,15 @@ export const postsController = {
         const totalCount = await commentsQueryRepository.countPostComments(postId);
         const pagesCount = Math.ceil(totalCount / pageSize);
 
-        const output: Paginator<CommentViewModel> = {
+        const output = new Paginator<CommentViewModel>(
+            commentsOutput,
             pagesCount,
-            page: pageNumber,
+            pageNumber,
             pageSize,
-            totalCount,
-            items: commentsOutput,
-        };
+            totalCount
+        );
         res.json(output);
-    },
-};
+    };
+}
+
+export const postsController = new PostsController();

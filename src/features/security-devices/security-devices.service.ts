@@ -3,7 +3,7 @@ import {jwtService} from "../../application/jwt.service";
 import {deviceAuthSessionsRepository} from "../auth/device-auth-sessions.repository";
 import {ResultStatus} from "../../common/result/resultStatus";
 
-export const securityDevicesService = {
+class SecurityDevicesService {
     async terminateAllOtherDeviceSessions(refreshToken: string): Promise<Result<null>> {
         const refTokenPayload = await jwtService.decodeRefreshToken(refreshToken);
         await deviceAuthSessionsRepository.terminateAllOtherUserSessions(
@@ -15,7 +15,7 @@ export const securityDevicesService = {
             data: null,
             extensions: [],
         };
-    },
+    };
     async terminateDeviceSession(deviceId: string, currentUserId: string): Promise<Result<null>> {
         const deviceAuthSession = await deviceAuthSessionsRepository
             .findSessionByDeviceId(deviceId);
@@ -49,5 +49,7 @@ export const securityDevicesService = {
             data: null,
             extensions: [],
         };
-    },
-};
+    };
+}
+
+export const securityDevicesService = new SecurityDevicesService();

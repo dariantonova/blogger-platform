@@ -130,8 +130,9 @@ describe('test for get comment endpoint', () => {
         const commentId = comment._id.toString();
 
         const expected = await commentsQueryRepository.mapToOutput(comment);
-        await req
+        const response = await req
             .get(SETTINGS.PATH.COMMENTS + '/' + commentId)
-            .expect(HTTP_STATUSES.OK_200, expected);
+            .expect(HTTP_STATUSES.OK_200);
+        expect(response.body).toEqual(expected);
     });
 });

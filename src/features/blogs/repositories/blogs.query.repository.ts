@@ -2,7 +2,7 @@ import {BlogDBType, Paginator, SortDirections} from "../../../types/types";
 import {BlogModel} from "../../../db/db";
 import {BlogViewModel} from "../models/BlogViewModel";
 
-export const blogsQueryRepository = {
+class BlogsQueryRepository {
     async findBlogs(searchNameTerm: string | null,
                     sortBy: string, sortDirection: SortDirections,
                     pageNumber: number, pageSize: number): Promise<Paginator<BlogViewModel>> {
@@ -27,7 +27,7 @@ export const blogsQueryRepository = {
         const pagesCount = Math.ceil(totalCount / pageSize);
 
         return this.createBlogsPaginator(foundBlogs, pageNumber, pageSize, pagesCount, totalCount);
-    },
+    };
     async findBlogById(id: string): Promise<BlogViewModel | null> {
         const foundBlog = await BlogModel
             .findOne({ isDeleted: false, id }, { _id: 0 }).lean();
@@ -36,7 +36,7 @@ export const blogsQueryRepository = {
         }
 
         return this.mapToOutput(foundBlog);
-    },
+    };
     async countBlogs(searchNameTerm: string | null): Promise<number> {
         const filterObj: any = { isDeleted: false };
 
@@ -45,27 +45,29 @@ export const blogsQueryRepository = {
         }
 
         return BlogModel.countDocuments(filterObj);
-    },
+    };
     mapToOutput(dbBlog: BlogDBType): BlogViewModel {
-        return {
-            id: dbBlog.id,
-            name: dbBlog.name,
-            description: dbBlog.description,
-            websiteUrl: dbBlog.websiteUrl,
-            createdAt: dbBlog.createdAt,
-            isMembership: dbBlog.isMembership,
-        };
-    },
+        return new BlogViewModel(
+            dbBlog.id,
+            dbBlog.name,
+            dbBlog.description,
+            dbBlog.websiteUrl,
+            dbBlog.createdAt,
+            dbBlog.isMembership
+        );
+    };
     createBlogsPaginator (items: BlogDBType[], page: number, pageSize: number,
-           pagesCount: number, totalCount: number): Paginator<BlogViewModel> {
+                          pagesCount: number, totalCount: number): Paginator<BlogViewModel> {
         const itemsViewModels: BlogViewModel[] = items.map(this.mapToOutput);
 
-        return {
+        return new Paginator<BlogViewModel>(
+            itemsViewModels,
             pagesCount,
             page,
             pageSize,
-            totalCount,
-            items: itemsViewModels,
-        };
-    },
-};
+            totalCount
+        );
+    };
+}
+
+export const blogsQueryRepository = new BlogsQueryRepository();

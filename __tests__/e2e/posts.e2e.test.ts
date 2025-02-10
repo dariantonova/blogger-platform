@@ -67,9 +67,10 @@ describe('tests for /posts', () => {
                 0
             );
 
-            await req
+            const response = await req
                 .get(SETTINGS.PATH.POSTS)
-                .expect(HTTP_STATUSES.OK_200, expected);
+                .expect(HTTP_STATUSES.OK_200);
+            expect(response.body).toEqual(expected);
         });
 
         it('should return array with all posts', async () => {
@@ -157,9 +158,10 @@ describe('tests for /posts', () => {
                 expectedPosts.length,
             );
 
-            await req
+            const response = await req
                 .get(SETTINGS.PATH.POSTS)
-                .expect(HTTP_STATUSES.OK_200, expected);
+                .expect(HTTP_STATUSES.OK_200);
+            expect(response.body).toEqual(expected);
         });
 
         // sorting
@@ -249,21 +251,25 @@ describe('tests for /posts', () => {
                 expectedPosts.length,
             );
 
-            await req
+            const response1 = await req
                 .get(SETTINGS.PATH.POSTS + '?sortBy=createdAt&sortDirection=desc')
-                .expect(HTTP_STATUSES.OK_200, expected);
+                .expect(HTTP_STATUSES.OK_200);
+            expect(response1.body).toEqual(expected);
 
-            await req
+            const response2 = await req
                 .get(SETTINGS.PATH.POSTS + '?sortBy=createdAt')
-                .expect(HTTP_STATUSES.OK_200, expected);
+                .expect(HTTP_STATUSES.OK_200);
+            expect(response2.body).toEqual(expected);
 
-            await req
+            const response3 = await req
                 .get(SETTINGS.PATH.POSTS + '?sortDirection=desc')
-                .expect(HTTP_STATUSES.OK_200, expected);
+                .expect(HTTP_STATUSES.OK_200);
+            expect(response3.body).toEqual(expected);
 
-            await req
+            const response4 = await req
                 .get(SETTINGS.PATH.POSTS)
-                .expect(HTTP_STATUSES.OK_200, expected);
+                .expect(HTTP_STATUSES.OK_200);
+            expect(response4.body).toEqual(expected);
         });
 
         // createdAt asc
@@ -277,12 +283,15 @@ describe('tests for /posts', () => {
                 expectedPosts.length,
             );
 
-            await req
+            const response1 = await req
                 .get(SETTINGS.PATH.POSTS + '?sortBy=createdAt&sortDirection=asc')
-                .expect(HTTP_STATUSES.OK_200, expected);
-            await req
+                .expect(HTTP_STATUSES.OK_200);
+            expect(response1.body).toEqual(expected);
+
+            const response2 = await req
                 .get(SETTINGS.PATH.POSTS + '?sortDirection=asc')
-                .expect(HTTP_STATUSES.OK_200, expected);
+                .expect(HTTP_STATUSES.OK_200);
+            expect(response2.body).toEqual(expected);
         });
 
         // id desc
@@ -296,12 +305,15 @@ describe('tests for /posts', () => {
                 expectedPosts.length,
             );
 
-            await req
+            const response1 = await req
                 .get(SETTINGS.PATH.POSTS + '?sortBy=id&sortDirection=desc')
-                .expect(HTTP_STATUSES.OK_200, expected);
-            await req
+                .expect(HTTP_STATUSES.OK_200);
+            expect(response1.body).toEqual(expected);
+
+            const response2 = await req
                 .get(SETTINGS.PATH.POSTS + '?sortBy=id')
-                .expect(HTTP_STATUSES.OK_200, expected);
+                .expect(HTTP_STATUSES.OK_200);
+            expect(response2.body).toEqual(expected);
         });
 
         // id asc
@@ -315,9 +327,10 @@ describe('tests for /posts', () => {
                 expectedPosts.length,
             );
 
-            await req
+            const response1 = await req
                 .get(SETTINGS.PATH.POSTS + '?sortBy=id&sortDirection=asc')
-                .expect(HTTP_STATUSES.OK_200, expected);
+                .expect(HTTP_STATUSES.OK_200);
+            expect(response1.body).toEqual(expected);
         });
 
         // title desc
@@ -331,12 +344,15 @@ describe('tests for /posts', () => {
                 expectedPosts.length,
             );
 
-            await req
+            const response1 = await req
                 .get(SETTINGS.PATH.POSTS + '?sortBy=title&sortDirection=desc')
-                .expect(HTTP_STATUSES.OK_200, expected);
-            await req
+                .expect(HTTP_STATUSES.OK_200);
+            expect(response1.body).toEqual(expected);
+
+            const response2 = await req
                 .get(SETTINGS.PATH.POSTS + '?sortBy=title')
-                .expect(HTTP_STATUSES.OK_200, expected);
+                .expect(HTTP_STATUSES.OK_200);
+            expect(response2.body).toEqual(expected);
         });
 
         // title asc
@@ -350,9 +366,10 @@ describe('tests for /posts', () => {
                 expectedPosts.length,
             );
 
-            await req
+            const response = await req
                 .get(SETTINGS.PATH.POSTS + '?sortBy=title&sortDirection=asc')
-                .expect(HTTP_STATUSES.OK_200, expected);
+                .expect(HTTP_STATUSES.OK_200);
+            expect(response.body).toEqual(expected);
         });
 
         // shortDescription desc
@@ -366,12 +383,15 @@ describe('tests for /posts', () => {
                 expectedPosts.length,
             );
 
-            await req
+            const response1 = await req
                 .get(SETTINGS.PATH.POSTS + '?sortBy=shortDescription&sortDirection=desc')
-                .expect(HTTP_STATUSES.OK_200, expected);
-            await req
+                .expect(HTTP_STATUSES.OK_200);
+            expect(response1.body).toEqual(expected);
+
+            const response2 = await req
                 .get(SETTINGS.PATH.POSTS + '?sortBy=shortDescription')
-                .expect(HTTP_STATUSES.OK_200, expected);
+                .expect(HTTP_STATUSES.OK_200);
+            expect(response2.body).toEqual(expected);
         });
 
         // shortDescription asc
@@ -385,9 +405,10 @@ describe('tests for /posts', () => {
                 expectedPosts.length,
             );
 
-            await req
+            const response1 = await req
                 .get(SETTINGS.PATH.POSTS + '?sortBy=shortDescription&sortDirection=asc')
-                .expect(HTTP_STATUSES.OK_200, expected);
+                .expect(HTTP_STATUSES.OK_200);
+            expect(response1.body).toEqual(expected);
         });
 
         // content desc
@@ -401,12 +422,15 @@ describe('tests for /posts', () => {
                 expectedPosts.length,
             );
 
-            await req
+            const response1 = await req
                 .get(SETTINGS.PATH.POSTS + '?sortBy=content&sortDirection=desc')
-                .expect(HTTP_STATUSES.OK_200, expected);
-            await req
+                .expect(HTTP_STATUSES.OK_200);
+            expect(response1.body).toEqual(expected);
+
+            const response2 = await req
                 .get(SETTINGS.PATH.POSTS + '?sortBy=content')
-                .expect(HTTP_STATUSES.OK_200, expected);
+                .expect(HTTP_STATUSES.OK_200);
+            expect(response2.body).toEqual(expected);
         });
 
         // content asc
@@ -420,9 +444,10 @@ describe('tests for /posts', () => {
                 expectedPosts.length,
             );
 
-            await req
+            const response1 = await req
                 .get(SETTINGS.PATH.POSTS + '?sortBy=content&sortDirection=asc')
-                .expect(HTTP_STATUSES.OK_200, expected);
+                .expect(HTTP_STATUSES.OK_200);
+            expect(response1.body).toEqual(expected);
         });
 
         // blogId desc
@@ -436,12 +461,15 @@ describe('tests for /posts', () => {
                 expectedPosts.length,
             );
 
-            await req
+            const response1 = await req
                 .get(SETTINGS.PATH.POSTS + '?sortBy=blogId&sortDirection=desc')
-                .expect(HTTP_STATUSES.OK_200, expected);
-            await req
+                .expect(HTTP_STATUSES.OK_200);
+            expect(response1.body).toEqual(expected);
+
+            const response2 = await req
                 .get(SETTINGS.PATH.POSTS + '?sortBy=blogId')
-                .expect(HTTP_STATUSES.OK_200, expected);
+                .expect(HTTP_STATUSES.OK_200);
+            expect(response2.body).toEqual(expected);
         });
 
         // blogId asc
@@ -455,9 +483,10 @@ describe('tests for /posts', () => {
                 expectedPosts.length,
             );
 
-            await req
+            const response1 = await req
                 .get(SETTINGS.PATH.POSTS + '?sortBy=blogId&sortDirection=asc')
-                .expect(HTTP_STATUSES.OK_200, expected);
+                .expect(HTTP_STATUSES.OK_200);
+            expect(response1.body).toEqual(expected);
         });
 
         // blogName desc
@@ -471,12 +500,15 @@ describe('tests for /posts', () => {
                 expectedPosts.length,
             );
 
-            await req
+            const response1 = await req
                 .get(SETTINGS.PATH.POSTS + '?sortBy=blogName&sortDirection=desc')
-                .expect(HTTP_STATUSES.OK_200, expected);
-            await req
+                .expect(HTTP_STATUSES.OK_200);
+            expect(response1.body).toEqual(expected);
+
+            const response2 = await req
                 .get(SETTINGS.PATH.POSTS + '?sortBy=blogName')
-                .expect(HTTP_STATUSES.OK_200, expected);
+                .expect(HTTP_STATUSES.OK_200);
+            expect(response2.body).toEqual(expected);
         });
 
         // blogName asc
@@ -490,9 +522,10 @@ describe('tests for /posts', () => {
                 expectedPosts.length,
             );
 
-            await req
+            const response = await req
                 .get(SETTINGS.PATH.POSTS + '?sortBy=blogName&sortDirection=asc')
-                .expect(HTTP_STATUSES.OK_200, expected);
+                .expect(HTTP_STATUSES.OK_200);
+            expect(response.body).toEqual(expected);
         });
 
         // bad sort field
@@ -506,9 +539,10 @@ describe('tests for /posts', () => {
                 expectedPosts.length,
             );
 
-            await req
+            const response = await req
                 .get(SETTINGS.PATH.POSTS + '?sortBy=bad')
-                .expect(HTTP_STATUSES.OK_200, expected);
+                .expect(HTTP_STATUSES.OK_200);
+            expect(response.body).toEqual(expected);
         });
 
         // pagination
@@ -789,46 +823,49 @@ describe('tests for /posts', () => {
 
             await setDb({ blogs: initialDbBlogs, posts: initialDbPosts });
 
-            for (const invalidPageNumber of invalidPageNumbers) {
-                const expected = await createPostsPaginator(
-                    [], 0, 0, 0, 0,
-                );
+            const expected = await createPostsPaginator(
+                [], 0, 0, 0, 0,
+            );
 
-                await req
+            for (const invalidPageNumber of invalidPageNumbers) {
+                const response = await req
                     .get(SETTINGS.PATH.POSTS + '?pageNumber=' + invalidPageNumber)
-                    .expect(HTTP_STATUSES.OK_200, expected);
+                    .expect(HTTP_STATUSES.OK_200);
+                expect(response.body).toEqual(expected);
             }
         });
 
         // invalid pageSize
         it('should return empty array if page size is invalid', async () => {
-            for (const invalidPageSize of invalidPageSizes) {
-                const expected = await createPostsPaginator(
-                    [], 0, 0, 0, 0,
-                );
+            const expected = await createPostsPaginator(
+                [], 0, 0, 0, 0,
+            );
 
-                await req
+            for (const invalidPageSize of invalidPageSizes) {
+                const response = await req
                     .get(SETTINGS.PATH.POSTS + '?pageSize=' + invalidPageSize)
-                    .expect(HTTP_STATUSES.OK_200, expected);
+                    .expect(HTTP_STATUSES.OK_200);
+                expect(response.body).toEqual(expected);
             }
         });
 
         // invalid both pageNumber and pageSize
         it('should return empty array if page number and page size are invalid',
             async () => {
-                const invalidPageNumber = invalidPageNumbers[0];
-                const invalidPageSize = invalidPageSizes[0];
+            const invalidPageNumber = invalidPageNumbers[0];
+            const invalidPageSize = invalidPageSizes[0];
 
-                const expected = await createPostsPaginator(
-                    [], 0, 0, 0, 0,
-                );
+            const expected = await createPostsPaginator(
+                [], 0, 0, 0, 0,
+            );
 
-                await req
-                    .get(SETTINGS.PATH.POSTS
-                        + '?pageNumber=' + invalidPageNumber
-                        + '&pageSize=' + invalidPageSize)
-                    .expect(HTTP_STATUSES.OK_200, expected);
-            });
+            const response = await req
+                .get(SETTINGS.PATH.POSTS
+                    + '?pageNumber=' + invalidPageNumber
+                    + '&pageSize=' + invalidPageSize)
+                .expect(HTTP_STATUSES.OK_200);
+            expect(response.body).toEqual(expected);
+        });
 
         // pageNumber* and pageSize defaults
         it('default page number and page size should be correct', async () => {
@@ -844,109 +881,115 @@ describe('tests for /posts', () => {
                 initialDbPosts.length,
             );
 
-            await req
+            const response = await req
                 .get(SETTINGS.PATH.POSTS)
-                .expect(HTTP_STATUSES.OK_200, expected);
+                .expect(HTTP_STATUSES.OK_200);
+            expect(response.body).toEqual(expected);
         });
 
         // non-default pageNumber
         it('should return correct part of posts array if page number is non-default',
             async () => {
-                const pageNumber = 2;
+            const pageNumber = 2;
 
-                const expectedPosts = initialDbPosts.slice(10, 20);
-                const expected = await createPostsPaginator(
-                    expectedPosts,
-                    pageNumber,
-                    DEFAULT_QUERY_VALUES.POSTS.pageSize,
-                    Math.ceil(initialDbPosts.length / DEFAULT_QUERY_VALUES.POSTS.pageSize),
-                    initialDbPosts.length,
-                );
+            const expectedPosts = initialDbPosts.slice(10, 20);
+            const expected = await createPostsPaginator(
+                expectedPosts,
+                pageNumber,
+                DEFAULT_QUERY_VALUES.POSTS.pageSize,
+                Math.ceil(initialDbPosts.length / DEFAULT_QUERY_VALUES.POSTS.pageSize),
+                initialDbPosts.length,
+            );
 
-                await req
-                    .get(SETTINGS.PATH.POSTS + '?pageNumber=' + pageNumber)
-                    .expect(HTTP_STATUSES.OK_200, expected);
-            });
+            const response = await req
+                .get(SETTINGS.PATH.POSTS + '?pageNumber=' + pageNumber)
+                .expect(HTTP_STATUSES.OK_200);
+            expect(response.body).toEqual(expected);
+        });
 
         // non-default pageSize
         it('should return correct part of posts array if page size is non-default',
             async () => {
-                const pageSize = 15;
+            const pageSize = 15;
 
-                const expectedPosts = initialDbPosts.slice(0, pageSize);
-                const expected = await createPostsPaginator(
-                    expectedPosts,
-                    DEFAULT_QUERY_VALUES.POSTS.pageNumber,
-                    pageSize,
-                    Math.ceil(initialDbPosts.length / pageSize),
-                    initialDbPosts.length,
-                );
+            const expectedPosts = initialDbPosts.slice(0, pageSize);
+            const expected = await createPostsPaginator(
+                expectedPosts,
+                DEFAULT_QUERY_VALUES.POSTS.pageNumber,
+                pageSize,
+                Math.ceil(initialDbPosts.length / pageSize),
+                initialDbPosts.length,
+            );
 
-                await req
-                    .get(SETTINGS.PATH.POSTS + '?pageSize=' + pageSize)
-                    .expect(HTTP_STATUSES.OK_200, expected);
-            });
+            const response = await req
+                .get(SETTINGS.PATH.POSTS + '?pageSize=' + pageSize)
+                .expect(HTTP_STATUSES.OK_200);
+            expect(response.body).toEqual(expected);
+        });
 
         // non-default pageNumber and pageSize
         it('should return correct part of posts array if page number and page size are non-default',
             async () => {
-                const pageNumber = 3;
-                const pageSize = 5;
+            const pageNumber = 3;
+            const pageSize = 5;
 
-                const expectedPosts = initialDbPosts.slice((pageNumber - 1) * pageSize,
-                    (pageNumber - 1) * pageSize + pageSize);
-                const expected = await createPostsPaginator(
-                    expectedPosts,
-                    pageNumber,
-                    pageSize,
-                    Math.ceil(initialDbPosts.length / pageSize),
-                    initialDbPosts.length,
-                );
+            const expectedPosts = initialDbPosts.slice((pageNumber - 1) * pageSize,
+                (pageNumber - 1) * pageSize + pageSize);
+            const expected = await createPostsPaginator(
+                expectedPosts,
+                pageNumber,
+                pageSize,
+                Math.ceil(initialDbPosts.length / pageSize),
+                initialDbPosts.length,
+            );
 
-                await req
-                    .get(SETTINGS.PATH.POSTS
-                        + '?pageNumber=' + pageNumber
-                        + '&pageSize=' + pageSize)
-                    .expect(HTTP_STATUSES.OK_200, expected);
-            });
+            const response = await req
+                .get(SETTINGS.PATH.POSTS
+                    + '?pageNumber=' + pageNumber
+                    + '&pageSize=' + pageSize)
+                .expect(HTTP_STATUSES.OK_200);
+            expect(response.body).toEqual(expected);
+        });
 
         // pageNumber exceeds total number of pages
         it('should return empty array if page number exceeds total number of pages',
             async () => {
-                const pagesCount = Math.ceil(initialDbPosts.length / DEFAULT_QUERY_VALUES.POSTS.pageSize);
-                const pageNumber = pagesCount + 5;
+            const pagesCount = Math.ceil(initialDbPosts.length / DEFAULT_QUERY_VALUES.POSTS.pageSize);
+            const pageNumber = pagesCount + 5;
 
-                const expectedPosts: PostDBType[] = [];
-                const expected = await createPostsPaginator(
-                    expectedPosts,
-                    pageNumber,
-                    DEFAULT_QUERY_VALUES.POSTS.pageSize,
-                    pagesCount,
-                    initialDbPosts.length,
-                );
+            const expectedPosts: PostDBType[] = [];
+            const expected = await createPostsPaginator(
+                expectedPosts,
+                pageNumber,
+                DEFAULT_QUERY_VALUES.POSTS.pageSize,
+                pagesCount,
+                initialDbPosts.length,
+            );
 
-                await req
-                    .get(SETTINGS.PATH.POSTS + '?pageNumber=' + pageNumber)
-                    .expect(HTTP_STATUSES.OK_200, expected);
-            });
+            const response = await req
+                .get(SETTINGS.PATH.POSTS + '?pageNumber=' + pageNumber)
+                .expect(HTTP_STATUSES.OK_200);
+            expect(response.body).toEqual(expected);
+        });
 
         // pageSize is greater than total number of items *
         it('should return all posts if page size is greater than total number of items',
             async () => {
-                const pageSize = initialDbPosts.length + 10;
+            const pageSize = initialDbPosts.length + 10;
 
-                const expected = await createPostsPaginator(
-                    initialDbPosts,
-                    DEFAULT_QUERY_VALUES.POSTS.pageNumber,
-                    pageSize,
-                    Math.ceil(initialDbPosts.length / pageSize),
-                    initialDbPosts.length,
-                );
+            const expected = await createPostsPaginator(
+                initialDbPosts,
+                DEFAULT_QUERY_VALUES.POSTS.pageNumber,
+                pageSize,
+                Math.ceil(initialDbPosts.length / pageSize),
+                initialDbPosts.length,
+            );
 
-                await req
-                    .get(SETTINGS.PATH.POSTS + '?pageSize=' + pageSize)
-                    .expect(HTTP_STATUSES.OK_200, expected);
-            });
+            const response = await req
+                .get(SETTINGS.PATH.POSTS + '?pageSize=' + pageSize)
+                .expect(HTTP_STATUSES.OK_200);
+            expect(response.body).toEqual(expected);
+        });
     });
 
     describe('get post', () => {
@@ -1049,10 +1092,11 @@ describe('tests for /posts', () => {
         it('should return the second post', async () => {
             const postToGet = initialDbPosts[1];
 
-            const expectedData = await postsQueryRepository.mapToOutput(postToGet);
-            await req
+            const expected = await postsQueryRepository.mapToOutput(postToGet);
+            const response = await req
                 .get(SETTINGS.PATH.POSTS + '/' + postToGet.id)
-                .expect(HTTP_STATUSES.OK_200, expectedData);
+                .expect(HTTP_STATUSES.OK_200);
+            expect(response.body).toEqual(expected);
         });
     });
 
