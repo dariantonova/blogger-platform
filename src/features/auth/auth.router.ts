@@ -2,7 +2,7 @@ import {Router} from "express";
 import {
     confirmationCodeValidator,
     loginOrEmailAuthValidator,
-    passwordAuthValidator
+    passwordAuthValidator, passwordRecoveryCodeValidator
 } from "../../validation/field-validators/auth-field-validators";
 import {errorsResultMiddleware} from "../../validation/errors-result-middleware";
 import {bearerAuthorizationMiddleware} from "../../middlewares/bearer-authorization-middleware";
@@ -59,5 +59,11 @@ router.post('/password-recovery',
     emailFieldValidator,
     errorsResultMiddleware,
     authController.requestPasswordRecovery.bind(authController));
+router.post('/new-password',
+    rateLimitingMiddleware,
+    passwordFieldValidator,
+    passwordRecoveryCodeValidator,
+    errorsResultMiddleware,
+    authController.confirmPasswordRecovery.bind(authController))
 
 export { router as authRouter };

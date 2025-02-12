@@ -117,6 +117,17 @@ export class AuthService {
         };
     };
     async confirmRegistration(confirmationCode: string): Promise<Result<null>> {
+        if (confirmationCode === '') {
+            const error = new FieldError(
+                'code',
+                'Confirmation code is incorrect');
+            return {
+                status: ResultStatus.BAD_REQUEST,
+                data: null,
+                extensions: [error],
+            };
+        }
+
         const user = await this.usersRepository.findUserByConfirmationCode(confirmationCode);
         if (!user) {
             const error = new FieldError(
@@ -329,7 +340,7 @@ export class AuthService {
         }
 
         const recoveryCode = generateUniqueCode();
-        const recoveryCodeHash = await this._generatePasswordRecoveryCodeHash(recoveryCode);
+        const recoveryCodeHash = await this._generateRecoveryCodeHash(recoveryCode);
         const passwordRecoveryInfo = new PasswordRecoveryInfo(
             recoveryCodeHash,
             add(new Date(), passwordRecoveryCodeLifetime)
@@ -354,7 +365,77 @@ export class AuthService {
             extensions: [],
         };
     };
-    async _generatePasswordRecoveryCodeHash(recoveryCode: string) {
+    async _generateRecoveryCodeHash(recoveryCode: string) {
         return this.cryptoService.generateHash(recoveryCode);
+    };
+    async confirmPasswordRecovery(newPassword: string, recoveryCode: string): Promise<Result<null>> {
+        const verifyRecoveryCodeResult = await this._verifyRecoveryCode(recoveryCode);
+        if (verifyRecoveryCodeResult.status !== ResultStatus.SUCCESS) {
+            return verifyRecoveryCodeResult as Result<null>;
+        }
+
+        const user = verifyRecoveryCodeResult.data as UserDBType;
+
+        const isRecoveryCodeDisabled = await this._disableRecoveryCode(user.id);
+        if (!isRecoveryCodeDisabled) {
+            return {
+                status: ResultStatus.INTERNAL_SERVER_ERROR,
+                data: null,
+                extensions: [],
+            };
+        }
+
+        const newPasswordHash = await this.cryptoService.generateHash(newPassword);
+        const isPasswordUpdated = await this.usersRepository.updateUserPasswordHash(user.id, newPasswordHash);
+        if (!isPasswordUpdated) {
+            return {
+                status: ResultStatus.INTERNAL_SERVER_ERROR,
+                data: null,
+                extensions: [],
+            };
+        }
+
+        return {
+            status: ResultStatus.SUCCESS,
+            data: null,
+            extensions: [],
+        };
+    };
+    async _verifyRecoveryCode(recoveryCode: string): Promise<Result<UserDBType | null>> {
+        if (recoveryCode === '') {
+            return {
+                status: ResultStatus.BAD_REQUEST,
+                data: null,
+                extensions: [],
+            };
+        }
+
+        const recoveryCodeHash = await this._generateRecoveryCodeHash(recoveryCode);
+        const user = await this.usersRepository.findUserByRecoveryCodeHash(recoveryCodeHash);
+        if (!user) {
+            return {
+                status: ResultStatus.BAD_REQUEST,
+                data: null,
+                extensions: [],
+            };
+        }
+
+        if (new Date() > user.passwordRecoveryInfo.expirationDate) {
+            return {
+                status: ResultStatus.BAD_REQUEST,
+                data: null,
+                extensions: [],
+            };
+        }
+
+        return {
+            status: ResultStatus.SUCCESS,
+            data: user,
+            extensions: [],
+        };
+    };
+    async _disableRecoveryCode(userId: string): Promise<boolean> {
+        const newPasswordRecoveryInfo = this.usersService.generateEmptyPasswordRecoveryInfo();
+        return this.usersRepository.updateUserPasswordRecoveryInfo(userId, newPasswordRecoveryInfo);
     };
 }

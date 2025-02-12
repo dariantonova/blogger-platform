@@ -5,7 +5,7 @@ import {HTTP_STATUSES} from "../../utils";
 import {
     LoginInputModel,
     LoginSuccessViewModel,
-    MeViewModel,
+    MeViewModel, NewPasswordRecoveryInputModel,
     PasswordRecoveryInputModel,
     RegistrationConfirmationCodeModel,
     RegistrationEmailResending,
@@ -142,6 +142,17 @@ export class AuthController {
     async requestPasswordRecovery(req: RequestWithBody<PasswordRecoveryInputModel>,
                                   res: Response) {
         const result = await this.authService.requestPasswordRecovery(req.body.email);
+
+        if (result.status !== ResultStatus.SUCCESS) {
+            res.status(resultStatusToHttp(result.status));
+            return;
+        }
+
+        res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
+    };
+    async confirmPasswordRecovery(req: RequestWithBody<NewPasswordRecoveryInputModel>,
+                                  res: Response) {
+        const result = await this.authService.confirmPasswordRecovery(req.body.newPassword, req.body.recoveryCode);
 
         if (result.status !== ResultStatus.SUCCESS) {
             res.status(resultStatusToHttp(result.status));
