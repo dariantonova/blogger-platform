@@ -12,6 +12,10 @@ class UsersTestRepository {
             'confirmationInfo.confirmationCode': confirmationCode };
         return UserModel.findOne(filterObj, { _id: 0 }).lean();
     };
+    async findUserByEmail(email: string): Promise<UserDBType | null> {
+        const filterObj: any = { isDeleted: false, email };
+        return UserModel.findOne(filterObj, { _id: 0 }).lean();
+    };
 }
 
 export const usersTestRepository = new UsersTestRepository();

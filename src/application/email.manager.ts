@@ -20,7 +20,7 @@ export class EmailManager {
         const subject = 'Reset password';
         const message =
             ' <p>To reset your password please follow the link below:\n' +
-            `     <a href='https://somesite.com/confirm-email?code=${recoveryCode}'>reset password</a>\n`+
+            `     <a href='https://somesite.com/recover-password?code=${recoveryCode}'>reset password</a>\n`+
             ' </p>\n';
         return this.nodemailerService.sendEmail(email, subject, message);
     };

@@ -96,4 +96,10 @@ export const authTestManager = {
             .set('Cookie', 'refreshToken=' + refToken)
             .expect(expectedStatusCode);
     },
+    async recoverPassword(data: any, expectedStatusCode: number) {
+        return req
+            .post(SETTINGS.PATH.AUTH + '/password-recovery')
+            .send(data)
+            .expect(expectedStatusCode);
+    },
 };

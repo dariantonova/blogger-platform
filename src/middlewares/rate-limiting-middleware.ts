@@ -6,7 +6,7 @@ import {AttemptsService} from "../application/attempts.service";
 const attemptsService = container.get<AttemptsService>(AttemptsService);
 
 export const requestsLimit = {
-    interval: 10 * 1000,
+    intervalMs: 10 * 1000,
     numberOfAttemptsLimit: 5,
 };
 
@@ -20,7 +20,7 @@ export const rateLimitingMiddleware = async (req: Request, res: Response, next: 
     const url = req.originalUrl;
     await attemptsService.createAttempt(ip, url);
 
-    const fromDate = new Date(Date.now() - requestsLimit.interval);
+    const fromDate = new Date(Date.now() - requestsLimit.intervalMs);
 
     const numberOfRecentAttempts = await attemptsService.countAttemptsFromDate(ip, url, fromDate);
     if (numberOfRecentAttempts > requestsLimit.numberOfAttemptsLimit) {

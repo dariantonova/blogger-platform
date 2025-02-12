@@ -5,3 +5,5 @@ export const validUserFieldInput = {
 };
 
 export const nonExistingValidEmail = 'example@example.com';
+
+export const emailPattern = '^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$';
