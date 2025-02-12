@@ -54,5 +54,10 @@ router.post('/refresh-token',
 router.post('/logout',
     refreshTokenVerification,
     authController.logoutUser.bind(authController));
+router.post('/password-recovery',
+    rateLimitingMiddleware,
+    emailFieldValidator,
+    errorsResultMiddleware,
+    authController.requestPasswordRecovery.bind(authController));
 
 export { router as authRouter };

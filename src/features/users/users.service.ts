@@ -1,4 +1,4 @@
-import {ConfirmationInfoType, FieldError, UserDBType} from "../../types/types";
+import {ConfirmationInfoType, FieldError, PasswordRecoveryInfo, UserDBType} from "../../types/types";
 import {UsersRepository} from "./repositories/users.repository";
 import {CryptoService} from "../../application/crypto.service";
 import {randomUUID} from "node:crypto";
@@ -11,6 +11,10 @@ import {inject, injectable} from "inversify";
 export const confirmationCodeLifetime = {
     hours: 1,
     minutes: 30,
+};
+
+export const passwordRecoveryCodeLifetime = {
+    hours: 1,
 };
 
 @injectable()
@@ -51,6 +55,7 @@ export class UsersService {
         const passwordHash = await this.cryptoService.generateHash(password);
 
         const confirmationInfo = this.generateConfirmationInfo(isConfirmed);
+        const passwordRecoveryInfo = this.generateEmptyPasswordRecoveryInfo();
 
         const createdUser = new UserDBType(
             String(+new Date()),
@@ -59,6 +64,7 @@ export class UsersService {
             new Date(),
             passwordHash,
             confirmationInfo,
+            passwordRecoveryInfo,
             false
         );
 
@@ -84,6 +90,9 @@ export class UsersService {
             false
         );
     };
+    generateEmptyPasswordRecoveryInfo(): PasswordRecoveryInfo {
+        return new PasswordRecoveryInfo('', new Date());
+    };
     async deleteUser(id: string): Promise<boolean> {
         const isUserDeleted = await this.usersRepository.deleteUser(id);
 
@@ -96,7 +105,7 @@ export class UsersService {
     async deleteAllUsers() {
         await this.usersRepository.deleteAllUsers();
     };
-    async findUserById(id: string) {
+    async findUserById(id: string): Promise<UserDBType | null> {
         return this.usersRepository.findUserById(id);
     };
 }

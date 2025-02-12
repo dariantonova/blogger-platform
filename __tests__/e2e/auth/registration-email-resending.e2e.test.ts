@@ -42,6 +42,10 @@ describe('tests for registration email resending', () => {
                     expirationDate: add(new Date(), { hours: 2 }),
                     isConfirmed: false,
                 },
+                passwordRecoveryInfo: {
+                    recoveryCodeHash: '',
+                    expirationDate: new Date('2024-12-16T05:32:26.882Z'),
+                },
                 isDeleted: false,
             },
             {
@@ -55,6 +59,10 @@ describe('tests for registration email resending', () => {
                     expirationDate: new Date(),
                     isConfirmed: false,
                 },
+                passwordRecoveryInfo: {
+                    recoveryCodeHash: '',
+                    expirationDate: new Date('2024-12-16T05:32:26.882Z'),
+                },
                 isDeleted: true,
             },
             {
@@ -67,6 +75,10 @@ describe('tests for registration email resending', () => {
                     confirmationCode: 'code3',
                     expirationDate: new Date(),
                     isConfirmed: true,
+                },
+                passwordRecoveryInfo: {
+                    recoveryCodeHash: '',
+                    expirationDate: new Date('2024-12-16T05:32:26.882Z'),
                 },
                 isDeleted: false,
             },

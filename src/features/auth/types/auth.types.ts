@@ -45,3 +45,12 @@ export class DeviceViewModel {
                 public deviceId: string
     ) {}
 }
+
+export type PasswordRecoveryInputModel = {
+    email: string,
+};
+
+export type NewPasswordRecoveryInputModel = {
+    newPassword: string,
+    recoveryCode: string,
+};

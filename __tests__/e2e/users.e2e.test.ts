@@ -90,6 +90,10 @@ describe('tests for /users', () => {
                         expirationDate: new Date('2024-12-16T05:32:26.882Z'),
                         isConfirmed: true,
                     },
+                    passwordRecoveryInfo: {
+                        recoveryCodeHash: '',
+                        expirationDate: new Date('2024-12-16T05:32:26.882Z'),
+                    },
                     isDeleted: true,
                 },
                 {
@@ -102,6 +106,10 @@ describe('tests for /users', () => {
                         confirmationCode: '',
                         expirationDate: new Date('2024-12-16T05:32:26.882Z'),
                         isConfirmed: true,
+                    },
+                    passwordRecoveryInfo: {
+                        recoveryCodeHash: '',
+                        expirationDate: new Date('2024-12-16T05:32:26.882Z'),
                     },
                     isDeleted: false,
                 },
@@ -116,6 +124,10 @@ describe('tests for /users', () => {
                         expirationDate: new Date('2024-12-16T05:32:26.882Z'),
                         isConfirmed: true,
                     },
+                    passwordRecoveryInfo: {
+                        recoveryCodeHash: '',
+                        expirationDate: new Date('2024-12-16T05:32:26.882Z'),
+                    },
                     isDeleted: true,
                 },
                 {
@@ -128,6 +140,10 @@ describe('tests for /users', () => {
                         confirmationCode: '',
                         expirationDate: new Date('2024-12-16T05:32:26.882Z'),
                         isConfirmed: true,
+                    },
+                    passwordRecoveryInfo: {
+                        recoveryCodeHash: '',
+                        expirationDate: new Date('2024-12-16T05:32:26.882Z'),
                     },
                     isDeleted: false,
                 },
@@ -163,6 +179,10 @@ describe('tests for /users', () => {
                         expirationDate: new Date('2024-12-16T05:32:26.882Z'),
                         isConfirmed: true,
                     },
+                    passwordRecoveryInfo: {
+                        recoveryCodeHash: '',
+                        expirationDate: new Date('2024-12-16T05:32:26.882Z'),
+                    },
                     isDeleted: false,
                 },
                 {
@@ -175,6 +195,10 @@ describe('tests for /users', () => {
                         confirmationCode: '',
                         expirationDate: new Date('2024-12-16T05:32:26.882Z'),
                         isConfirmed: true,
+                    },
+                    passwordRecoveryInfo: {
+                        recoveryCodeHash: '',
+                        expirationDate: new Date('2024-12-16T05:32:26.882Z'),
                     },
                     isDeleted: false,
                 },
@@ -189,6 +213,10 @@ describe('tests for /users', () => {
                         expirationDate: new Date('2024-12-16T05:32:26.882Z'),
                         isConfirmed: true,
                     },
+                    passwordRecoveryInfo: {
+                        recoveryCodeHash: '',
+                        expirationDate: new Date('2024-12-16T05:32:26.882Z'),
+                    },
                     isDeleted: false,
                 },
                 {
@@ -201,6 +229,10 @@ describe('tests for /users', () => {
                         confirmationCode: '',
                         expirationDate: new Date('2024-12-16T05:32:26.882Z'),
                         isConfirmed: true,
+                    },
+                    passwordRecoveryInfo: {
+                        recoveryCodeHash: '',
+                        expirationDate: new Date('2024-12-16T05:32:26.882Z'),
                     },
                     isDeleted: false,
                 },
@@ -215,6 +247,10 @@ describe('tests for /users', () => {
                         expirationDate: new Date('2024-12-16T05:32:26.882Z'),
                         isConfirmed: true,
                     },
+                    passwordRecoveryInfo: {
+                        recoveryCodeHash: '',
+                        expirationDate: new Date('2024-12-16T05:32:26.882Z'),
+                    },
                     isDeleted: true,
                 },
                 {
@@ -227,6 +263,10 @@ describe('tests for /users', () => {
                         confirmationCode: '',
                         expirationDate: new Date('2024-12-16T05:32:26.882Z'),
                         isConfirmed: true,
+                    },
+                    passwordRecoveryInfo: {
+                        recoveryCodeHash: '',
+                        expirationDate: new Date('2024-12-16T05:32:26.882Z'),
                     },
                     isDeleted: true,
                 },
@@ -319,6 +359,10 @@ describe('tests for /users', () => {
                         expirationDate: new Date('2024-12-16T05:32:26.882Z'),
                         isConfirmed: true,
                     },
+                    passwordRecoveryInfo: {
+                        recoveryCodeHash: '',
+                        expirationDate: new Date('2024-12-16T05:32:26.882Z'),
+                    },
                     isDeleted: true,
                 },
                 {
@@ -331,6 +375,10 @@ describe('tests for /users', () => {
                         confirmationCode: '',
                         expirationDate: new Date('2024-12-16T05:32:26.882Z'),
                         isConfirmed: true,
+                    },
+                    passwordRecoveryInfo: {
+                        recoveryCodeHash: '',
+                        expirationDate: new Date('2024-12-16T05:32:26.882Z'),
                     },
                     isDeleted: false,
                 },
@@ -345,6 +393,10 @@ describe('tests for /users', () => {
                         expirationDate: new Date('2024-12-16T05:32:26.882Z'),
                         isConfirmed: true,
                     },
+                    passwordRecoveryInfo: {
+                        recoveryCodeHash: '',
+                        expirationDate: new Date('2024-12-16T05:32:26.882Z'),
+                    },
                     isDeleted: false,
                 },
                 {
@@ -357,6 +409,10 @@ describe('tests for /users', () => {
                         confirmationCode: '',
                         expirationDate: new Date('2024-12-16T05:32:26.882Z'),
                         isConfirmed: true,
+                    },
+                    passwordRecoveryInfo: {
+                        recoveryCodeHash: '',
+                        expirationDate: new Date('2024-12-16T05:32:26.882Z'),
                     },
                     isDeleted: false,
                 },
@@ -584,6 +640,10 @@ describe('tests for /users', () => {
                         expirationDate: new Date('2024-12-16T05:32:26.882Z'),
                         isConfirmed: true,
                     },
+                    passwordRecoveryInfo: {
+                        recoveryCodeHash: '',
+                        expirationDate: new Date('2024-12-16T05:32:26.882Z'),
+                    },
                     isDeleted: false,
                 },
                 {
@@ -596,6 +656,10 @@ describe('tests for /users', () => {
                         confirmationCode: '',
                         expirationDate: new Date('2024-12-16T05:32:26.882Z'),
                         isConfirmed: true,
+                    },
+                    passwordRecoveryInfo: {
+                        recoveryCodeHash: '',
+                        expirationDate: new Date('2024-12-16T05:32:26.882Z'),
                     },
                     isDeleted: false,
                 },
@@ -610,6 +674,10 @@ describe('tests for /users', () => {
                         expirationDate: new Date('2024-12-16T05:32:26.882Z'),
                         isConfirmed: true,
                     },
+                    passwordRecoveryInfo: {
+                        recoveryCodeHash: '',
+                        expirationDate: new Date('2024-12-16T05:32:26.882Z'),
+                    },
                     isDeleted: false,
                 },
                 {
@@ -622,6 +690,10 @@ describe('tests for /users', () => {
                         confirmationCode: '',
                         expirationDate: new Date('2024-12-16T05:32:26.882Z'),
                         isConfirmed: true,
+                    },
+                    passwordRecoveryInfo: {
+                        recoveryCodeHash: '',
+                        expirationDate: new Date('2024-12-16T05:32:26.882Z'),
                     },
                     isDeleted: false,
                 },
@@ -636,6 +708,10 @@ describe('tests for /users', () => {
                         expirationDate: new Date('2024-12-16T05:32:26.882Z'),
                         isConfirmed: true,
                     },
+                    passwordRecoveryInfo: {
+                        recoveryCodeHash: '',
+                        expirationDate: new Date('2024-12-16T05:32:26.882Z'),
+                    },
                     isDeleted: false,
                 },
                 {
@@ -648,6 +724,10 @@ describe('tests for /users', () => {
                         confirmationCode: '',
                         expirationDate: new Date('2024-12-16T05:32:26.882Z'),
                         isConfirmed: true,
+                    },
+                    passwordRecoveryInfo: {
+                        recoveryCodeHash: '',
+                        expirationDate: new Date('2024-12-16T05:32:26.882Z'),
                     },
                     isDeleted: false,
                 },
@@ -662,6 +742,10 @@ describe('tests for /users', () => {
                         expirationDate: new Date('2024-12-16T05:32:26.882Z'),
                         isConfirmed: true,
                     },
+                    passwordRecoveryInfo: {
+                        recoveryCodeHash: '',
+                        expirationDate: new Date('2024-12-16T05:32:26.882Z'),
+                    },
                     isDeleted: false,
                 },
                 {
@@ -674,6 +758,10 @@ describe('tests for /users', () => {
                         confirmationCode: '',
                         expirationDate: new Date('2024-12-16T05:32:26.882Z'),
                         isConfirmed: true,
+                    },
+                    passwordRecoveryInfo: {
+                        recoveryCodeHash: '',
+                        expirationDate: new Date('2024-12-16T05:32:26.882Z'),
                     },
                     isDeleted: false,
                 },
@@ -688,6 +776,10 @@ describe('tests for /users', () => {
                         expirationDate: new Date('2024-12-16T05:32:26.882Z'),
                         isConfirmed: true,
                     },
+                    passwordRecoveryInfo: {
+                        recoveryCodeHash: '',
+                        expirationDate: new Date('2024-12-16T05:32:26.882Z'),
+                    },
                     isDeleted: false,
                 },
                 {
@@ -700,6 +792,10 @@ describe('tests for /users', () => {
                         confirmationCode: '',
                         expirationDate: new Date('2024-12-16T05:32:26.882Z'),
                         isConfirmed: true,
+                    },
+                    passwordRecoveryInfo: {
+                        recoveryCodeHash: '',
+                        expirationDate: new Date('2024-12-16T05:32:26.882Z'),
                     },
                     isDeleted: false,
                 },
@@ -714,6 +810,10 @@ describe('tests for /users', () => {
                         expirationDate: new Date('2024-12-16T05:32:26.882Z'),
                         isConfirmed: true,
                     },
+                    passwordRecoveryInfo: {
+                        recoveryCodeHash: '',
+                        expirationDate: new Date('2024-12-16T05:32:26.882Z'),
+                    },
                     isDeleted: false,
                 },
                 {
@@ -726,6 +826,10 @@ describe('tests for /users', () => {
                         confirmationCode: '',
                         expirationDate: new Date('2024-12-16T05:32:26.882Z'),
                         isConfirmed: true,
+                    },
+                    passwordRecoveryInfo: {
+                        recoveryCodeHash: '',
+                        expirationDate: new Date('2024-12-16T05:32:26.882Z'),
                     },
                     isDeleted: false,
                 },
@@ -740,6 +844,10 @@ describe('tests for /users', () => {
                         expirationDate: new Date('2024-12-16T05:32:26.882Z'),
                         isConfirmed: true,
                     },
+                    passwordRecoveryInfo: {
+                        recoveryCodeHash: '',
+                        expirationDate: new Date('2024-12-16T05:32:26.882Z'),
+                    },
                     isDeleted: false,
                 },
                 {
@@ -752,6 +860,10 @@ describe('tests for /users', () => {
                         confirmationCode: '',
                         expirationDate: new Date('2024-12-16T05:32:26.882Z'),
                         isConfirmed: true,
+                    },
+                    passwordRecoveryInfo: {
+                        recoveryCodeHash: '',
+                        expirationDate: new Date('2024-12-16T05:32:26.882Z'),
                     },
                     isDeleted: false,
                 },
@@ -766,6 +878,10 @@ describe('tests for /users', () => {
                         expirationDate: new Date('2024-12-16T05:32:26.882Z'),
                         isConfirmed: true,
                     },
+                    passwordRecoveryInfo: {
+                        recoveryCodeHash: '',
+                        expirationDate: new Date('2024-12-16T05:32:26.882Z'),
+                    },
                     isDeleted: false,
                 },
                 {
@@ -778,6 +894,10 @@ describe('tests for /users', () => {
                         confirmationCode: '',
                         expirationDate: new Date('2024-12-16T05:32:26.882Z'),
                         isConfirmed: true,
+                    },
+                    passwordRecoveryInfo: {
+                        recoveryCodeHash: '',
+                        expirationDate: new Date('2024-12-16T05:32:26.882Z'),
                     },
                     isDeleted: false,
                 },
@@ -792,6 +912,10 @@ describe('tests for /users', () => {
                         expirationDate: new Date('2024-12-16T05:32:26.882Z'),
                         isConfirmed: true,
                     },
+                    passwordRecoveryInfo: {
+                        recoveryCodeHash: '',
+                        expirationDate: new Date('2024-12-16T05:32:26.882Z'),
+                    },
                     isDeleted: false,
                 },
                 {
@@ -804,6 +928,10 @@ describe('tests for /users', () => {
                         confirmationCode: '',
                         expirationDate: new Date('2024-12-16T05:32:26.882Z'),
                         isConfirmed: true,
+                    },
+                    passwordRecoveryInfo: {
+                        recoveryCodeHash: '',
+                        expirationDate: new Date('2024-12-16T05:32:26.882Z'),
                     },
                     isDeleted: false,
                 },
@@ -818,6 +946,10 @@ describe('tests for /users', () => {
                         expirationDate: new Date('2024-12-16T05:32:26.882Z'),
                         isConfirmed: true,
                     },
+                    passwordRecoveryInfo: {
+                        recoveryCodeHash: '',
+                        expirationDate: new Date('2024-12-16T05:32:26.882Z'),
+                    },
                     isDeleted: false,
                 },
                 {
@@ -830,6 +962,10 @@ describe('tests for /users', () => {
                         confirmationCode: '',
                         expirationDate: new Date('2024-12-16T05:32:26.882Z'),
                         isConfirmed: true,
+                    },
+                    passwordRecoveryInfo: {
+                        recoveryCodeHash: '',
+                        expirationDate: new Date('2024-12-16T05:32:26.882Z'),
                     },
                     isDeleted: false,
                 },
@@ -844,6 +980,10 @@ describe('tests for /users', () => {
                         expirationDate: new Date('2024-12-16T05:32:26.882Z'),
                         isConfirmed: true,
                     },
+                    passwordRecoveryInfo: {
+                        recoveryCodeHash: '',
+                        expirationDate: new Date('2024-12-16T05:32:26.882Z'),
+                    },
                     isDeleted: false,
                 },
                 {
@@ -856,6 +996,10 @@ describe('tests for /users', () => {
                         confirmationCode: '',
                         expirationDate: new Date('2024-12-16T05:32:26.882Z'),
                         isConfirmed: true,
+                    },
+                    passwordRecoveryInfo: {
+                        recoveryCodeHash: '',
+                        expirationDate: new Date('2024-12-16T05:32:26.882Z'),
                     },
                     isDeleted: false,
                 },
@@ -870,6 +1014,10 @@ describe('tests for /users', () => {
                         expirationDate: new Date('2024-12-16T05:32:26.882Z'),
                         isConfirmed: true,
                     },
+                    passwordRecoveryInfo: {
+                        recoveryCodeHash: '',
+                        expirationDate: new Date('2024-12-16T05:32:26.882Z'),
+                    },
                     isDeleted: false,
                 },
                 {
@@ -882,6 +1030,10 @@ describe('tests for /users', () => {
                         confirmationCode: '',
                         expirationDate: new Date('2024-12-16T05:32:26.882Z'),
                         isConfirmed: true,
+                    },
+                    passwordRecoveryInfo: {
+                        recoveryCodeHash: '',
+                        expirationDate: new Date('2024-12-16T05:32:26.882Z'),
                     },
                     isDeleted: false,
                 },
@@ -1064,6 +1216,10 @@ describe('tests for /users', () => {
                         confirmationCode: '',
                         expirationDate: new Date('2024-12-16T05:32:26.882Z'),
                         isConfirmed: true,
+                    },
+                    passwordRecoveryInfo: {
+                        recoveryCodeHash: '',
+                        expirationDate: new Date('2024-12-16T05:32:26.882Z'),
                     },
                     isDeleted: false,
                 }
@@ -1570,6 +1726,10 @@ describe('tests for /users', () => {
                         expirationDate: new Date('2024-12-16T05:32:26.882Z'),
                         isConfirmed: true,
                     },
+                    passwordRecoveryInfo: {
+                        recoveryCodeHash: '',
+                        expirationDate: new Date('2024-12-16T05:32:26.882Z'),
+                    },
                     isDeleted: false,
                 },
                 {
@@ -1583,6 +1743,10 @@ describe('tests for /users', () => {
                         expirationDate: new Date('2024-12-16T05:32:26.882Z'),
                         isConfirmed: true,
                     },
+                    passwordRecoveryInfo: {
+                        recoveryCodeHash: '',
+                        expirationDate: new Date('2024-12-16T05:32:26.882Z'),
+                    },
                     isDeleted: true,
                 },
                 {
@@ -1595,6 +1759,10 @@ describe('tests for /users', () => {
                         confirmationCode: '',
                         expirationDate: new Date('2024-12-16T05:32:26.882Z'),
                         isConfirmed: true,
+                    },
+                    passwordRecoveryInfo: {
+                        recoveryCodeHash: '',
+                        expirationDate: new Date('2024-12-16T05:32:26.882Z'),
                     },
                     isDeleted: false,
                 },

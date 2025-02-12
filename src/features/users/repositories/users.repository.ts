@@ -1,4 +1,4 @@
-import {ConfirmationInfoType, UserDBType} from "../../../types/types";
+import {ConfirmationInfoType, PasswordRecoveryInfo, UserDBType} from "../../../types/types";
 import {UserModel} from "../../../db/db";
 import {injectable} from "inversify";
 
@@ -34,7 +34,7 @@ export class UsersRepository {
             'confirmationInfo.confirmationCode': confirmationCode };
         return UserModel.findOne(filterObj, { _id: 0 }).lean();
     };
-    async confirmUserRegistration(id: string) {
+    async confirmUserRegistration(id: string): Promise<boolean> {
         const updateUserInfo = await UserModel.updateOne(
             { isDeleted: false, id },
             { 'confirmationInfo.isConfirmed': true }
@@ -42,13 +42,13 @@ export class UsersRepository {
 
         return updateUserInfo.modifiedCount === 1;
     };
-    async updateUserConfirmationInfo(id: string, confirmationInfo: ConfirmationInfoType) {
+    async updateUserConfirmationInfo(id: string, confirmationInfo: ConfirmationInfoType): Promise<boolean> {
         const updateUserInfo = await UserModel.updateOne(
             { isDeleted: false, id },
             { confirmationInfo }
         );
 
-        return updateUserInfo.modifiedCount === 1;
+        return updateUserInfo.matchedCount === 1;
     };
     async deleteUser(id: string): Promise<boolean> {
         const updateUserInfo = await UserModel.updateOne(
@@ -60,5 +60,13 @@ export class UsersRepository {
     };
     async deleteAllUsers() {
         await UserModel.deleteMany({});
+    };
+    async updateUserPasswordRecoveryInfo(id: string, passwordRecoveryInfo: PasswordRecoveryInfo): Promise<boolean> {
+        const updateUserInfo = await UserModel.updateOne(
+            { isDeleted: false, id },
+            { passwordRecoveryInfo }
+        );
+
+        return updateUserInfo.matchedCount === 1;
     };
 }

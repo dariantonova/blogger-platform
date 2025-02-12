@@ -1,7 +1,7 @@
 import {UsersRepository} from "../users/repositories/users.repository";
 import {CryptoService} from "../../application/crypto.service";
 import {JwtService} from "../../application/jwt.service";
-import {FieldError, UserDBType} from "../../types/types";
+import {FieldError, PasswordRecoveryInfo, UserDBType} from "../../types/types";
 import {Result} from "../../common/result/result.type";
 import {UsersService} from "../users/users.service";
 import {ResultStatus} from "../../common/result/resultStatus";
@@ -10,6 +10,12 @@ import {DeviceAuthSessionDBType, TokenPair} from "./types/auth.types";
 import {randomUUID} from "node:crypto";
 import {DeviceAuthSessionsRepository} from "./device-auth-sessions.repository";
 import {inject, injectable} from "inversify";
+import {generateUniqueCode} from "../../utils";
+import {add} from "date-fns";
+
+export const passwordRecoveryCodeLifetime = {
+    hours: 1,
+};
 
 @injectable()
 export class AuthService {
@@ -311,5 +317,44 @@ export class AuthService {
             data: null,
             extensions: [],
         };
+    };
+    async requestPasswordRecovery(email: string): Promise<Result<null>> {
+        const user = await this.usersRepository.findUserByEmail(email);
+        if (!user) {
+            return {
+                status: ResultStatus.SUCCESS,
+                data: null,
+                extensions: [],
+            };
+        }
+
+        const recoveryCode = generateUniqueCode();
+        const recoveryCodeHash = await this._generatePasswordRecoveryCodeHash(recoveryCode);
+        const passwordRecoveryInfo = new PasswordRecoveryInfo(
+            recoveryCodeHash,
+            add(new Date(), passwordRecoveryCodeLifetime)
+        );
+
+        const isPasswordRecoveryInfoUpdated = await this.usersRepository
+            .updateUserPasswordRecoveryInfo(user.id, passwordRecoveryInfo);
+        if (!isPasswordRecoveryInfoUpdated) {
+            return {
+                status: ResultStatus.INTERNAL_SERVER_ERROR,
+                data: null,
+                extensions: [],
+            };
+        }
+
+        this.emailManager.sendPasswordRecoveryMessage(email, recoveryCode)
+            .catch(err => console.log('Email send error: ' + err));
+
+        return {
+            status: ResultStatus.SUCCESS,
+            data: null,
+            extensions: [],
+        };
+    };
+    async _generatePasswordRecoveryCodeHash(recoveryCode: string) {
+        return this.cryptoService.generateHash(recoveryCode);
     };
 }

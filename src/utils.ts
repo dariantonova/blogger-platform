@@ -1,3 +1,5 @@
+import {randomUUID} from "node:crypto";
+
 export enum HTTP_STATUSES {
     OK_200 = 200,
     CREATED_201 = 201,
@@ -14,4 +16,8 @@ export enum HTTP_STATUSES {
 
 export const encodeToBase64 = (data: string) => {
     return Buffer.from(data).toString('base64');
+}
+
+export const generateUniqueCode = () => {
+    return randomUUID();
 }

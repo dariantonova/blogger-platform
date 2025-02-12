@@ -41,6 +41,10 @@ describe('tests for registration endpoint', () => {
                     expirationDate: new Date('2024-12-16T05:32:26.882Z'),
                     isConfirmed: true,
                 },
+                passwordRecoveryInfo: {
+                    recoveryCodeHash: '',
+                    expirationDate: new Date('2024-12-16T05:32:26.882Z'),
+                },
                 isDeleted: false,
             },
             {
@@ -54,6 +58,10 @@ describe('tests for registration endpoint', () => {
                     expirationDate: new Date('2024-12-16T05:32:26.882Z'),
                     isConfirmed: false,
                 },
+                passwordRecoveryInfo: {
+                    recoveryCodeHash: '',
+                    expirationDate: new Date('2024-12-16T05:32:26.882Z'),
+                },
                 isDeleted: false,
             },
             {
@@ -66,6 +74,10 @@ describe('tests for registration endpoint', () => {
                     confirmationCode: '',
                     expirationDate: new Date('2024-12-16T05:32:26.882Z'),
                     isConfirmed: true,
+                },
+                passwordRecoveryInfo: {
+                    recoveryCodeHash: '',
+                    expirationDate: new Date('2024-12-16T05:32:26.882Z'),
                 },
                 isDeleted: true,
             },

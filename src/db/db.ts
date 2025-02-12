@@ -39,6 +39,10 @@ const userSchema = new Schema<WithId<UserDBType>>({
         expirationDate: { type: Date, required: true },
         isConfirmed: { type: Boolean, required: true },
     },
+    passwordRecoveryInfo: {
+        recoveryCodeHash: { type: String, default: '' },
+        expirationDate: { type: Date, required: true },
+    },
     isDeleted: { type: Boolean, required: true },
 });
 

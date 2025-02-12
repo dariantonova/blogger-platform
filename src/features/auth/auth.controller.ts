@@ -6,6 +6,7 @@ import {
     LoginInputModel,
     LoginSuccessViewModel,
     MeViewModel,
+    PasswordRecoveryInputModel,
     RegistrationConfirmationCodeModel,
     RegistrationEmailResending,
     TokenPair
@@ -26,7 +27,7 @@ export class AuthController {
         @inject(JwtService) protected jwtService: JwtService
     ) {}
 
-    async loginUser (req: RequestWithBody<LoginInputModel>,
+    async loginUser(req: RequestWithBody<LoginInputModel>,
                      res: Response<LoginSuccessViewModel>) {
         const ip = req.ip || defaultIp;
         const deviceName = req.headers['user-agent'] || defaultDeviceName;
@@ -44,7 +45,7 @@ export class AuthController {
 
         await this._sendTokenPair(res, tokenPair);
     };
-    async getCurrentUserInfo (req: Request, res: Response<MeViewModel>) {
+    async getCurrentUserInfo(req: Request, res: Response<MeViewModel>) {
         const user = req.user as UserDBType;
         const userInfo = new MeViewModel(
             user.email,
@@ -53,7 +54,7 @@ export class AuthController {
         );
         res.json(userInfo);
     };
-    async registerUser (req: RequestWithBody<CreateUserInputModel>,
+    async registerUser(req: RequestWithBody<CreateUserInputModel>,
                         res: Response<APIErrorResult>) {
         const registerUserResult = await this.authService.registerUser(
             req.body.login, req.body.email, req.body.password
@@ -71,7 +72,7 @@ export class AuthController {
 
         res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
     };
-    async confirmRegistration (req: RequestWithBody<RegistrationConfirmationCodeModel>,
+    async confirmRegistration(req: RequestWithBody<RegistrationConfirmationCodeModel>,
                                res: Response<APIErrorResult>) {
         const result = await this.authService.confirmRegistration(req.body.code);
 
@@ -85,7 +86,7 @@ export class AuthController {
 
         res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
     };
-    async resendRegistrationEmail (req: RequestWithBody<RegistrationEmailResending>,
+    async resendRegistrationEmail(req: RequestWithBody<RegistrationEmailResending>,
                                    res: Response<APIErrorResult>) {
         const result = await this.authService.resendRegistrationEmail(req.body.email);
 
@@ -99,7 +100,7 @@ export class AuthController {
 
         res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
     };
-    async refreshToken (req: Request, res: Response<LoginSuccessViewModel>) {
+    async refreshToken(req: Request, res: Response<LoginSuccessViewModel>) {
         const tokenToRevoke = req.cookies.refreshToken;
         const user = req.user as UserDBType;
         const ip = req.ip || defaultIp;
@@ -114,7 +115,7 @@ export class AuthController {
 
         await this._sendTokenPair(res, tokenPair);
     };
-    async _sendTokenPair (res: Response<LoginSuccessViewModel>,
+    async _sendTokenPair(res: Response<LoginSuccessViewModel>,
                           { accessToken, refreshToken }: TokenPair) {
         const refTokenPayload = await this.jwtService.decodeRefreshToken(refreshToken);
 
@@ -127,12 +128,23 @@ export class AuthController {
 
         res.json({ accessToken });
     };
-    async logoutUser (req: Request, res: Response) {
+    async logoutUser(req: Request, res: Response) {
         const tokenToRevoke = req.cookies.refreshToken;
 
         const result = await this.authService.logoutUser(tokenToRevoke);
         if (result.status !== ResultStatus.SUCCESS) {
             res.sendStatus(resultStatusToHttp(result.status));
+            return;
+        }
+
+        res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
+    };
+    async requestPasswordRecovery(req: RequestWithBody<PasswordRecoveryInputModel>,
+                                  res: Response) {
+        const result = await this.authService.requestPasswordRecovery(req.body.email);
+
+        if (result.status !== ResultStatus.SUCCESS) {
+            res.status(resultStatusToHttp(result.status));
             return;
         }
 

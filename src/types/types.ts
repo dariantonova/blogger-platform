@@ -50,6 +50,12 @@ export class ConfirmationInfoType {
     ) {}
 }
 
+export class PasswordRecoveryInfo {
+    constructor(public recoveryCodeHash: string,
+                public expirationDate: Date
+    ) {}
+}
+
 export class UserDBType {
     constructor(public id: string,
                 public login: string,
@@ -57,6 +63,7 @@ export class UserDBType {
                 public createdAt: Date,
                 public passwordHash: string,
                 public confirmationInfo: ConfirmationInfoType,
+                public passwordRecoveryInfo: PasswordRecoveryInfo,
                 public isDeleted: boolean
     ) {}
 }
