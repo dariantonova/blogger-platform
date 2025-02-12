@@ -1,6 +1,7 @@
 import {UserDBType} from "../types/types";
 import jwt from 'jsonwebtoken';
 import {SETTINGS} from "../settings";
+import {injectable} from "inversify";
 
 type RefreshTokenPayload = {
     userId: string,
@@ -9,6 +10,7 @@ type RefreshTokenPayload = {
     iat: number,
 };
 
+@injectable()
 export class JwtService {
     async createAccessToken(user: UserDBType): Promise<string> {
         return jwt.sign({ userId: user.id }, SETTINGS.ACCESS_JWT_SECRET,

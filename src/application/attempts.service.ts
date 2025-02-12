@@ -1,7 +1,11 @@
 import {AttemptsRepository} from "./attempts.repository";
+import {inject, injectable} from "inversify";
 
+@injectable()
 export class AttemptsService {
-    constructor(protected attemptsRepository: AttemptsRepository) {}
+    constructor(
+        @inject(AttemptsRepository) protected attemptsRepository: AttemptsRepository
+    ) {}
 
     async deleteAllAttempts() {
         return this.attemptsRepository.deleteAllAttempts();

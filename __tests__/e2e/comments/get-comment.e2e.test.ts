@@ -9,7 +9,10 @@ import {HTTP_STATUSES} from "../../../src/utils";
 import {CommentDBType} from "../../../src/features/comments/comments.types";
 import {ObjectId, WithId} from "mongodb";
 import mongoose from "mongoose";
-import {commentsQueryRepository} from "../../../src/composition-root";
+import {container} from "../../../src/composition-root";
+import {CommentsQueryRepository} from "../../../src/features/comments/comments.query.repository";
+
+const commentsQueryRepository = container.get<CommentsQueryRepository>(CommentsQueryRepository);
 
 describe('test for get comment endpoint', () => {
     let server: MongoMemoryServer;

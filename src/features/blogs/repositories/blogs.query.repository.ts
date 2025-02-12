@@ -1,7 +1,9 @@
 import {BlogDBType, Paginator, SortDirections} from "../../../types/types";
 import {BlogModel} from "../../../db/db";
 import {BlogViewModel} from "../models/BlogViewModel";
+import {injectable} from "inversify";
 
+@injectable()
 export class BlogsQueryRepository {
     async findBlogs(searchNameTerm: string | null,
                     sortBy: string, sortDirection: SortDirections,

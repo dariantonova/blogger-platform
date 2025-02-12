@@ -2,10 +2,13 @@ import {Result} from "../../common/result/result.type";
 import {JwtService} from "../../application/jwt.service";
 import {DeviceAuthSessionsRepository} from "../auth/device-auth-sessions.repository";
 import {ResultStatus} from "../../common/result/resultStatus";
+import {inject, injectable} from "inversify";
 
+@injectable()
 export class SecurityDevicesService {
-    constructor(protected deviceAuthSessionsRepository: DeviceAuthSessionsRepository,
-                protected jwtService: JwtService
+    constructor(
+        @inject(DeviceAuthSessionsRepository) protected deviceAuthSessionsRepository: DeviceAuthSessionsRepository,
+        @inject(JwtService) protected jwtService: JwtService
     ) {}
 
     async terminateAllOtherDeviceSessions(refreshToken: string): Promise<Result<null>> {

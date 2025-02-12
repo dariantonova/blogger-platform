@@ -10,14 +10,17 @@ import {MongoMemoryServer} from "mongodb-memory-server";
 import {UpdateBlogInputModel} from "../../src/features/blogs/models/UpdateBlogInputModel";
 import {invalidAuthValues} from "../datasets/authorization-data";
 import {invalidUrls, validBlogFieldInput} from "../datasets/validation/blogs-validation-data";
-import {createBlogsPaginator} from "../../src/features/blogs/blogs.controller";
 import {DEFAULT_QUERY_VALUES} from "../../src/helpers/query-params-values";
 import {invalidPageNumbers, invalidPageSizes} from "../datasets/validation/query-validation-data";
-import {createPostsPaginator} from "../../src/features/posts/posts.controller";
 import {validPostFieldInput} from "../datasets/validation/posts-validation-data";
 import {CreateBlogPostInputModel} from "../../src/features/blogs/models/CreateBlogPostInputModel";
 import mongoose from "mongoose";
-import {blogsQueryRepository} from "../../src/composition-root";
+import {container} from "../../src/composition-root";
+import {BlogsQueryRepository} from "../../src/features/blogs/repositories/blogs.query.repository";
+import {PostsQueryRepository} from "../../src/features/posts/repositories/posts.query.repository";
+
+const blogsQueryRepository = container.get<BlogsQueryRepository>(BlogsQueryRepository);
+const postsQueryRepository = container.get<PostsQueryRepository>(PostsQueryRepository);
 
 describe('tests for /blogs', () => {
     let server: MongoMemoryServer;
@@ -52,7 +55,7 @@ describe('tests for /blogs', () => {
         });
 
         it('should return empty array', async () => {
-            const expected = createBlogsPaginator(
+            const expected = blogsQueryRepository.createBlogsPaginator(
                 [],
                 DEFAULT_QUERY_VALUES.BLOGS.pageNumber,
                 DEFAULT_QUERY_VALUES.BLOGS.pageSize,
@@ -109,7 +112,7 @@ describe('tests for /blogs', () => {
             await setDb({ blogs: initialDbBlogs } );
 
             const expectedBlogs = initialDbBlogs.filter(b => !b.isDeleted);
-            const expected = createBlogsPaginator(
+            const expected = blogsQueryRepository.createBlogsPaginator(
                 expectedBlogs,
                 DEFAULT_QUERY_VALUES.BLOGS.pageNumber,
                 DEFAULT_QUERY_VALUES.BLOGS.pageSize,
@@ -167,7 +170,7 @@ describe('tests for /blogs', () => {
             const searchNameTerm = 'neblog';
 
             const expectedBlogs = [initialDbBlogs[1], initialDbBlogs[3]];
-            const expected = createBlogsPaginator(
+            const expected = blogsQueryRepository.createBlogsPaginator(
                 expectedBlogs,
                 DEFAULT_QUERY_VALUES.BLOGS.pageNumber,
                 DEFAULT_QUERY_VALUES.BLOGS.pageSize,
@@ -226,7 +229,7 @@ describe('tests for /blogs', () => {
             await setDb({ blogs: initialDbBlogs });
 
             const expectedBlogs = [initialDbBlogs[2], initialDbBlogs[1], initialDbBlogs[3]];
-            const expected = createBlogsPaginator(
+            const expected = blogsQueryRepository.createBlogsPaginator(
                 expectedBlogs,
                 DEFAULT_QUERY_VALUES.BLOGS.pageNumber,
                 DEFAULT_QUERY_VALUES.BLOGS.pageSize,
@@ -258,7 +261,7 @@ describe('tests for /blogs', () => {
         // createdAt asc
         it('should return blogs sorted by creation date in asc order', async () => {
             const expectedBlogs = [initialDbBlogs[3], initialDbBlogs[1], initialDbBlogs[2]];
-            const expected = createBlogsPaginator(
+            const expected = blogsQueryRepository.createBlogsPaginator(
                 expectedBlogs,
                 DEFAULT_QUERY_VALUES.BLOGS.pageNumber,
                 DEFAULT_QUERY_VALUES.BLOGS.pageSize,
@@ -280,7 +283,7 @@ describe('tests for /blogs', () => {
         // name desc
         it('should return blogs sorted by name in desc order', async () => {
             const expectedBlogs = [initialDbBlogs[2], initialDbBlogs[1], initialDbBlogs[3]];
-            const expected = createBlogsPaginator(
+            const expected = blogsQueryRepository.createBlogsPaginator(
                 expectedBlogs,
                 DEFAULT_QUERY_VALUES.BLOGS.pageNumber,
                 DEFAULT_QUERY_VALUES.BLOGS.pageSize,
@@ -302,7 +305,7 @@ describe('tests for /blogs', () => {
         // name asc
         it('should return blogs sorted by name in asc order', async () => {
             const expectedBlogs = [initialDbBlogs[3], initialDbBlogs[1], initialDbBlogs[2]];
-            const expected = createBlogsPaginator(
+            const expected = blogsQueryRepository.createBlogsPaginator(
                 expectedBlogs,
                 DEFAULT_QUERY_VALUES.BLOGS.pageNumber,
                 DEFAULT_QUERY_VALUES.BLOGS.pageSize,
@@ -319,7 +322,7 @@ describe('tests for /blogs', () => {
         // id desc
         it('should return blogs sorted by id in desc order', async () => {
             const expectedBlogs = [initialDbBlogs[3], initialDbBlogs[2], initialDbBlogs[1]];
-            const expected = createBlogsPaginator(
+            const expected = blogsQueryRepository.createBlogsPaginator(
                 expectedBlogs,
                 DEFAULT_QUERY_VALUES.BLOGS.pageNumber,
                 DEFAULT_QUERY_VALUES.BLOGS.pageSize,
@@ -341,7 +344,7 @@ describe('tests for /blogs', () => {
         // id asc
         it('should return blogs sorted by id in asc order', async () => {
             const expectedBlogs = [initialDbBlogs[1], initialDbBlogs[2], initialDbBlogs[3]];
-            const expected = createBlogsPaginator(
+            const expected = blogsQueryRepository.createBlogsPaginator(
                 expectedBlogs,
                 DEFAULT_QUERY_VALUES.BLOGS.pageNumber,
                 DEFAULT_QUERY_VALUES.BLOGS.pageSize,
@@ -358,7 +361,7 @@ describe('tests for /blogs', () => {
         // description desc
         it('should return blogs sorted by description in desc order', async () => {
             const expectedBlogs = [initialDbBlogs[2], initialDbBlogs[1], initialDbBlogs[3]];
-            const expected = createBlogsPaginator(
+            const expected = blogsQueryRepository.createBlogsPaginator(
                 expectedBlogs,
                 DEFAULT_QUERY_VALUES.BLOGS.pageNumber,
                 DEFAULT_QUERY_VALUES.BLOGS.pageSize,
@@ -380,7 +383,7 @@ describe('tests for /blogs', () => {
         // description asc
         it('should return blogs sorted by description in asc order', async () => {
             const expectedBlogs = [initialDbBlogs[3], initialDbBlogs[1], initialDbBlogs[2]];
-            const expected = createBlogsPaginator(
+            const expected = blogsQueryRepository.createBlogsPaginator(
                 expectedBlogs,
                 DEFAULT_QUERY_VALUES.BLOGS.pageNumber,
                 DEFAULT_QUERY_VALUES.BLOGS.pageSize,
@@ -397,7 +400,7 @@ describe('tests for /blogs', () => {
         // websiteUrl desc
         it('should return blogs sorted by websiteUrl in desc order', async () => {
             const expectedBlogs = [initialDbBlogs[2], initialDbBlogs[1], initialDbBlogs[3]];
-            const expected = createBlogsPaginator(
+            const expected = blogsQueryRepository.createBlogsPaginator(
                 expectedBlogs,
                 DEFAULT_QUERY_VALUES.BLOGS.pageNumber,
                 DEFAULT_QUERY_VALUES.BLOGS.pageSize,
@@ -419,7 +422,7 @@ describe('tests for /blogs', () => {
         // websiteUrl asc
         it('should return blogs sorted by websiteUrl in asc order', async () => {
             const expectedBlogs = [initialDbBlogs[3], initialDbBlogs[1], initialDbBlogs[2]];
-            const expected = createBlogsPaginator(
+            const expected = blogsQueryRepository.createBlogsPaginator(
                 expectedBlogs,
                 DEFAULT_QUERY_VALUES.BLOGS.pageNumber,
                 DEFAULT_QUERY_VALUES.BLOGS.pageSize,
@@ -439,7 +442,7 @@ describe('tests for /blogs', () => {
             const searchNameTerm = 'neblog';
 
             const expectedBlogs = [initialDbBlogs[3], initialDbBlogs[2]];
-                const expected = createBlogsPaginator(
+                const expected = blogsQueryRepository.createBlogsPaginator(
                     expectedBlogs,
                     DEFAULT_QUERY_VALUES.BLOGS.pageNumber,
                     DEFAULT_QUERY_VALUES.BLOGS.pageSize,
@@ -457,7 +460,7 @@ describe('tests for /blogs', () => {
         it(`should return blogs in the order of creation if sort field doesn't exist`,
             async () => {
             const expectedBlogs = initialDbBlogs.slice(1);
-            const expected = createBlogsPaginator(
+            const expected = blogsQueryRepository.createBlogsPaginator(
                 expectedBlogs,
                 DEFAULT_QUERY_VALUES.BLOGS.pageNumber,
                 DEFAULT_QUERY_VALUES.BLOGS.pageSize,
@@ -695,7 +698,7 @@ describe('tests for /blogs', () => {
 
             await setDb({ blogs: initialDbBlogs });
 
-            const expected = createBlogsPaginator(
+            const expected = blogsQueryRepository.createBlogsPaginator(
                 [], 0, 0, 0, 0,
             );
             for (const invalidPageNumber of invalidPageNumbers) {
@@ -708,7 +711,7 @@ describe('tests for /blogs', () => {
 
         // invalid pageSize
         it('should return empty array if page size is invalid', async () => {
-            const expected = createBlogsPaginator(
+            const expected = blogsQueryRepository.createBlogsPaginator(
                 [], 0, 0, 0, 0,
             );
             for (const invalidPageSize of invalidPageSizes) {
@@ -725,7 +728,7 @@ describe('tests for /blogs', () => {
             const invalidPageNumber = invalidPageNumbers[0];
             const invalidPageSize = invalidPageSizes[0];
 
-            const expected = createBlogsPaginator(
+            const expected = blogsQueryRepository.createBlogsPaginator(
                 [], 0, 0, 0, 0,
             );
 
@@ -743,7 +746,7 @@ describe('tests for /blogs', () => {
             const defaultPageNumber = 1;
 
             const expectedBlogs = initialDbBlogs.slice(0, defaultPageSize);
-            const expected = createBlogsPaginator(
+            const expected = blogsQueryRepository.createBlogsPaginator(
                 expectedBlogs,
                 defaultPageNumber,
                 defaultPageSize,
@@ -764,7 +767,7 @@ describe('tests for /blogs', () => {
             const pageSize = DEFAULT_QUERY_VALUES.BLOGS.pageSize;
 
             const expectedBlogs = initialDbBlogs.slice(pageSize, 2 * pageSize);
-            const expected = createBlogsPaginator(
+            const expected = blogsQueryRepository.createBlogsPaginator(
                 expectedBlogs,
                 pageNumber,
                 pageSize,
@@ -784,7 +787,7 @@ describe('tests for /blogs', () => {
             const pageSize = 15;
 
             const expectedBlogs = initialDbBlogs.slice(0, pageSize);
-            const expected = createBlogsPaginator(
+            const expected = blogsQueryRepository.createBlogsPaginator(
                 expectedBlogs,
                 DEFAULT_QUERY_VALUES.BLOGS.pageNumber,
                 pageSize,
@@ -807,7 +810,7 @@ describe('tests for /blogs', () => {
             const expectedBlogs = initialDbBlogs.slice(
                 (pageNumber - 1) * pageSize, pageNumber * pageSize
             );
-            const expected = createBlogsPaginator(
+            const expected = blogsQueryRepository.createBlogsPaginator(
                 expectedBlogs,
                 pageNumber,
                 pageSize,
@@ -832,7 +835,7 @@ describe('tests for /blogs', () => {
             const pageNumber = pagesCount + 5;
 
             const expectedBlogs: BlogDBType[] = [];
-            const expected = createBlogsPaginator(
+            const expected = blogsQueryRepository.createBlogsPaginator(
                 expectedBlogs,
                 pageNumber,
                 pageSize,
@@ -853,7 +856,7 @@ describe('tests for /blogs', () => {
             const totalCount = initialDbBlogs.length;
             const pageSize = totalCount + 5;
 
-            const expected = createBlogsPaginator(
+            const expected = blogsQueryRepository.createBlogsPaginator(
                 expectedBlogs,
                 DEFAULT_QUERY_VALUES.BLOGS.pageNumber,
                 pageSize,
@@ -2033,7 +2036,7 @@ describe('tests for /blogs', () => {
         });
 
         it('should return empty array', async () => {
-            const expected = await createPostsPaginator(
+            const expected = await postsQueryRepository.createPostsPaginator(
                 [],
                 DEFAULT_QUERY_VALUES.POSTS.pageNumber,
                 DEFAULT_QUERY_VALUES.POSTS.pageSize,
@@ -2152,7 +2155,7 @@ describe('tests for /blogs', () => {
             const blogId = initialDbBlogs[0].id;
             const expectedPosts = initialDbPosts
                 .filter(p => !p.isDeleted && p.blogId === blogId);
-            const expected = await createPostsPaginator(
+            const expected = await postsQueryRepository.createPostsPaginator(
                 expectedPosts,
                 DEFAULT_QUERY_VALUES.POSTS.pageNumber,
                 DEFAULT_QUERY_VALUES.POSTS.pageSize,
@@ -2225,7 +2228,7 @@ describe('tests for /blogs', () => {
             await setDb({ posts: initialDbPosts });
 
             const expectedPosts = [initialDbPosts[2], initialDbPosts[1], initialDbPosts[3]];
-            const expected = await createPostsPaginator(
+            const expected = await postsQueryRepository.createPostsPaginator(
                 expectedPosts,
                 DEFAULT_QUERY_VALUES.POSTS.pageNumber,
                 DEFAULT_QUERY_VALUES.POSTS.pageSize,
@@ -2262,7 +2265,7 @@ describe('tests for /blogs', () => {
         // createdAt asc
         it('should return posts of blog sorted by creation date in asc order', async () => {
             const expectedPosts = [initialDbPosts[3], initialDbPosts[1], initialDbPosts[2]];
-            const expected = await createPostsPaginator(
+            const expected = await postsQueryRepository.createPostsPaginator(
                 expectedPosts,
                 DEFAULT_QUERY_VALUES.POSTS.pageNumber,
                 DEFAULT_QUERY_VALUES.POSTS.pageSize,
@@ -2292,7 +2295,7 @@ describe('tests for /blogs', () => {
 
             const expectedPosts = initialDbPosts
                 .filter(p => !p.isDeleted && p.blogId === blogId);
-            const expected = await createPostsPaginator(
+            const expected = await postsQueryRepository.createPostsPaginator(
                 expectedPosts,
                 DEFAULT_QUERY_VALUES.POSTS.pageNumber,
                 DEFAULT_QUERY_VALUES.POSTS.pageSize,
@@ -2596,7 +2599,7 @@ describe('tests for /blogs', () => {
 
             await setDb({ posts: initialDbPosts });
 
-            const expected = await createPostsPaginator(
+            const expected = await postsQueryRepository.createPostsPaginator(
                 [], 0, 0, 0, 0,
             );
 
@@ -2611,7 +2614,7 @@ describe('tests for /blogs', () => {
 
         // invalid pageSize
         it('should return empty array if page size is invalid', async () => {
-            const expected = await createPostsPaginator(
+            const expected = await postsQueryRepository.createPostsPaginator(
                 [], 0, 0, 0, 0,
             );
 
@@ -2630,7 +2633,7 @@ describe('tests for /blogs', () => {
                 const invalidPageNumber = invalidPageNumbers[0];
                 const invalidPageSize = invalidPageSizes[0];
 
-                const expected = await createPostsPaginator(
+                const expected = await postsQueryRepository.createPostsPaginator(
                     [], 0, 0, 0, 0,
                 );
 
@@ -2651,7 +2654,7 @@ describe('tests for /blogs', () => {
             const postsOfBlog = initialDbPosts.filter(p => p.blogId === blogId);
 
             const expectedPosts = postsOfBlog.slice(0, defaultPageSize);
-            const expected = await createPostsPaginator(
+            const expected = await postsQueryRepository.createPostsPaginator(
                 expectedPosts,
                 defaultPageNumber,
                 defaultPageSize,
@@ -2674,7 +2677,7 @@ describe('tests for /blogs', () => {
             const postsOfBlog = initialDbPosts.filter(p => p.blogId === blogId);
 
             const expectedPosts = postsOfBlog.slice(10, 20);
-            const expected = await createPostsPaginator(
+            const expected = await postsQueryRepository.createPostsPaginator(
                 expectedPosts,
                 pageNumber,
                 DEFAULT_QUERY_VALUES.POSTS.pageSize,
@@ -2698,7 +2701,7 @@ describe('tests for /blogs', () => {
             const postsOfBlog = initialDbPosts.filter(p => p.blogId === blogId);
 
             const expectedPosts = postsOfBlog.slice(0, pageSize);
-            const expected = await createPostsPaginator(
+            const expected = await postsQueryRepository.createPostsPaginator(
                 expectedPosts,
                 DEFAULT_QUERY_VALUES.POSTS.pageNumber,
                 pageSize,
@@ -2724,7 +2727,7 @@ describe('tests for /blogs', () => {
 
             const expectedPosts = postsOfBlog.slice((pageNumber - 1) * pageSize,
                 (pageNumber - 1) * pageSize + pageSize);
-            const expected = await createPostsPaginator(
+            const expected = await postsQueryRepository.createPostsPaginator(
                 expectedPosts,
                 pageNumber,
                 pageSize,
@@ -2750,7 +2753,7 @@ describe('tests for /blogs', () => {
             const pageNumber = pagesCount + 5;
 
             const expectedPosts: PostDBType[] = [];
-            const expected = await createPostsPaginator(
+            const expected = await postsQueryRepository.createPostsPaginator(
                 expectedPosts,
                 pageNumber,
                 DEFAULT_QUERY_VALUES.POSTS.pageSize,
@@ -2773,7 +2776,7 @@ describe('tests for /blogs', () => {
 
             const pageSize = postsOfBlog.length + 10;
 
-            const expected = await createPostsPaginator(
+            const expected = await postsQueryRepository.createPostsPaginator(
                 postsOfBlog,
                 DEFAULT_QUERY_VALUES.POSTS.pageNumber,
                 pageSize,

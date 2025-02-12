@@ -8,7 +8,10 @@ import {
 } from "../../validation/field-validators/users-field-validators";
 import {errorsResultMiddleware} from "../../validation/errors-result-middleware";
 import {queryValidationErrorMiddleware} from "../../validation/query-validation-error-middleware";
-import {usersController} from "../../composition-root";
+import {container} from "../../composition-root";
+import {UsersController} from "./users.controller";
+
+const usersController = container.get<UsersController>(UsersController);
 
 const router = Router();
 

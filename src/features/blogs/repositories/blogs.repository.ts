@@ -1,6 +1,8 @@
 import {BlogDBType} from "../../../types/types";
 import {BlogModel} from "../../../db/db";
+import {injectable} from "inversify";
 
+@injectable()
 export class BlogsRepository {
     async deleteBlog(id: string): Promise<boolean> {
         const updateBlogInfo = await BlogModel.updateOne(

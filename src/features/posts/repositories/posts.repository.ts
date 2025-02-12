@@ -1,6 +1,8 @@
 import {PostModel} from "../../../db/db";
 import {PostDBType, SortDirections} from "../../../types/types";
+import {injectable} from "inversify";
 
+@injectable()
 export class PostsRepository {
     async deletePost(id: string): Promise<boolean> {
         const updatePostInfo = await PostModel.updateOne(

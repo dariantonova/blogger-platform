@@ -1,6 +1,8 @@
 import {AttemptModel} from "../db/db";
 import {AttemptDBType} from "../types/types";
+import {injectable} from "inversify";
 
+@injectable()
 export class AttemptsRepository {
     async deleteAllAttempts() {
         await AttemptModel.deleteMany({});

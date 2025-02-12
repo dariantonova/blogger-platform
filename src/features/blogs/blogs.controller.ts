@@ -1,5 +1,4 @@
 import {
-    BlogDBType,
     Paginator,
     RequestWithBody,
     RequestWithParams,
@@ -23,26 +22,15 @@ import {URIParamsPostBlogIdModel} from "./models/URIParamsPostBlogIdModel";
 import {PostsQueryRepository} from "../posts/repositories/posts.query.repository";
 import {PostsService} from "../posts/posts.service";
 import {CreateBlogPostInputModel} from "./models/CreateBlogPostInputModel";
-import {blogsQueryRepository} from "../../composition-root";
+import {inject, injectable} from "inversify";
 
-export const createBlogsPaginator = (items: BlogDBType[], page: number, pageSize: number,
-                                     pagesCount: number, totalCount: number): Paginator<BlogViewModel> => {
-    const itemsViewModels: BlogViewModel[] = items.map(blogsQueryRepository.mapToOutput);
-
-    return new Paginator<BlogViewModel>(
-        itemsViewModels,
-        pagesCount,
-        page,
-        pageSize,
-        totalCount
-    );
-};
-
+@injectable()
 export class BlogsController {
-    constructor(protected blogsService: BlogsService,
-                protected blogsQueryRepository: BlogsQueryRepository,
-                protected postsService: PostsService,
-                protected postsQueryRepository: PostsQueryRepository,
+    constructor(
+        @inject(BlogsService) protected blogsService: BlogsService,
+        @inject(BlogsQueryRepository) protected blogsQueryRepository: BlogsQueryRepository,
+        @inject(PostsService) protected postsService: PostsService,
+        @inject(PostsQueryRepository) protected postsQueryRepository: PostsQueryRepository,
     ) {}
 
     async getBlogs (req: RequestWithQuery<QueryBlogsModel>,

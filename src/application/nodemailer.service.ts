@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import {injectable} from "inversify";
 
 const transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -16,6 +17,7 @@ transporter.verify(function (error) {
     }
 });
 
+@injectable()
 export class NodemailerService {
     async sendEmail(email: string, subject: string, message: string) {
         const mail = {

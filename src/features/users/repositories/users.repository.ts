@@ -1,6 +1,8 @@
 import {ConfirmationInfoType, UserDBType} from "../../../types/types";
 import {UserModel} from "../../../db/db";
+import {injectable} from "inversify";
 
+@injectable()
 export class UsersRepository {
     async createUser(createdUser: UserDBType) {
         await UserModel.create(createdUser);

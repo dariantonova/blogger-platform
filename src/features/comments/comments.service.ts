@@ -5,11 +5,14 @@ import {CommentatorInfo, CommentType} from "./comments.types";
 import {CommentsRepository} from "./comments.repository";
 import {ResultStatus} from "../../common/result/resultStatus";
 import {SortDirections} from "../../types/types";
+import {inject, injectable} from "inversify";
 
+@injectable()
 export class CommentsService {
-    constructor(protected commentsRepository: CommentsRepository,
-                protected postsService: PostsService,
-                protected usersService: UsersService
+    constructor(
+        @inject(CommentsRepository) protected commentsRepository: CommentsRepository,
+        @inject(PostsService) protected postsService: PostsService,
+        @inject(UsersService) protected usersService: UsersService
     ) {}
 
     async createComment(postId: string, userId: string, content: string): Promise<Result<string | null>> {

@@ -10,7 +10,10 @@ import {DEFAULT_QUERY_VALUES} from "../../../src/helpers/query-params-values";
 import {postsTestManager} from "../../test-managers/posts-test-manager";
 import {invalidPageNumbers, invalidPageSizes} from "../../datasets/validation/query-validation-data";
 import mongoose from "mongoose";
-import {commentsQueryRepository} from "../../../src/composition-root";
+import {container} from "../../../src/composition-root";
+import {CommentsQueryRepository} from "../../../src/features/comments/comments.query.repository";
+
+const commentsQueryRepository = container.get<CommentsQueryRepository>(CommentsQueryRepository);
 
 describe('tests for get post comments endpoint', () => {
     let server: MongoMemoryServer;

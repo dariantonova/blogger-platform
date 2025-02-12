@@ -1,7 +1,9 @@
 import {Paginator, SortDirections, UserDBType} from "../../../types/types";
 import {UserViewModel} from "../models/UserViewModel";
 import {UserModel} from "../../../db/db";
+import {injectable} from "inversify";
 
+@injectable()
 export class UsersQueryRepository {
     async findUsers(sortBy: string, sortDirection: SortDirections,
                     pageNumber: number, pageSize: number,

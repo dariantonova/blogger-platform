@@ -1,6 +1,9 @@
 import {Request, Response, NextFunction} from "express";
 import {HTTP_STATUSES} from "../utils";
-import {attemptsService} from "../composition-root";
+import {container} from "../composition-root";
+import {AttemptsService} from "../application/attempts.service";
+
+const attemptsService = container.get<AttemptsService>(AttemptsService);
 
 export const requestsLimit = {
     interval: 10 * 1000,

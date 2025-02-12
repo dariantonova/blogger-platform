@@ -6,10 +6,13 @@ import {HTTP_STATUSES} from "../../utils";
 import {CommentsService} from "./comments.service";
 import {ResultStatus} from "../../common/result/resultStatus";
 import {resultStatusToHttp} from "../../common/result/resultStatusToHttp";
+import {inject, injectable} from "inversify";
 
+@injectable()
 export class CommentsController {
-    constructor(protected commentsService: CommentsService,
-                protected commentsQueryRepository: CommentsQueryRepository
+    constructor(
+        @inject(CommentsService) protected commentsService: CommentsService,
+        @inject(CommentsQueryRepository) protected commentsQueryRepository: CommentsQueryRepository
     ) {}
 
     async getComment (req: RequestWithParams<URIParamsCommentIdModel>,

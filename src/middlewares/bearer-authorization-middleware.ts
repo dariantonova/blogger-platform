@@ -1,7 +1,10 @@
 import {NextFunction, Request, Response} from "express";
 import {HTTP_STATUSES} from "../utils";
 import {ResultStatus} from "../common/result/resultStatus";
-import {authService} from "../composition-root";
+import {container} from "../composition-root";
+import {AuthService} from "../features/auth/auth.service";
+
+const authService = container.get<AuthService>(AuthService);
 
 export const bearerAuthorizationMiddleware = async (req: Request, res: Response, next: NextFunction) => {
     const authHeader = req.headers.authorization;

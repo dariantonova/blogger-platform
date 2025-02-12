@@ -11,7 +11,6 @@ import {CreateBlogInputModel} from "../../src/features/blogs/models/CreateBlogIn
 import {UpdatePostInputModel} from "../../src/features/posts/models/UpdatePostInputModel";
 import {invalidAuthValues} from "../datasets/authorization-data";
 import {validPostFieldInput} from "../datasets/validation/posts-validation-data";
-import {createPostsPaginator} from "../../src/features/posts/posts.controller";
 import {DEFAULT_QUERY_VALUES} from "../../src/helpers/query-params-values";
 import {invalidPageNumbers, invalidPageSizes} from "../datasets/validation/query-validation-data";
 import {ObjectId, WithId} from "mongodb";
@@ -20,7 +19,12 @@ import {usersTestManager} from "../test-managers/users-test-manager";
 import {CreateUserInputModel} from "../../src/features/users/models/CreateUserInputModel";
 import {requestsLimit} from "../../src/middlewares/rate-limiting-middleware";
 import mongoose from "mongoose";
-import {commentsRepository, postsQueryRepository} from "../../src/composition-root";
+import {container} from "../../src/composition-root";
+import {CommentsRepository} from "../../src/features/comments/comments.repository";
+import {PostsQueryRepository} from "../../src/features/posts/repositories/posts.query.repository";
+
+const commentsRepository = container.get<CommentsRepository>(CommentsRepository);
+const postsQueryRepository = container.get<PostsQueryRepository>(PostsQueryRepository);
 
 describe('tests for /posts', () => {
     let server: MongoMemoryServer;
@@ -58,7 +62,7 @@ describe('tests for /posts', () => {
         });
 
         it('should return empty array', async () => {
-            const expected = await createPostsPaginator(
+            const expected = await postsQueryRepository.createPostsPaginator(
                 [],
                 DEFAULT_QUERY_VALUES.POSTS.pageNumber,
                 DEFAULT_QUERY_VALUES.POSTS.pageSize,
@@ -149,7 +153,7 @@ describe('tests for /posts', () => {
             await setDb({ blogs: initialDbBlogs, posts: initialDbPosts });
 
             const expectedPosts = initialDbPosts.filter(p => !p.isDeleted);
-            const expected = await createPostsPaginator(
+            const expected = await postsQueryRepository.createPostsPaginator(
                 expectedPosts,
                 DEFAULT_QUERY_VALUES.POSTS.pageNumber,
                 DEFAULT_QUERY_VALUES.POSTS.pageSize,
@@ -242,7 +246,7 @@ describe('tests for /posts', () => {
             await setDb({ blogs: initialDbBlogs, posts: initialDbPosts });
 
             const expectedPosts = [initialDbPosts[2], initialDbPosts[1], initialDbPosts[3]];
-            const expected = await createPostsPaginator(
+            const expected = await postsQueryRepository.createPostsPaginator(
                 expectedPosts,
                 DEFAULT_QUERY_VALUES.POSTS.pageNumber,
                 DEFAULT_QUERY_VALUES.POSTS.pageSize,
@@ -274,7 +278,7 @@ describe('tests for /posts', () => {
         // createdAt asc
         it('should return posts sorted by creation date in asc order', async () => {
             const expectedPosts = [initialDbPosts[3], initialDbPosts[1], initialDbPosts[2]];
-            const expected = await createPostsPaginator(
+            const expected = await postsQueryRepository.createPostsPaginator(
                 expectedPosts,
                 DEFAULT_QUERY_VALUES.POSTS.pageNumber,
                 DEFAULT_QUERY_VALUES.POSTS.pageSize,
@@ -296,7 +300,7 @@ describe('tests for /posts', () => {
         // id desc
         it('should return posts sorted by id in desc order', async () => {
             const expectedPosts = [initialDbPosts[3], initialDbPosts[2], initialDbPosts[1]];
-            const expected = await createPostsPaginator(
+            const expected = await postsQueryRepository.createPostsPaginator(
                 expectedPosts,
                 DEFAULT_QUERY_VALUES.POSTS.pageNumber,
                 DEFAULT_QUERY_VALUES.POSTS.pageSize,
@@ -318,7 +322,7 @@ describe('tests for /posts', () => {
         // id asc
         it('should return posts sorted by id in asc order', async () => {
             const expectedPosts = [initialDbPosts[1], initialDbPosts[2], initialDbPosts[3]];
-            const expected = await createPostsPaginator(
+            const expected = await postsQueryRepository.createPostsPaginator(
                 expectedPosts,
                 DEFAULT_QUERY_VALUES.POSTS.pageNumber,
                 DEFAULT_QUERY_VALUES.POSTS.pageSize,
@@ -335,7 +339,7 @@ describe('tests for /posts', () => {
         // title desc
         it('should return posts sorted by title in desc order', async () => {
             const expectedPosts = [initialDbPosts[2], initialDbPosts[1], initialDbPosts[3]];
-            const expected = await createPostsPaginator(
+            const expected = await postsQueryRepository.createPostsPaginator(
                 expectedPosts,
                 DEFAULT_QUERY_VALUES.POSTS.pageNumber,
                 DEFAULT_QUERY_VALUES.POSTS.pageSize,
@@ -357,7 +361,7 @@ describe('tests for /posts', () => {
         // title asc
         it('should return posts sorted by title in asc order', async () => {
             const expectedPosts = [initialDbPosts[3], initialDbPosts[1], initialDbPosts[2]];
-            const expected = await createPostsPaginator(
+            const expected = await postsQueryRepository.createPostsPaginator(
                 expectedPosts,
                 DEFAULT_QUERY_VALUES.POSTS.pageNumber,
                 DEFAULT_QUERY_VALUES.POSTS.pageSize,
@@ -374,7 +378,7 @@ describe('tests for /posts', () => {
         // shortDescription desc
         it('should return posts sorted by short description in desc order', async () => {
             const expectedPosts = [initialDbPosts[2], initialDbPosts[1], initialDbPosts[3]];
-            const expected = await createPostsPaginator(
+            const expected = await postsQueryRepository.createPostsPaginator(
                 expectedPosts,
                 DEFAULT_QUERY_VALUES.POSTS.pageNumber,
                 DEFAULT_QUERY_VALUES.POSTS.pageSize,
@@ -396,7 +400,7 @@ describe('tests for /posts', () => {
         // shortDescription asc
         it('should return posts sorted by short description in asc order', async () => {
             const expectedPosts = [initialDbPosts[3], initialDbPosts[1], initialDbPosts[2]];
-            const expected = await createPostsPaginator(
+            const expected = await postsQueryRepository.createPostsPaginator(
                 expectedPosts,
                 DEFAULT_QUERY_VALUES.POSTS.pageNumber,
                 DEFAULT_QUERY_VALUES.POSTS.pageSize,
@@ -413,7 +417,7 @@ describe('tests for /posts', () => {
         // content desc
         it('should return posts sorted by content in desc order', async () => {
             const expectedPosts = [initialDbPosts[2], initialDbPosts[1], initialDbPosts[3]];
-            const expected = await createPostsPaginator(
+            const expected = await postsQueryRepository.createPostsPaginator(
                 expectedPosts,
                 DEFAULT_QUERY_VALUES.POSTS.pageNumber,
                 DEFAULT_QUERY_VALUES.POSTS.pageSize,
@@ -435,7 +439,7 @@ describe('tests for /posts', () => {
         // content asc
         it('should return posts sorted by content in asc order', async () => {
             const expectedPosts = [initialDbPosts[3], initialDbPosts[1], initialDbPosts[2]];
-            const expected = await createPostsPaginator(
+            const expected = await postsQueryRepository.createPostsPaginator(
                 expectedPosts,
                 DEFAULT_QUERY_VALUES.POSTS.pageNumber,
                 DEFAULT_QUERY_VALUES.POSTS.pageSize,
@@ -452,7 +456,7 @@ describe('tests for /posts', () => {
         // blogId desc
         it('should return posts sorted by blog id in desc order', async () => {
             const expectedPosts = [initialDbPosts[2], initialDbPosts[1], initialDbPosts[3]];
-            const expected = await createPostsPaginator(
+            const expected = await postsQueryRepository.createPostsPaginator(
                 expectedPosts,
                 DEFAULT_QUERY_VALUES.POSTS.pageNumber,
                 DEFAULT_QUERY_VALUES.POSTS.pageSize,
@@ -474,7 +478,7 @@ describe('tests for /posts', () => {
         // blogId asc
         it('should return posts sorted by blog id in asc order', async () => {
             const expectedPosts = [initialDbPosts[3], initialDbPosts[1], initialDbPosts[2]];
-            const expected = await createPostsPaginator(
+            const expected = await postsQueryRepository.createPostsPaginator(
                 expectedPosts,
                 DEFAULT_QUERY_VALUES.POSTS.pageNumber,
                 DEFAULT_QUERY_VALUES.POSTS.pageSize,
@@ -491,7 +495,7 @@ describe('tests for /posts', () => {
         // blogName desc
         it('should return posts sorted by blog name in desc order', async () => {
             const expectedPosts = [initialDbPosts[2], initialDbPosts[1], initialDbPosts[3]];
-            const expected = await createPostsPaginator(
+            const expected = await postsQueryRepository.createPostsPaginator(
                 expectedPosts,
                 DEFAULT_QUERY_VALUES.POSTS.pageNumber,
                 DEFAULT_QUERY_VALUES.POSTS.pageSize,
@@ -513,7 +517,7 @@ describe('tests for /posts', () => {
         // blogName asc
         it('should return posts sorted by blog name in asc order', async () => {
             const expectedPosts = [initialDbPosts[3], initialDbPosts[1], initialDbPosts[2]];
-            const expected = await createPostsPaginator(
+            const expected = await postsQueryRepository.createPostsPaginator(
                 expectedPosts,
                 DEFAULT_QUERY_VALUES.POSTS.pageNumber,
                 DEFAULT_QUERY_VALUES.POSTS.pageSize,
@@ -530,7 +534,7 @@ describe('tests for /posts', () => {
         // bad sort field
         it(`should return posts ordered by _id if sort field doesn't exist`, async () => {
             const expectedPosts = initialDbPosts.slice(1);
-            const expected = await createPostsPaginator(
+            const expected = await postsQueryRepository.createPostsPaginator(
                 expectedPosts,
                 DEFAULT_QUERY_VALUES.POSTS.pageNumber,
                 DEFAULT_QUERY_VALUES.POSTS.pageSize,
@@ -822,7 +826,7 @@ describe('tests for /posts', () => {
 
             await setDb({ blogs: initialDbBlogs, posts: initialDbPosts });
 
-            const expected = await createPostsPaginator(
+            const expected = await postsQueryRepository.createPostsPaginator(
                 [], 0, 0, 0, 0,
             );
 
@@ -836,7 +840,7 @@ describe('tests for /posts', () => {
 
         // invalid pageSize
         it('should return empty array if page size is invalid', async () => {
-            const expected = await createPostsPaginator(
+            const expected = await postsQueryRepository.createPostsPaginator(
                 [], 0, 0, 0, 0,
             );
 
@@ -854,7 +858,7 @@ describe('tests for /posts', () => {
             const invalidPageNumber = invalidPageNumbers[0];
             const invalidPageSize = invalidPageSizes[0];
 
-            const expected = await createPostsPaginator(
+            const expected = await postsQueryRepository.createPostsPaginator(
                 [], 0, 0, 0, 0,
             );
 
@@ -872,7 +876,7 @@ describe('tests for /posts', () => {
             const defaultPageNumber = 1;
 
             const expectedPosts = initialDbPosts.slice(0, defaultPageSize);
-            const expected = await createPostsPaginator(
+            const expected = await postsQueryRepository.createPostsPaginator(
                 expectedPosts,
                 defaultPageNumber,
                 defaultPageSize,
@@ -892,7 +896,7 @@ describe('tests for /posts', () => {
             const pageNumber = 2;
 
             const expectedPosts = initialDbPosts.slice(10, 20);
-            const expected = await createPostsPaginator(
+            const expected = await postsQueryRepository.createPostsPaginator(
                 expectedPosts,
                 pageNumber,
                 DEFAULT_QUERY_VALUES.POSTS.pageSize,
@@ -912,7 +916,7 @@ describe('tests for /posts', () => {
             const pageSize = 15;
 
             const expectedPosts = initialDbPosts.slice(0, pageSize);
-            const expected = await createPostsPaginator(
+            const expected = await postsQueryRepository.createPostsPaginator(
                 expectedPosts,
                 DEFAULT_QUERY_VALUES.POSTS.pageNumber,
                 pageSize,
@@ -934,7 +938,7 @@ describe('tests for /posts', () => {
 
             const expectedPosts = initialDbPosts.slice((pageNumber - 1) * pageSize,
                 (pageNumber - 1) * pageSize + pageSize);
-            const expected = await createPostsPaginator(
+            const expected = await postsQueryRepository.createPostsPaginator(
                 expectedPosts,
                 pageNumber,
                 pageSize,
@@ -957,7 +961,7 @@ describe('tests for /posts', () => {
             const pageNumber = pagesCount + 5;
 
             const expectedPosts: PostDBType[] = [];
-            const expected = await createPostsPaginator(
+            const expected = await postsQueryRepository.createPostsPaginator(
                 expectedPosts,
                 pageNumber,
                 DEFAULT_QUERY_VALUES.POSTS.pageSize,
@@ -976,7 +980,7 @@ describe('tests for /posts', () => {
             async () => {
             const pageSize = initialDbPosts.length + 10;
 
-            const expected = await createPostsPaginator(
+            const expected = await postsQueryRepository.createPostsPaginator(
                 initialDbPosts,
                 DEFAULT_QUERY_VALUES.POSTS.pageNumber,
                 pageSize,

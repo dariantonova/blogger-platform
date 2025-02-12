@@ -14,7 +14,10 @@ import {
 import {refreshTokenVerification} from "./middlewares/refresh-token-verification";
 import {rateLimitingMiddleware} from "../../middlewares/rate-limiting-middleware";
 import {noActiveDeviceSessionExists} from "./middlewares/no-active-device-session-exists";
-import {authController} from "../../composition-root";
+import {container} from "../../composition-root";
+import {AuthController} from "./auth.controller";
+
+const authController = container.get<AuthController>(AuthController);
 
 const router = Router();
 

@@ -11,7 +11,10 @@ import {pageNumberQueryParamValidator, pageSizeQueryParamValidator} from "../../
 import {bearerAuthorizationMiddleware} from "../../middlewares/bearer-authorization-middleware";
 import {contentCommentFieldValidator} from "../../validation/field-validators/comments-field-validators";
 import {queryValidationErrorMiddleware} from "../../validation/query-validation-error-middleware";
-import {postsController} from "../../composition-root";
+import {container} from "../../composition-root";
+import {PostsController} from "./posts.controller";
+
+const postsController = container.get<PostsController>(PostsController);
 
 const router = Router();
 

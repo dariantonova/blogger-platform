@@ -14,13 +14,16 @@ import {CreateUserInputModel} from "../users/models/CreateUserInputModel";
 import {ResultStatus} from "../../common/result/resultStatus";
 import {resultStatusToHttp} from "../../common/result/resultStatusToHttp";
 import {JwtService} from "../../application/jwt.service";
+import {inject, injectable} from "inversify";
 
 const defaultIp = 'Unknown';
 const defaultDeviceName = 'Unknown';
 
+@injectable()
 export class AuthController {
-    constructor(protected authService: AuthService,
-                protected jwtService: JwtService
+    constructor(
+        @inject(AuthService) protected authService: AuthService,
+        @inject(JwtService) protected jwtService: JwtService
     ) {}
 
     async loginUser (req: RequestWithBody<LoginInputModel>,

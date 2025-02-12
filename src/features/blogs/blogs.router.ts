@@ -16,7 +16,10 @@ import {
     titleFieldValidator
 } from "../../validation/field-validators/posts-field-validators";
 import {queryValidationErrorMiddleware} from "../../validation/query-validation-error-middleware";
-import {blogsController} from "../../composition-root";
+import {container} from "../../composition-root";
+import {BlogsController} from "./blogs.controller";
+
+const blogsController = container.get<BlogsController>(BlogsController);
 
 const router = Router();
 

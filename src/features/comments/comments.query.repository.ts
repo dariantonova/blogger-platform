@@ -2,7 +2,9 @@ import {CommentDBType, CommentType, CommentViewModel} from "./comments.types";
 import {CommentModel} from "../../db/db";
 import {ObjectId, WithId} from "mongodb";
 import {Paginator} from "../../types/types";
+import {injectable} from "inversify";
 
+@injectable()
 export class CommentsQueryRepository {
     async findCommentById(id: string): Promise<CommentViewModel | null> {
         const filterObj: any = { isDeleted: false, _id: new ObjectId(id) };

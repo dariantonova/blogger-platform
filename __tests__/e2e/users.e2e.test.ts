@@ -15,8 +15,10 @@ import {requestsLimit} from "../../src/middlewares/rate-limiting-middleware";
 import {LoginInputModel} from "../../src/features/auth/types/auth.types";
 import {authTestManager} from "../test-managers/auth-test-manager";
 import mongoose from "mongoose";
-import {usersQueryRepository} from "../../src/composition-root";
+import {container} from "../../src/composition-root";
+import {UsersQueryRepository} from "../../src/features/users/repositories/users.query.repository";
 
+const usersQueryRepository = container.get<UsersQueryRepository>(UsersQueryRepository);
 
 describe('tests for /users', () => {
     let server: MongoMemoryServer;

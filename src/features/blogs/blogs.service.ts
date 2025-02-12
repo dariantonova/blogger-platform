@@ -1,10 +1,13 @@
 import {BlogDBType} from "../../types/types";
 import {BlogsRepository} from "./repositories/blogs.repository";
 import {PostsRepository} from "../posts/repositories/posts.repository";
+import {inject, injectable} from "inversify";
 
+@injectable()
 export class BlogsService {
-    constructor(protected blogsRepository: BlogsRepository,
-                protected postsRepository: PostsRepository
+    constructor(
+        @inject(BlogsRepository) protected blogsRepository: BlogsRepository,
+        @inject(PostsRepository) protected postsRepository: PostsRepository
     ) {}
 
     async deleteBlog(id: string): Promise<boolean> {

@@ -1,6 +1,8 @@
 import {DeviceAuthSessionDBType, DeviceViewModel} from "./types/auth.types";
 import {DeviceAuthSessionModel} from "../../db/db";
+import {injectable} from "inversify";
 
+@injectable()
 export class DeviceAuthSessionsQueryRepository {
     async findUserSessions(userId: string): Promise<DeviceViewModel[]> {
         const deviceAuthSessions = await DeviceAuthSessionModel

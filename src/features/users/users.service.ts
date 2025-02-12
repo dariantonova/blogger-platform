@@ -6,16 +6,19 @@ import {add} from "date-fns";
 import {Result} from "../../common/result/result.type";
 import {ResultStatus} from "../../common/result/resultStatus";
 import {DeviceAuthSessionsRepository} from "../auth/device-auth-sessions.repository";
+import {inject, injectable} from "inversify";
 
 export const confirmationCodeLifetime = {
     hours: 1,
     minutes: 30,
 };
 
+@injectable()
 export class UsersService {
-    constructor(protected usersRepository: UsersRepository,
-                protected deviceAuthSessionsRepository: DeviceAuthSessionsRepository,
-                protected cryptoService: CryptoService
+    constructor(
+        @inject(UsersRepository) protected usersRepository: UsersRepository,
+        @inject(DeviceAuthSessionsRepository) protected deviceAuthSessionsRepository: DeviceAuthSessionsRepository,
+        @inject(CryptoService) protected cryptoService: CryptoService
     ) {}
 
     async createUser(login: string, email: string, password: string, isConfirmed: boolean): Promise<Result<string | null>> {

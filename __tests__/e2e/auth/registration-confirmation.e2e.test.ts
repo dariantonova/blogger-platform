@@ -11,7 +11,12 @@ import {defaultNumberOfAttemptsLimit} from "../../datasets/common-data";
 import {CreateUserInputModel} from "../../../src/features/users/models/CreateUserInputModel";
 import {validUserFieldInput} from "../../datasets/validation/users-validation-data";
 import mongoose from "mongoose";
-import {attemptsService, usersService} from "../../../src/composition-root";
+import {container} from "../../../src/composition-root";
+import {AttemptsService} from "../../../src/application/attempts.service";
+import {UsersService} from "../../../src/features/users/users.service";
+
+const attemptsService = container.get<AttemptsService>(AttemptsService);
+const usersService = container.get<UsersService>(UsersService);
 
 describe('tests for registration confirmation endpoint', () => {
     let server: MongoMemoryServer;

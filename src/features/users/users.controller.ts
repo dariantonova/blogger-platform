@@ -10,10 +10,13 @@ import {HTTP_STATUSES} from "../../utils";
 import {URIParamsUserIdModel} from "./models/URIParamsUserIdModel";
 import {ResultStatus} from "../../common/result/resultStatus";
 import {resultStatusToHttp} from "../../common/result/resultStatusToHttp";
+import {inject, injectable} from "inversify";
 
+@injectable()
 export class UsersController {
-    constructor(protected usersService: UsersService,
-                protected usersQueryRepository: UsersQueryRepository
+    constructor(
+        @inject(UsersService) protected usersService: UsersService,
+        @inject(UsersQueryRepository) protected usersQueryRepository: UsersQueryRepository
     ) {}
 
     async getUsers (req: RequestWithQuery<QueryUsersModel>,

@@ -1,6 +1,8 @@
+import { injectable } from "inversify";
 import {DeviceAuthSessionModel} from "../../db/db";
 import {DeviceAuthSessionDBType} from "./types/auth.types";
 
+@injectable()
 export class DeviceAuthSessionsRepository {
     async deleteAllDeviceAuthSessions() {
         await DeviceAuthSessionModel.deleteMany({});

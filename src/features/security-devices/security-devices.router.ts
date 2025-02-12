@@ -1,6 +1,10 @@
 import {Router} from "express";
 import {refreshTokenVerification} from "../auth/middlewares/refresh-token-verification";
-import {securityDevicesController} from "../../composition-root";
+import {container} from "../../composition-root";
+import {SecurityDevicesController} from "./security-devices.controller";
+
+const securityDevicesController = container
+    .get<SecurityDevicesController>(SecurityDevicesController);
 
 const router = Router();
 

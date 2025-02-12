@@ -1,17 +1,19 @@
 import {Request, Response} from 'express';
 import {DeviceViewModel} from "../auth/types/auth.types";
-import {
-    DeviceAuthSessionsQueryRepository
-} from "../auth/device-auth-sessions.query.repository";
+import {DeviceAuthSessionsQueryRepository} from "../auth/device-auth-sessions.query.repository";
 import {RequestWithParams, UserDBType} from "../../types/types";
 import {SecurityDevicesService} from "./security-devices.service";
 import {ResultStatus} from "../../common/result/resultStatus";
 import {resultStatusToHttp} from "../../common/result/resultStatusToHttp";
 import {HTTP_STATUSES} from "../../utils";
+import {inject, injectable} from "inversify";
 
+@injectable()
 export class SecurityDevicesController {
-    constructor(protected securityDevicesService: SecurityDevicesService,
-                protected deviceAuthSessionsQueryRepository: DeviceAuthSessionsQueryRepository
+    constructor(
+        @inject(SecurityDevicesService) protected securityDevicesService: SecurityDevicesService,
+        @inject(DeviceAuthSessionsQueryRepository)
+        protected deviceAuthSessionsQueryRepository: DeviceAuthSessionsQueryRepository
     ) {}
 
     async getDeviceSessions (req: Request, res: Response<DeviceViewModel[]>) {

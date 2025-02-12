@@ -2,11 +2,14 @@ import {PostDBType, SortDirections} from "../../types/types";
 import {PostsRepository} from "./repositories/posts.repository";
 import {BlogsRepository} from "../blogs/repositories/blogs.repository";
 import {CommentsRepository} from "../comments/comments.repository";
+import {inject, injectable} from "inversify";
 
+@injectable()
 export class PostsService {
-    constructor(protected postsRepository: PostsRepository,
-                protected blogsRepository: BlogsRepository,
-                protected commentsRepository: CommentsRepository
+    constructor(
+        @inject(PostsRepository) protected postsRepository: PostsRepository,
+        @inject(BlogsRepository) protected blogsRepository: BlogsRepository,
+        @inject(CommentsRepository) protected commentsRepository: CommentsRepository
     ) {}
 
     async deletePost(id: string): Promise<boolean> {

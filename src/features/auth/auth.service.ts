@@ -9,14 +9,17 @@ import {EmailManager} from "../../application/email.manager";
 import {DeviceAuthSessionDBType, TokenPair} from "./types/auth.types";
 import {randomUUID} from "node:crypto";
 import {DeviceAuthSessionsRepository} from "./device-auth-sessions.repository";
+import {inject, injectable} from "inversify";
 
+@injectable()
 export class AuthService {
-    constructor(protected deviceAuthSessionsRepository: DeviceAuthSessionsRepository,
-                protected usersService: UsersService,
-                protected usersRepository: UsersRepository,
-                protected cryptoService: CryptoService,
-                protected jwtService: JwtService,
-                protected emailManager: EmailManager
+    constructor(
+        @inject(DeviceAuthSessionsRepository) protected deviceAuthSessionsRepository: DeviceAuthSessionsRepository,
+        @inject(UsersService) protected usersService: UsersService,
+        @inject(UsersRepository) protected usersRepository: UsersRepository,
+        @inject(CryptoService) protected cryptoService: CryptoService,
+        @inject(JwtService) protected jwtService: JwtService,
+        @inject(EmailManager) protected emailManager: EmailManager
     ) {}
 
     async loginUser(loginOrEmail: string, password: string, deviceName: string, ip: string)

@@ -12,7 +12,10 @@ import {defaultAccessTokenLife} from "../../datasets/authorization-data";
 import {requestsLimit} from "../../../src/middlewares/rate-limiting-middleware";
 import {defaultNumberOfAttemptsLimit} from "../../datasets/common-data";
 import mongoose from "mongoose";
-import {attemptsService} from "../../../src/composition-root";
+import {container} from "../../../src/composition-root";
+import {AttemptsService} from "../../../src/application/attempts.service";
+
+const attemptsService = container.get<AttemptsService>(AttemptsService);
 
 describe('tests for /auth', () => {
     let server: MongoMemoryServer;

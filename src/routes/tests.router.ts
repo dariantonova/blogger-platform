@@ -1,15 +1,22 @@
 import {Request, Response, Router} from 'express';
 import {HTTP_STATUSES} from "../utils";
 import {RequestWithBody} from "../types/types";
-import {
-    attemptsService,
-    authService,
-    blogsService,
-    commentsService,
-    emailManager,
-    postsService,
-    usersService
-} from "../composition-root";
+import {container} from "../composition-root";
+import {AttemptsService} from "../application/attempts.service";
+import {AuthService} from "../features/auth/auth.service";
+import {BlogsService} from "../features/blogs/blogs.service";
+import {CommentsService} from "../features/comments/comments.service";
+import {EmailManager} from "../application/email.manager";
+import {PostsService} from "../features/posts/posts.service";
+import {UsersService} from "../features/users/users.service";
+
+const attemptsService = container.get<AttemptsService>(AttemptsService);
+const authService = container.get<AuthService>(AuthService);
+const blogsService = container.get<BlogsService>(BlogsService);
+const commentsService = container.get<CommentsService>(CommentsService);
+const emailManager = container.get<EmailManager>(EmailManager);
+const postsService = container.get<PostsService>(PostsService);
+const usersService = container.get<UsersService>(UsersService);
 
 const router = Router();
 

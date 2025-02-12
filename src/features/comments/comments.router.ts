@@ -4,7 +4,10 @@ import {contentCommentFieldValidator} from "../../validation/field-validators/co
 import {errorsResultMiddleware} from "../../validation/errors-result-middleware";
 import {idUriParamValidator} from "../../validation/uri-params-validators";
 import {uriParamsValidationErrorMiddleware} from "../../validation/uri-params-validation-error-middleware";
-import {commentsController} from "../../composition-root";
+import {container} from "../../composition-root";
+import {CommentsController} from "./comments.controller";
+
+const commentsController = container.get<CommentsController>(CommentsController);
 
 const router = Router();
 

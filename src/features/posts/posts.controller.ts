@@ -1,9 +1,9 @@
 import {Response} from 'express';
 import {PostViewModel} from "./models/PostViewModel";
 import {
-    APIErrorResult, FieldError,
+    APIErrorResult,
+    FieldError,
     Paginator,
-    PostDBType,
     RequestWithBody,
     RequestWithParams,
     RequestWithParamsAndBody,
@@ -24,28 +24,15 @@ import {ResultStatus} from "../../common/result/resultStatus";
 import {resultStatusToHttp} from "../../common/result/resultStatusToHttp";
 import {CommentsQueryRepository} from "../comments/comments.query.repository";
 import {QueryCommentsModel} from "./models/QueryCommentsModel";
-import {postsQueryRepository} from "../../composition-root";
+import {inject, injectable} from "inversify";
 
-export const createPostsPaginator = async (items: PostDBType[], page: number, pageSize: number,
-                                     pagesCount: number, totalCount: number): Promise<Paginator<PostViewModel>> => {
-    const itemsViewModels: PostViewModel[] = await Promise.all(
-        items.map(postsQueryRepository.mapToOutput)
-    );
-
-    return new Paginator<PostViewModel>(
-        itemsViewModels,
-        pagesCount,
-        page,
-        pageSize,
-        totalCount
-    );
-};
-
+@injectable()
 export class PostsController {
-    constructor(protected postsService: PostsService,
-                protected postsQueryRepository: PostsQueryRepository,
-                protected commentsService: CommentsService,
-                protected commentsQueryRepository: CommentsQueryRepository
+    constructor(
+        @inject(PostsService) protected postsService: PostsService,
+        @inject(PostsQueryRepository) protected postsQueryRepository: PostsQueryRepository,
+        @inject(CommentsService) protected commentsService: CommentsService,
+        @inject(CommentsQueryRepository) protected commentsQueryRepository: CommentsQueryRepository
     ) {}
 
     async getPosts (req: RequestWithQuery<QueryPostsModel>,

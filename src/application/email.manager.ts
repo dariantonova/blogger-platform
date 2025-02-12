@@ -1,7 +1,11 @@
 import {NodemailerService} from "./nodemailer.service";
+import {inject, injectable} from "inversify";
 
+@injectable()
 export class EmailManager {
-    constructor(protected nodemailerService: NodemailerService) {}
+    constructor(
+        @inject(NodemailerService) protected nodemailerService: NodemailerService
+    ) {}
 
     async sendRegistrationMessage(email: string, confirmationCode: string) {
         const subject = 'Finish registration';

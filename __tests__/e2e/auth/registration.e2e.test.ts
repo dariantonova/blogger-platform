@@ -9,7 +9,12 @@ import {CreateUserInputModel} from "../../../src/features/users/models/CreateUse
 import {requestsLimit} from "../../../src/middlewares/rate-limiting-middleware";
 import {defaultNumberOfAttemptsLimit} from "../../datasets/common-data";
 import mongoose from "mongoose";
-import {attemptsService, usersService} from "../../../src/composition-root";
+import {container} from "../../../src/composition-root";
+import {AttemptsService} from "../../../src/application/attempts.service";
+import {UsersService} from "../../../src/features/users/users.service";
+
+const attemptsService = container.get<AttemptsService>(AttemptsService);
+const usersService = container.get<UsersService>(UsersService);
 
 describe('tests for registration endpoint', () => {
     let server: MongoMemoryServer;
