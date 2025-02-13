@@ -17,10 +17,11 @@ export class EmailManager {
         return this.nodemailerService.sendEmail(email, subject, message);
     };
     async sendPasswordRecoveryMessage(email: string, recoveryCode: string) {
-        const subject = 'Reset password';
+        const subject = 'Password recovery';
         const message =
-            ' <p>To reset your password please follow the link below:\n' +
-            `     <a href='https://somesite.com/recover-password?code=${recoveryCode}'>reset password</a>\n`+
+            ' <h1>Password recovery</h1>\n' +
+            ' <p>To finish password recovery please follow the link below:\n' +
+            `     <a href='https://somesite.com/password-recovery?recoveryCode=${recoveryCode}'>recover password</a>\n`+
             ' </p>\n';
         return this.nodemailerService.sendEmail(email, subject, message);
     };
