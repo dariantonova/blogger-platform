@@ -19,3 +19,9 @@ export const passwordRecoveryCodeValidator = body('recoveryCode')
     .exists().withMessage('Recovery code is required')
     .isString().withMessage('Recovery code must be a string')
     .trim().notEmpty().withMessage('Recovery code must not be empty');
+
+export const newPasswordValidator = body('newPassword')
+    .exists().withMessage('New password is required')
+    .isString().withMessage('New password must be a string')
+    .trim().notEmpty().withMessage('New password must not be empty')
+    .isLength({ min: 6, max: 20 }).withMessage('New password length must be between 6 and 20 symbols');

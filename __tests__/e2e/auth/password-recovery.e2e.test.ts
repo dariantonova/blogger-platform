@@ -174,12 +174,10 @@ describe('tests for password recovery endpoint', () => {
         };
 
         for (let i = 0; i < requestsLimit.numberOfAttemptsLimit; i++) {
-            await authTestManager.recoverPassword(data,
-                HTTP_STATUSES.NO_CONTENT_204);
+            await authTestManager.recoverPassword(data, HTTP_STATUSES.NO_CONTENT_204);
         }
 
-        await authTestManager.recoverPassword(data,
-            HTTP_STATUSES.TOO_MANY_REQUESTS_429);
+        await authTestManager.recoverPassword(data, HTTP_STATUSES.TOO_MANY_REQUESTS_429);
 
         requestsLimit.numberOfAttemptsLimit = 1000;
         requestsLimit.intervalMs = 1000;

@@ -155,7 +155,7 @@ export class AuthController {
         const result = await this.authService.confirmPasswordRecovery(req.body.newPassword, req.body.recoveryCode);
 
         if (result.status !== ResultStatus.SUCCESS) {
-            res.status(resultStatusToHttp(result.status));
+            res.sendStatus(resultStatusToHttp(result.status));
             return;
         }
 

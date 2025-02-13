@@ -37,7 +37,20 @@ export class JwtService {
             return null;
         }
     };
-    async decodeRefreshToken(token: string) {
+    async decodeRefreshToken(token: string): Promise<RefreshTokenPayload> {
         return jwt.decode(token) as RefreshTokenPayload;
+    };
+    async createPasswordRecoveryCode(userId: string) {
+        return jwt.sign({ userId }, SETTINGS.RECOVERY_JWT_SECRET,
+            { expiresIn: SETTINGS.RECOVERY_JWT_LIFE });
+    };
+    async verifyPasswordRecoveryCode(recoveryCode: string): Promise<string | null> {
+        try {
+            const payload: any = jwt.verify(recoveryCode, SETTINGS.RECOVERY_JWT_SECRET);
+            return payload.userId;
+        }
+        catch (err) {
+            return null;
+        }
     };
 }

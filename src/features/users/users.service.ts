@@ -13,10 +13,6 @@ export const confirmationCodeLifetime = {
     minutes: 30,
 };
 
-export const passwordRecoveryCodeLifetime = {
-    hours: 1,
-};
-
 @injectable()
 export class UsersService {
     constructor(

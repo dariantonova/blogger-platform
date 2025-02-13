@@ -10,7 +10,6 @@ import {DeviceAuthSessionDBType, TokenPair} from "./types/auth.types";
 import {randomUUID} from "node:crypto";
 import {DeviceAuthSessionsRepository} from "./device-auth-sessions.repository";
 import {inject, injectable} from "inversify";
-import {generateUniqueCode} from "../../utils";
 import {add} from "date-fns";
 
 export const passwordRecoveryCodeLifetime = {
@@ -339,7 +338,7 @@ export class AuthService {
             };
         }
 
-        const recoveryCode = generateUniqueCode();
+        const recoveryCode = await this._generateRecoveryCode(user.id);
         const recoveryCodeHash = await this._generateRecoveryCodeHash(recoveryCode);
         const passwordRecoveryInfo = new PasswordRecoveryInfo(
             recoveryCodeHash,
@@ -365,7 +364,10 @@ export class AuthService {
             extensions: [],
         };
     };
-    async _generateRecoveryCodeHash(recoveryCode: string) {
+    async _generateRecoveryCode(userId: string): Promise<string> {
+        return this.jwtService.createPasswordRecoveryCode(userId)
+    };
+    async _generateRecoveryCodeHash(recoveryCode: string): Promise<string> {
         return this.cryptoService.generateHash(recoveryCode);
     };
     async confirmPasswordRecovery(newPassword: string, recoveryCode: string): Promise<Result<null>> {
@@ -402,7 +404,8 @@ export class AuthService {
         };
     };
     async _verifyRecoveryCode(recoveryCode: string): Promise<Result<UserDBType | null>> {
-        if (recoveryCode === '') {
+        const userId = await this.jwtService.verifyPasswordRecoveryCode(recoveryCode);
+        if (!userId) {
             return {
                 status: ResultStatus.BAD_REQUEST,
                 data: null,
@@ -410,8 +413,7 @@ export class AuthService {
             };
         }
 
-        const recoveryCodeHash = await this._generateRecoveryCodeHash(recoveryCode);
-        const user = await this.usersRepository.findUserByRecoveryCodeHash(recoveryCodeHash);
+        const user = await this.usersRepository.findUserById(userId);
         if (!user) {
             return {
                 status: ResultStatus.BAD_REQUEST,

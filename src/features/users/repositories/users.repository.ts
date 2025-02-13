@@ -69,12 +69,6 @@ export class UsersRepository {
 
         return updateUserInfo.matchedCount === 1;
     };
-    async findUserByRecoveryCodeHash(recoveryCodeHash: string): Promise<UserDBType | null> {
-        const filterObj = {
-            isDeleted: false,
-            'passwordRecoveryInfo.recoveryCodeHash': recoveryCodeHash };
-        return UserModel.findOne(filterObj, { _id: 0 }).lean();
-    };
     async updateUserPasswordHash(id: string, passwordHash: string) {
         const updateUserInfo = await UserModel.updateOne(
             { isDeleted: false, id },

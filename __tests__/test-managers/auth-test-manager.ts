@@ -102,4 +102,10 @@ export const authTestManager = {
             .send(data)
             .expect(expectedStatusCode);
     },
+    async setNewPassword(data: any, expectedStatusCode: number) {
+        return req
+            .post(SETTINGS.PATH.AUTH + '/new-password')
+            .send(data)
+            .expect(expectedStatusCode);
+    },
 };
