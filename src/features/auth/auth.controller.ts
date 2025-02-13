@@ -151,11 +151,12 @@ export class AuthController {
         res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
     };
     async confirmPasswordRecovery(req: RequestWithBody<NewPasswordRecoveryInputModel>,
-                                  res: Response) {
+                                  res: Response<APIErrorResult>) {
         const result = await this.authService.confirmPasswordRecovery(req.body.newPassword, req.body.recoveryCode);
 
         if (result.status !== ResultStatus.SUCCESS) {
-            res.sendStatus(resultStatusToHttp(result.status));
+            const errorResult = new APIErrorResult(result.extensions);
+            res.status(resultStatusToHttp(result.status)).json(errorResult);
             return;
         }
 

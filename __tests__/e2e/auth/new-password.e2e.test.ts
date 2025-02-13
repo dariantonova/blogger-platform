@@ -215,8 +215,15 @@ describe('tests for new password endpoint', () => {
             recoveryCode: 'random',
         };
 
-        await authTestManager.setNewPassword(data, HTTP_STATUSES.BAD_REQUEST_400);
-        console.log('n');
+        const response = await authTestManager.setNewPassword(data, HTTP_STATUSES.BAD_REQUEST_400);
+        expect(response.body).toEqual({
+            errorsMessages: [
+                {
+                    field: 'recoveryCode',
+                    message: 'Recovery code is incorrect or expired',
+                }
+            ],
+        });
     });
 
     it('should return 400 if recovery code is expired', async () => {
@@ -250,7 +257,15 @@ describe('tests for new password endpoint', () => {
             recoveryCode,
         };
 
-        await authTestManager.setNewPassword(data, HTTP_STATUSES.BAD_REQUEST_400);
+        const response = await authTestManager.setNewPassword(data, HTTP_STATUSES.BAD_REQUEST_400);
+        expect(response.body).toEqual({
+            errorsMessages: [
+                {
+                    field: 'recoveryCode',
+                    message: 'Recovery code is incorrect or expired',
+                }
+            ],
+        });
 
         const user = await usersTestRepository.findUserById(initialDbUsers[0].id);
         expect(user!.passwordHash).toBe(initialDbUsers[0].passwordHash);

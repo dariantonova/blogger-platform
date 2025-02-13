@@ -406,27 +406,39 @@ export class AuthService {
     async _verifyRecoveryCode(recoveryCode: string): Promise<Result<UserDBType | null>> {
         const userId = await this.jwtService.verifyPasswordRecoveryCode(recoveryCode);
         if (!userId) {
+            const error= new FieldError(
+                'recoveryCode',
+                'Recovery code is incorrect or expired'
+            );
             return {
                 status: ResultStatus.BAD_REQUEST,
                 data: null,
-                extensions: [],
+                extensions: [error],
             };
         }
 
         const user = await this.usersRepository.findUserById(userId);
         if (!user) {
+            const error = new FieldError(
+                'recoveryCode',
+                'Recovery code is incorrect or expired'
+            );
             return {
                 status: ResultStatus.BAD_REQUEST,
                 data: null,
-                extensions: [],
+                extensions: [error],
             };
         }
 
         if (new Date() > user.passwordRecoveryInfo.expirationDate) {
+            const error = new FieldError(
+                'recoveryCode',
+                'Recovery code is incorrect or expired'
+            );
             return {
                 status: ResultStatus.BAD_REQUEST,
                 data: null,
-                extensions: [],
+                extensions: [error],
             };
         }
 
