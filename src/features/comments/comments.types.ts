@@ -12,10 +12,16 @@ export class CommentatorInfo {
     ) {}
 }
 
+export type LikesInfo = {
+    likesCount: number,
+    dislikesCount: number,
+};
+
 export class CommentDBType {
     constructor(public content: string,
                 public postId: string,
                 public commentatorInfo: CommentatorInfo,
+                public likesInfo: LikesInfo,
                 public createdAt: string,
                 public isDeleted: boolean
     ) {}

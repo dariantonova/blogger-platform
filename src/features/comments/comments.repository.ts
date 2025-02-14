@@ -1,4 +1,4 @@
-import {CommentatorInfo, CommentDBType, CommentType} from "./comments.types";
+import {CommentatorInfo, CommentDBType, CommentType, LikesInfo} from "./comments.types";
 import {CommentModel} from "../../db/db";
 import {SortDirections} from "../../types/types";
 import {ObjectId, WithId} from "mongodb";
@@ -7,11 +7,13 @@ import {injectable} from "inversify";
 @injectable()
 export class CommentsRepository {
     async createComment(content: string, postId: string,
-                        commentatorInfo: CommentatorInfo, createdAt: string): Promise<string> {
+                        commentatorInfo: CommentatorInfo, likesInfo: LikesInfo,
+                        createdAt: string): Promise<string> {
         const dbComment = new CommentDBType(
             content,
             postId,
             commentatorInfo,
+            likesInfo,
             createdAt,
             false
         );

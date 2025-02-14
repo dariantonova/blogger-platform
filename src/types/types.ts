@@ -75,13 +75,33 @@ export class AttemptDBType {
     ) {}
 }
 
+export enum LikeStatus {
+    like = 'like',
+    dislike = 'dislike',
+    none = 'none',
+}
+
+export enum ExistingLikeStatus {
+    like = 'like',
+    dislike = 'dislike',
+}
+
+export class CommentLikeDBType {
+    constructor(public userId: string,
+                public commentId: string,
+                public likeStatus: ExistingLikeStatus,
+                public createdAt: Date,
+    ) {}
+}
+
 export class DBType {
     constructor(public blogs: OptionalId<BlogDBType>[],
                 public posts: OptionalId<PostDBType>[],
                 public users: OptionalId<UserDBType>[],
                 public comments: OptionalId<CommentDBType>[],
                 public deviceAuthSessions: OptionalId<DeviceAuthSessionDBType>[],
-                public attempts: OptionalId<AttemptDBType>[]
+                public attempts: OptionalId<AttemptDBType>[],
+                public commentLikes: OptionalId<CommentLikeDBType>[],
     ) {}
 }
 

@@ -29,43 +29,6 @@ import {UsersController} from "./features/users/users.controller";
 import {Container} from "inversify";
 import "reflect-metadata";
 
-// export const attemptsRepository = new AttemptsRepository();
-// export const deviceAuthSessionsRepository = new DeviceAuthSessionsRepository();
-// export const deviceAuthSessionsQueryRepository = new DeviceAuthSessionsQueryRepository();
-// export const blogsRepository = new BlogsRepository();
-// export const blogsQueryRepository = new BlogsQueryRepository();
-// export const postsRepository = new PostsRepository();
-// export const postsQueryRepository = new PostsQueryRepository();
-// export const usersRepository = new UsersRepository();
-// export const usersQueryRepository = new UsersQueryRepository();
-// export const commentsRepository = new CommentsRepository();
-// export const commentsQueryRepository = new CommentsQueryRepository();
-//
-// export const cryptoService = new CryptoService();
-// export const jwtService = new JwtService();
-// export const nodemailerService = new NodemailerService();
-//
-// export const emailManager = new EmailManager(nodemailerService);
-// export const attemptsService = new AttemptsService(attemptsRepository);
-// export const usersService = new UsersService(usersRepository, deviceAuthSessionsRepository, cryptoService);
-// export const authService = new AuthService(
-//     deviceAuthSessionsRepository, usersService, usersRepository, cryptoService, jwtService, emailManager);
-// export const securityDevicesService = new SecurityDevicesService(
-//     deviceAuthSessionsRepository, jwtService);
-// export const blogsService = new BlogsService(blogsRepository, postsRepository);
-// export const postsService = new PostsService(postsRepository, blogsRepository, commentsRepository);
-// export const commentsService = new CommentsService(commentsRepository, postsService, usersService);
-//
-// export const authController = new AuthController(authService, jwtService);
-// export const blogsController = new BlogsController(
-//     blogsService, blogsQueryRepository, postsService, postsQueryRepository);
-// export const commentsController = new CommentsController(commentsService, commentsQueryRepository);
-// export const postsController = new PostsController(
-//     postsService, postsQueryRepository, commentsService, commentsQueryRepository);
-// export const securityDevicesController = new SecurityDevicesController(
-//     securityDevicesService, deviceAuthSessionsQueryRepository);
-// export const usersController = new UsersController(usersService, usersQueryRepository);
-
 const container = new Container();
 
 container.bind(AttemptsRepository).to(AttemptsRepository);
@@ -98,3 +61,102 @@ container.bind(SecurityDevicesController).to(SecurityDevicesController);
 container.bind(UsersController).to(UsersController);
 
 export { container };
+
+
+// const objects: any[] = [];
+//
+// export const attemptsRepository = new AttemptsRepository();
+// objects.push(attemptsRepository);
+//
+// export const deviceAuthSessionsRepository = new DeviceAuthSessionsRepository();
+// objects.push(deviceAuthSessionsRepository);
+//
+// export const deviceAuthSessionsQueryRepository = new DeviceAuthSessionsQueryRepository();
+// objects.push(deviceAuthSessionsQueryRepository);
+//
+// export const blogsRepository = new BlogsRepository();
+// objects.push(blogsRepository);
+//
+// export const blogsQueryRepository = new BlogsQueryRepository();
+// objects.push(blogsQueryRepository);
+//
+// export const postsRepository = new PostsRepository();
+// objects.push(postsRepository);
+//
+// export const postsQueryRepository = new PostsQueryRepository();
+// objects.push(postsQueryRepository);
+//
+// export const usersRepository = new UsersRepository();
+// objects.push(usersRepository);
+//
+// export const usersQueryRepository = new UsersQueryRepository();
+// objects.push(usersQueryRepository);
+//
+// export const commentsRepository = new CommentsRepository();
+// objects.push(commentsRepository);
+//
+// export const commentsQueryRepository = new CommentsQueryRepository();
+// objects.push(commentsQueryRepository);
+//
+// export const cryptoService = new CryptoService();
+// objects.push(cryptoService);
+//
+// export const jwtService = new JwtService();
+// objects.push(jwtService);
+//
+// export const nodemailerService = new NodemailerService();
+// objects.push(nodemailerService);
+//
+// export const emailManager = new EmailManager(nodemailerService);
+// objects.push(emailManager);
+//
+// export const attemptsService = new AttemptsService(attemptsRepository);
+// objects.push(attemptsService);
+//
+// export const usersService = new UsersService(usersRepository, deviceAuthSessionsRepository, cryptoService);
+// objects.push(usersService);
+//
+// export const authService = new AuthService(
+//     deviceAuthSessionsRepository, usersService, usersRepository, cryptoService, jwtService, emailManager);
+// objects.push(authService);
+//
+// export const securityDevicesService = new SecurityDevicesService(
+//     deviceAuthSessionsRepository, jwtService);
+// objects.push(securityDevicesService);
+//
+// export const blogsService = new BlogsService(blogsRepository, postsRepository);
+// objects.push(blogsService);
+//
+// export const postsService = new PostsService(postsRepository, blogsRepository, commentsRepository);
+// objects.push(postsService);
+//
+// export const commentsService = new CommentsService(commentsRepository, postsService, usersService);
+// objects.push(commentsService);
+//
+// export const authController = new AuthController(authService, jwtService);
+// objects.push(authController);
+//
+// export const blogsController = new BlogsController(
+//     blogsService, blogsQueryRepository, postsService, postsQueryRepository);
+// objects.push(blogsController);
+//
+// export const commentsController = new CommentsController(commentsService, commentsQueryRepository);
+// objects.push(commentsController);
+//
+// export const postsController = new PostsController(
+//     postsService, postsQueryRepository, commentsService, commentsQueryRepository);
+// objects.push(postsController);
+//
+// export const securityDevicesController = new SecurityDevicesController(
+//     securityDevicesService, deviceAuthSessionsQueryRepository);
+// objects.push(securityDevicesController);
+//
+// export const usersController = new UsersController(usersService, usersQueryRepository);
+// objects.push(usersController);
+//
+// export const container = {
+//     objects,
+//     get<T>(ClassType: any) {
+//         return this.objects.find(o => o instanceof ClassType);
+//     },
+// };

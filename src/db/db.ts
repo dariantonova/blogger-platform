@@ -1,4 +1,12 @@
-import {AttemptDBType, BlogDBType, DBType, PostDBType, UserDBType} from "../types/types";
+import {
+    AttemptDBType,
+    BlogDBType,
+    CommentLikeDBType,
+    DBType,
+    ExistingLikeStatus,
+    PostDBType,
+    UserDBType
+} from "../types/types";
 import {Collection, MongoClient, WithId} from "mongodb";
 import {SETTINGS} from "../settings";
 import {CommentDBType} from "../features/comments/comments.types";
@@ -53,6 +61,10 @@ const commentSchema = new Schema<WithId<CommentDBType>>({
         userId: { type: String, required: true },
         userLogin: { type: String, required: true },
     },
+    likesInfo: {
+        likesCount: { type: Number, required: true },
+        dislikesCount: { type: Number, required: true },
+    },
     createdAt: { type: String, required: true },
     isDeleted: { type: Boolean, required: true },
 });
@@ -72,12 +84,20 @@ const attemptSchema = new Schema<WithId<AttemptDBType>>({
     date: { type: Date, required: true },
 });
 
+const commentLikeSchema = new Schema<WithId<CommentLikeDBType>>({
+    userId: { type: String, required: true },
+    commentId: { type: String, required: true },
+    likeStatus: { type: String, enum: ExistingLikeStatus, required: true},
+    createdAt: { type: Date, required: true },
+});
+
 export const BlogModel = mongoose.model('blogs', blogSchema);
 export const PostModel = mongoose.model('posts', postSchema);
 export const UserModel = mongoose.model('users', userSchema);
 export const CommentModel = mongoose.model('comments', commentSchema);
 export const DeviceAuthSessionModel = mongoose.model('device-auth-sessions', deviceAuthSessionSchema);
 export const AttemptModel = mongoose.model('attempts', attemptSchema);
+export const CommentLikeModel = mongoose.model('comment-likes', commentLikeSchema);
 
 export let client: MongoClient;
 export let blogsCollection: Collection<BlogDBType>;
@@ -86,6 +106,7 @@ export let usersCollection: Collection<UserDBType>;
 export let commentsCollection: Collection<CommentDBType>;
 export let deviceAuthSessionsCollection: Collection<DeviceAuthSessionDBType>;
 export let attemptsCollection: Collection<AttemptDBType>;
+export let commentLikesCollection: Collection<CommentLikeDBType>;
 
 export const runDb = async (url: string): Promise<boolean> => {
     try {
@@ -103,6 +124,7 @@ export const runDb = async (url: string): Promise<boolean> => {
         commentsCollection = db.collection<CommentDBType>('comments');
         deviceAuthSessionsCollection = db.collection<DeviceAuthSessionDBType>('device-auth-sessions');
         attemptsCollection = db.collection<AttemptDBType>('attempts');
+        commentLikesCollection = db.collection<CommentLikeDBType>('comment-likes');
 
         await client.connect();
         await db.command({ ping: 1 });
@@ -125,6 +147,7 @@ export const setDb = async (dataset?: Partial<DBType>) => {
         await commentsCollection.drop();
         await deviceAuthSessionsCollection.drop();
         await attemptsCollection.drop();
+        await commentLikesCollection.drop();
         return;
     }
 
@@ -175,6 +198,15 @@ export const setDb = async (dataset?: Partial<DBType>) => {
             await attemptsCollection.insertMany(attemptsToInsert);
         }
     }
+
+    if (dataset.commentLikes) {
+        await commentLikesCollection.drop();
+        if (dataset.commentLikes.length > 0) {
+            const commentLikesToInsert = dataset.commentLikes[0]._id ?
+                dataset.commentLikes : structuredClone(dataset.commentLikes);
+            await commentLikesCollection.insertMany(commentLikesToInsert);
+        }
+    }
 };
 
 const blogs: BlogDBType[] = [
@@ -223,6 +255,7 @@ const users: UserDBType[] = [];
 const comments: CommentDBType[] = [];
 const deviceAuthSessions: DeviceAuthSessionDBType[] = [];
 const attempts: AttemptDBType[] = [];
+const commentLikes: CommentLikeDBType[] = [];
 
 export const initialDb = new DBType(
     blogs,
@@ -230,5 +263,6 @@ export const initialDb = new DBType(
     users,
     comments,
     deviceAuthSessions,
-    attempts
+    attempts,
+    commentLikes
 );

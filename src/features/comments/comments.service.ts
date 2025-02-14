@@ -1,7 +1,7 @@
 import {Result} from "../../common/result/result.type";
 import {PostsService} from "../posts/posts.service";
 import {UsersService} from "../users/users.service";
-import {CommentatorInfo, CommentType} from "./comments.types";
+import {CommentatorInfo, CommentType, LikesInfo} from "./comments.types";
 import {CommentsRepository} from "./comments.repository";
 import {ResultStatus} from "../../common/result/resultStatus";
 import {SortDirections} from "../../types/types";
@@ -35,10 +35,12 @@ export class CommentsService {
         }
 
         const commentatorInfo = new CommentatorInfo(user.id, user.login);
+        const likesInfo: LikesInfo = { likesCount: 0, dislikesCount: 0 };
         const newCommentId = await this.commentsRepository.createComment(
             content,
             postId,
             commentatorInfo,
+            likesInfo,
             new Date().toISOString()
         );
         return {

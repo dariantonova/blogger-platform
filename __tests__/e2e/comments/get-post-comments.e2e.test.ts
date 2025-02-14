@@ -126,6 +126,10 @@ describe('tests for get post comments endpoint', () => {
                     userId: createdUserIds[0],
                     userLogin: createUsersData[0].login,
                 },
+                likesInfo: {
+                    likesCount: 0,
+                    dislikesCount: 0,
+                },
                 createdAt: '2024-12-16T05:32:26.882Z',
                 isDeleted: true,
             },
@@ -136,6 +140,10 @@ describe('tests for get post comments endpoint', () => {
                 commentatorInfo: {
                     userId: createdUserIds[0],
                     userLogin: createUsersData[0].login,
+                },
+                likesInfo: {
+                    likesCount: 0,
+                    dislikesCount: 0,
                 },
                 createdAt: '2024-12-16T05:32:26.882Z',
                 isDeleted: false,
@@ -148,6 +156,10 @@ describe('tests for get post comments endpoint', () => {
                     userId: createdUserIds[0],
                     userLogin: createUsersData[0].login,
                 },
+                likesInfo: {
+                    likesCount: 0,
+                    dislikesCount: 0,
+                },
                 createdAt: '2024-12-16T05:32:26.882Z',
                 isDeleted: false,
             },
@@ -158,6 +170,10 @@ describe('tests for get post comments endpoint', () => {
                 commentatorInfo: {
                     userId: createdUserIds[0],
                     userLogin: createUsersData[0].login,
+                },
+                likesInfo: {
+                    likesCount: 0,
+                    dislikesCount: 0,
                 },
                 createdAt: '2024-12-16T05:32:26.882Z',
                 isDeleted: false,
@@ -170,6 +186,10 @@ describe('tests for get post comments endpoint', () => {
                     userId: createdUserIds[0],
                     userLogin: createUsersData[0].login,
                 },
+                likesInfo: {
+                    likesCount: 0,
+                    dislikesCount: 0,
+                },
                 createdAt: '2024-12-16T05:32:26.882Z',
                 isDeleted: false,
             },
@@ -180,6 +200,10 @@ describe('tests for get post comments endpoint', () => {
                 commentatorInfo: {
                     userId: createdUserIds[0],
                     userLogin: createUsersData[0].login,
+                },
+                likesInfo: {
+                    likesCount: 0,
+                    dislikesCount: 0,
                 },
                 createdAt: '2024-12-16T05:32:26.882Z',
                 isDeleted: false,
@@ -231,6 +255,10 @@ describe('tests for get post comments endpoint', () => {
                     userId: createdUserIds[0],
                     userLogin: createUsersData[0].login,
                 },
+                likesInfo: {
+                    likesCount: 0,
+                    dislikesCount: 0,
+                },
                 createdAt: '2024-12-15T05:32:26.882Z',
                 isDeleted: true,
             },
@@ -241,6 +269,10 @@ describe('tests for get post comments endpoint', () => {
                 commentatorInfo: {
                     userId: createdUserIds[1],
                     userLogin: createUsersData[1].login,
+                },
+                likesInfo: {
+                    likesCount: 0,
+                    dislikesCount: 0,
                 },
                 createdAt: '2024-12-17T05:32:26.882Z',
                 isDeleted: false,
@@ -253,6 +285,10 @@ describe('tests for get post comments endpoint', () => {
                     userId: createdUserIds[2],
                     userLogin: createUsersData[2].login,
                 },
+                likesInfo: {
+                    likesCount: 0,
+                    dislikesCount: 0,
+                },
                 createdAt: '2024-12-18T05:32:26.882Z',
                 isDeleted: false,
             },
@@ -263,6 +299,10 @@ describe('tests for get post comments endpoint', () => {
                 commentatorInfo: {
                     userId: createdUserIds[0],
                     userLogin: createUsersData[0].login,
+                },
+                likesInfo: {
+                    likesCount: 0,
+                    dislikesCount: 0,
                 },
                 createdAt: '2024-12-16T05:32:26.882Z',
                 isDeleted: false,
@@ -530,6 +570,10 @@ describe('tests for get post comments endpoint', () => {
                     userId: createdUserIds[0],
                     userLogin: createUsersData[0].login,
                 },
+                likesInfo: {
+                    likesCount: 0,
+                    dislikesCount: 0,
+                },
                 createdAt: '2024-12-16T05:32:26.882Z',
                 isDeleted: false,
             },
@@ -540,6 +584,10 @@ describe('tests for get post comments endpoint', () => {
                 commentatorInfo: {
                     userId: createdUserIds[0],
                     userLogin: createUsersData[0].login,
+                },
+                likesInfo: {
+                    likesCount: 0,
+                    dislikesCount: 0,
                 },
                 createdAt: '2024-12-16T05:32:26.882Z',
                 isDeleted: false,
@@ -552,6 +600,10 @@ describe('tests for get post comments endpoint', () => {
                     userId: createdUserIds[0],
                     userLogin: createUsersData[0].login,
                 },
+                likesInfo: {
+                    likesCount: 0,
+                    dislikesCount: 0,
+                },
                 createdAt: '2024-12-16T05:32:26.882Z',
                 isDeleted: false,
             },
@@ -562,6 +614,10 @@ describe('tests for get post comments endpoint', () => {
                 commentatorInfo: {
                     userId: createdUserIds[0],
                     userLogin: createUsersData[0].login,
+                },
+                likesInfo: {
+                    likesCount: 0,
+                    dislikesCount: 0,
                 },
                 createdAt: '2024-12-16T05:32:26.882Z',
                 isDeleted: false,
@@ -574,6 +630,10 @@ describe('tests for get post comments endpoint', () => {
                     userId: createdUserIds[0],
                     userLogin: createUsersData[0].login,
                 },
+                likesInfo: {
+                    likesCount: 0,
+                    dislikesCount: 0,
+                },
                 createdAt: '2024-12-16T05:32:26.882Z',
                 isDeleted: false,
             },
@@ -584,6 +644,10 @@ describe('tests for get post comments endpoint', () => {
                 commentatorInfo: {
                     userId: createdUserIds[0],
                     userLogin: createUsersData[0].login,
+                },
+                likesInfo: {
+                    likesCount: 0,
+                    dislikesCount: 0,
                 },
                 createdAt: '2024-12-16T05:32:26.882Z',
                 isDeleted: false,
@@ -596,6 +660,10 @@ describe('tests for get post comments endpoint', () => {
                     userId: createdUserIds[0],
                     userLogin: createUsersData[0].login,
                 },
+                likesInfo: {
+                    likesCount: 0,
+                    dislikesCount: 0,
+                },
                 createdAt: '2024-12-16T05:32:26.882Z',
                 isDeleted: false,
             },
@@ -606,6 +674,10 @@ describe('tests for get post comments endpoint', () => {
                 commentatorInfo: {
                     userId: createdUserIds[0],
                     userLogin: createUsersData[0].login,
+                },
+                likesInfo: {
+                    likesCount: 0,
+                    dislikesCount: 0,
                 },
                 createdAt: '2024-12-16T05:32:26.882Z',
                 isDeleted: false,
@@ -618,6 +690,10 @@ describe('tests for get post comments endpoint', () => {
                     userId: createdUserIds[0],
                     userLogin: createUsersData[0].login,
                 },
+                likesInfo: {
+                    likesCount: 0,
+                    dislikesCount: 0,
+                },
                 createdAt: '2024-12-16T05:32:26.882Z',
                 isDeleted: false,
             },
@@ -628,6 +704,10 @@ describe('tests for get post comments endpoint', () => {
                 commentatorInfo: {
                     userId: createdUserIds[0],
                     userLogin: createUsersData[0].login,
+                },
+                likesInfo: {
+                    likesCount: 0,
+                    dislikesCount: 0,
                 },
                 createdAt: '2024-12-16T05:32:26.882Z',
                 isDeleted: false,
@@ -640,6 +720,10 @@ describe('tests for get post comments endpoint', () => {
                     userId: createdUserIds[0],
                     userLogin: createUsersData[0].login,
                 },
+                likesInfo: {
+                    likesCount: 0,
+                    dislikesCount: 0,
+                },
                 createdAt: '2024-12-16T05:32:26.882Z',
                 isDeleted: false,
             },
@@ -650,6 +734,10 @@ describe('tests for get post comments endpoint', () => {
                 commentatorInfo: {
                     userId: createdUserIds[0],
                     userLogin: createUsersData[0].login,
+                },
+                likesInfo: {
+                    likesCount: 0,
+                    dislikesCount: 0,
                 },
                 createdAt: '2024-12-16T05:32:26.882Z',
                 isDeleted: false,
@@ -662,6 +750,10 @@ describe('tests for get post comments endpoint', () => {
                     userId: createdUserIds[0],
                     userLogin: createUsersData[0].login,
                 },
+                likesInfo: {
+                    likesCount: 0,
+                    dislikesCount: 0,
+                },
                 createdAt: '2024-12-16T05:32:26.882Z',
                 isDeleted: false,
             },
@@ -672,6 +764,10 @@ describe('tests for get post comments endpoint', () => {
                 commentatorInfo: {
                     userId: createdUserIds[0],
                     userLogin: createUsersData[0].login,
+                },
+                likesInfo: {
+                    likesCount: 0,
+                    dislikesCount: 0,
                 },
                 createdAt: '2024-12-16T05:32:26.882Z',
                 isDeleted: false,
@@ -684,6 +780,10 @@ describe('tests for get post comments endpoint', () => {
                     userId: createdUserIds[0],
                     userLogin: createUsersData[0].login,
                 },
+                likesInfo: {
+                    likesCount: 0,
+                    dislikesCount: 0,
+                },
                 createdAt: '2024-12-16T05:32:26.882Z',
                 isDeleted: false,
             },
@@ -694,6 +794,10 @@ describe('tests for get post comments endpoint', () => {
                 commentatorInfo: {
                     userId: createdUserIds[0],
                     userLogin: createUsersData[0].login,
+                },
+                likesInfo: {
+                    likesCount: 0,
+                    dislikesCount: 0,
                 },
                 createdAt: '2024-12-16T05:32:26.882Z',
                 isDeleted: false,
@@ -706,6 +810,10 @@ describe('tests for get post comments endpoint', () => {
                     userId: createdUserIds[0],
                     userLogin: createUsersData[0].login,
                 },
+                likesInfo: {
+                    likesCount: 0,
+                    dislikesCount: 0,
+                },
                 createdAt: '2024-12-16T05:32:26.882Z',
                 isDeleted: false,
             },
@@ -716,6 +824,10 @@ describe('tests for get post comments endpoint', () => {
                 commentatorInfo: {
                     userId: createdUserIds[0],
                     userLogin: createUsersData[0].login,
+                },
+                likesInfo: {
+                    likesCount: 0,
+                    dislikesCount: 0,
                 },
                 createdAt: '2024-12-16T05:32:26.882Z',
                 isDeleted: false,
@@ -728,6 +840,10 @@ describe('tests for get post comments endpoint', () => {
                     userId: createdUserIds[0],
                     userLogin: createUsersData[0].login,
                 },
+                likesInfo: {
+                    likesCount: 0,
+                    dislikesCount: 0,
+                },
                 createdAt: '2024-12-16T05:32:26.882Z',
                 isDeleted: false,
             },
@@ -738,6 +854,10 @@ describe('tests for get post comments endpoint', () => {
                 commentatorInfo: {
                     userId: createdUserIds[0],
                     userLogin: createUsersData[0].login,
+                },
+                likesInfo: {
+                    likesCount: 0,
+                    dislikesCount: 0,
                 },
                 createdAt: '2024-12-16T05:32:26.882Z',
                 isDeleted: false,
@@ -750,6 +870,10 @@ describe('tests for get post comments endpoint', () => {
                     userId: createdUserIds[0],
                     userLogin: createUsersData[0].login,
                 },
+                likesInfo: {
+                    likesCount: 0,
+                    dislikesCount: 0,
+                },
                 createdAt: '2024-12-16T05:32:26.882Z',
                 isDeleted: false,
             },
@@ -760,6 +884,10 @@ describe('tests for get post comments endpoint', () => {
                 commentatorInfo: {
                     userId: createdUserIds[0],
                     userLogin: createUsersData[0].login,
+                },
+                likesInfo: {
+                    likesCount: 0,
+                    dislikesCount: 0,
                 },
                 createdAt: '2024-12-16T05:32:26.882Z',
                 isDeleted: false,
@@ -772,6 +900,10 @@ describe('tests for get post comments endpoint', () => {
                     userId: createdUserIds[0],
                     userLogin: createUsersData[0].login,
                 },
+                likesInfo: {
+                    likesCount: 0,
+                    dislikesCount: 0,
+                },
                 createdAt: '2024-12-16T05:32:26.882Z',
                 isDeleted: false,
             },
@@ -782,6 +914,10 @@ describe('tests for get post comments endpoint', () => {
                 commentatorInfo: {
                     userId: createdUserIds[0],
                     userLogin: createUsersData[0].login,
+                },
+                likesInfo: {
+                    likesCount: 0,
+                    dislikesCount: 0,
                 },
                 createdAt: '2024-12-16T05:32:26.882Z',
                 isDeleted: false,

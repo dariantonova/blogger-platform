@@ -27,6 +27,7 @@ router.delete('/all-data', async (req: Request, res: Response) => {
     await commentsService.deleteAllComments();
     await authService.deleteAllDeviceAuthSessions();
     await attemptsService.deleteAllAttempts();
+    // todo: delete all comment likes
 
     res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
 });

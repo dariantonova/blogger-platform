@@ -92,6 +92,10 @@ describe('tests for delete comment endpoint', () => {
                     userId: createdUserIds[0],
                     userLogin: createUsersData[0].login,
                 },
+                likesInfo: {
+                    likesCount: 0,
+                    dislikesCount: 0,
+                },
                 createdAt: '2024-12-16T05:32:26.882Z',
                 isDeleted: false,
             },
@@ -103,6 +107,10 @@ describe('tests for delete comment endpoint', () => {
                     userId: createdUserIds[0],
                     userLogin: createUsersData[0].login,
                 },
+                likesInfo: {
+                    likesCount: 0,
+                    dislikesCount: 0,
+                },
                 createdAt: '2024-12-16T05:32:26.882Z',
                 isDeleted: true,
             },
@@ -113,6 +121,10 @@ describe('tests for delete comment endpoint', () => {
                 commentatorInfo: {
                     userId: createdUserIds[0],
                     userLogin: createUsersData[0].login,
+                },
+                likesInfo: {
+                    likesCount: 0,
+                    dislikesCount: 0,
                 },
                 createdAt: '2024-12-16T05:32:26.882Z',
                 isDeleted: false,
