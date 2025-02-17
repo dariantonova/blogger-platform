@@ -26,32 +26,10 @@ export class CommentLikesService {
             };
         }
 
-        if (!isLikeOrDislike(likeStatus)) {
-            await this.commentLikesRepository.deleteCommentLikeByUserIdAndCommentId(userId, commentId);
+        const likeOperationResult = await this._makeCommentLikeOperation(commentId, userId, likeStatus);
+        if (likeOperationResult.status !== ResultStatus.SUCCESS) {
             return {
-                status: ResultStatus.SUCCESS,
-                data: null,
-                extensions: [],
-            };
-        }
-
-        const updateInfo = await this.commentLikesRepository
-            .updateCommentLikeStatus(userId, commentId, likeStatus);
-        if (updateInfo.modified) {
-            await this.commentLikesRepository.updateCommentLikeCreationDate(userId, commentId, new Date());
-            return {
-                status: ResultStatus.SUCCESS,
-                data: null,
-                extensions: [],
-            };
-        }
-
-        if (!updateInfo.matched) {
-            await this.commentLikesRepository.createCommentLike(
-                userId, commentId, likeStatus, new Date()
-            );
-            return {
-                status: ResultStatus.SUCCESS,
+                status: ResultStatus.INTERNAL_SERVER_ERROR,
                 data: null,
                 extensions: [],
             };
@@ -64,6 +42,41 @@ export class CommentLikesService {
         const dislikesCountUpdateResult = await this.updateCommentDislikesCount(commentId);
         if (dislikesCountUpdateResult.status !== ResultStatus.SUCCESS) {
             return dislikesCountUpdateResult;
+        }
+
+        return {
+            status: ResultStatus.SUCCESS,
+            data: null,
+            extensions: [],
+        };
+    };
+    async _makeCommentLikeOperation(commentId: string, userId: string, likeStatus: LikeStatusEnum): Promise<Result<null>> {
+        if (!isLikeOrDislike(likeStatus)) {
+            await this.commentLikesRepository.deleteCommentLikeByUserIdAndCommentId(userId, commentId);
+            return {
+                status: ResultStatus.SUCCESS,
+                data: null,
+                extensions: [],
+            };
+        }
+
+        const updateInfo = await this.commentLikesRepository
+            .updateCommentLikeStatus(userId, commentId, likeStatus);
+        if (updateInfo.modified) {
+            const isCreationDateUpdated = await this.commentLikesRepository
+                .updateCommentLikeCreationDate(userId, commentId, new Date());
+            if (!isCreationDateUpdated) {
+                return {
+                    status: ResultStatus.INTERNAL_SERVER_ERROR,
+                    data: null,
+                    extensions: [],
+                };
+            }
+        }
+        else if (!updateInfo.matched) {
+            await this.commentLikesRepository.createCommentLike(
+                userId, commentId, likeStatus, new Date()
+            );
         }
 
         return {

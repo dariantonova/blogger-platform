@@ -1,5 +1,5 @@
 import {CommentatorInfo, CommentDBType, CommentType, LikesInfo} from "./comments.types";
-import {CommentLikeModel, CommentModel} from "../../db/db";
+import {CommentModel} from "../../db/db";
 import {SortDirections} from "../../types/types";
 import {ObjectId, WithId} from "mongodb";
 import {injectable} from "inversify";
@@ -87,13 +87,13 @@ export class CommentsRepository {
         );
     };
     async updateCommentLikesCount(id: string, likesCount: number): Promise<boolean> {
-        const updateInfo = await CommentLikeModel
-            .updateOne({ _id: new ObjectId(id) }, { 'likesInfo.likesCount': likesCount });
+        const updateInfo = await CommentModel
+            .updateOne({ isDeleted: false, _id: new ObjectId(id) }, { 'likesInfo.likesCount': likesCount });
 
         return updateInfo.matchedCount === 1;
     };
     async updateCommentDislikesCount(id: string, dislikesCount: number): Promise<boolean> {
-        const updateInfo = await CommentLikeModel
+        const updateInfo = await CommentModel
             .updateOne({ _id: new ObjectId(id) }, { 'likesInfo.dislikesCount': dislikesCount });
 
         return updateInfo.matchedCount === 1;
