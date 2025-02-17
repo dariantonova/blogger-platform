@@ -76,14 +76,14 @@ export class AttemptDBType {
 }
 
 export enum LikeStatusEnum {
-    like = 'like',
-    dislike = 'dislike',
-    none = 'none',
+    like = 'Like',
+    dislike = 'Dislike',
+    none = 'None',
 }
 
 export enum LikeOrDislikeEnum {
-    like = 'like',
-    dislike = 'dislike',
+    like = 'Like',
+    dislike = 'Dislike',
 }
 
 export type LikeOrDislike = LikeStatusEnum.like | LikeStatusEnum.dislike;
