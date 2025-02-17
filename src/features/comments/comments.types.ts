@@ -1,3 +1,5 @@
+import {LikeStatus} from "../../types/types";
+
 export type CreateCommentInputModel = {
     content: string,
 };
@@ -46,4 +48,13 @@ export class CommentViewModel {
 
 export type URIParamsCommentIdModel = {
     id: string,
+};
+
+export type LikeInputModel = {
+    likeStatus: LikeStatus,
+};
+
+export type UpdateCommentLikeInfo = {
+    matched: boolean,
+    modified: boolean,
 };

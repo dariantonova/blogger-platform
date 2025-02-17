@@ -2,10 +2,11 @@ import {Router} from "express";
 import {bearerAuthorizationMiddleware} from "../../middlewares/bearer-authorization-middleware";
 import {contentCommentFieldValidator} from "../../validation/field-validators/comments-field-validators";
 import {errorsResultMiddleware} from "../../validation/errors-result-middleware";
-import {idUriParamValidator} from "../../validation/uri-params-validators";
+import {commentIdUriParamValidator, idUriParamValidator} from "../../validation/uri-params-validators";
 import {uriParamsValidationErrorMiddleware} from "../../validation/uri-params-validation-error-middleware";
 import {container} from "../../composition-root";
 import {CommentsController} from "./comments.controller";
+import {likeStatusValidator} from "./validation/like-validators";
 
 const commentsController = container.get<CommentsController>(CommentsController);
 
@@ -27,5 +28,12 @@ router.put('/:id',
     contentCommentFieldValidator,
     errorsResultMiddleware,
     commentsController.updateComment.bind(commentsController));
+router.put('/:commentId/like-status',
+    bearerAuthorizationMiddleware,
+    commentIdUriParamValidator,
+    uriParamsValidationErrorMiddleware,
+    likeStatusValidator,
+    errorsResultMiddleware,
+    commentsController.updateCommentLikeStatus.bind(commentsController));
 
 export { router as commentsRouter };

@@ -3,7 +3,7 @@ import {
     BlogDBType,
     CommentLikeDBType,
     DBType,
-    ExistingLikeStatus,
+    LikeOrDislike,
     PostDBType,
     UserDBType
 } from "../types/types";
@@ -87,7 +87,7 @@ const attemptSchema = new Schema<WithId<AttemptDBType>>({
 const commentLikeSchema = new Schema<WithId<CommentLikeDBType>>({
     userId: { type: String, required: true },
     commentId: { type: String, required: true },
-    likeStatus: { type: String, enum: ExistingLikeStatus, required: true},
+    likeStatus: { type: String, enum: LikeOrDislike, required: true},
     createdAt: { type: Date, required: true },
 });
 

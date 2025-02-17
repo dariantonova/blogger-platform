@@ -99,7 +99,7 @@ export class UsersService {
         return isUserDeleted;
     };
     async deleteAllUsers() {
-        await this.usersRepository.deleteAllUsers();
+        return this.usersRepository.deleteAllUsers();
     };
     async findUserById(id: string): Promise<UserDBType | null> {
         return this.usersRepository.findUserById(id);

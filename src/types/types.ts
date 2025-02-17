@@ -81,7 +81,7 @@ export enum LikeStatus {
     none = 'none',
 }
 
-export enum ExistingLikeStatus {
+export enum LikeOrDislike {
     like = 'like',
     dislike = 'dislike',
 }
@@ -89,7 +89,7 @@ export enum ExistingLikeStatus {
 export class CommentLikeDBType {
     constructor(public userId: string,
                 public commentId: string,
-                public likeStatus: ExistingLikeStatus,
+                public likeStatus: LikeOrDislike,
                 public createdAt: Date,
     ) {}
 }

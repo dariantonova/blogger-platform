@@ -70,7 +70,7 @@ export class CommentsService {
         }
     };
     async deleteAllComments() {
-        await this.commentsRepository.deleteAllComments();
+        return this.commentsRepository.deleteAllComments();
     };
     async deleteComment(commentId: string, currentUserId: string): Promise<Result<null>> {
         const comment = await this.commentsRepository.findCommentById(commentId);
