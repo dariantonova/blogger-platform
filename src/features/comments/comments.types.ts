@@ -19,6 +19,13 @@ export type LikesInfo = {
     dislikesCount: number,
 };
 
+export class LikesInfoViewModel {
+    constructor(public likesCount: number,
+                public dislikesCount: number,
+                public myStatus: LikeStatus,
+    ) {}
+}
+
 export class CommentDBType {
     constructor(public content: string,
                 public postId: string,
@@ -34,6 +41,7 @@ export class CommentType {
                 public content: string,
                 public postId: string,
                 public commentatorInfo: CommentatorInfo,
+                public likesInfo: LikesInfo,
                 public createdAt: string
     ) {}
 }
@@ -42,6 +50,7 @@ export class CommentViewModel {
     constructor(public id: string,
                 public content: string,
                 public commentatorInfo: CommentatorInfo,
+                public likesInfo: LikesInfoViewModel,
                 public createdAt: string
     ) {}
 }

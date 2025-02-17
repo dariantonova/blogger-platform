@@ -140,7 +140,7 @@ describe('test for get comment endpoint', () => {
         const comment = initialDbComments[0];
         const commentId = comment._id.toString();
 
-        const expected = await commentsQueryRepository.mapToOutput(comment);
+        const expected = await commentsQueryRepository.mapToOutput(comment, null);
         const response = await req
             .get(SETTINGS.PATH.COMMENTS + '/' + commentId)
             .expect(HTTP_STATUSES.OK_200);

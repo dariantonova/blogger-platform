@@ -52,6 +52,7 @@ export class CommentsRepository {
             dbComment.content,
             dbComment.postId,
             dbComment.commentatorInfo,
+            dbComment.likesInfo,
             dbComment.createdAt
         );
     };

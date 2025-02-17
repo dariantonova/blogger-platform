@@ -1,7 +1,8 @@
 import {injectable} from "inversify";
-import {CommentLikeDBType, LikeOrDislike} from "../../../types/types";
+import {CommentLikeDBType, LikeOrDislike, LikeStatusEnum} from "../../../types/types";
 import {CommentLikeModel} from "../../../db/db";
 import {UpdateCommentLikeInfo} from "../comments.types";
+import {WithId} from "mongodb";
 
 @injectable()
 export class CommentLikesRepository {
@@ -34,12 +35,16 @@ export class CommentLikesRepository {
         return updateInfo.matchedCount === 1;
     };
     async countCommentLikes(commentId: string): Promise<number> {
-        return CommentLikeModel.countDocuments({ commentId, likeStatus: LikeOrDislike.like });
+        return CommentLikeModel.countDocuments({ commentId, likeStatus: LikeStatusEnum.like });
     };
     async countCommentDislikes(commentId: string): Promise<number> {
-        return CommentLikeModel.countDocuments({ commentId, likeStatus: LikeOrDislike.dislike });
+        return CommentLikeModel.countDocuments({ commentId, likeStatus: LikeStatusEnum.dislike });
     };
     async deleteAllCommentLikes() {
         await CommentLikeModel.deleteMany({});
+    };
+    async findCommentLikeByUserIdAndCommentId(userId: string,
+                                              commentId: string): Promise<WithId<CommentLikeDBType> | null> {
+        return CommentLikeModel.findOne({ userId, commentId }).lean();
     };
 }

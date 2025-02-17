@@ -8,7 +8,10 @@ import {
 } from "../../validation/field-validators/posts-field-validators";
 import {errorsResultMiddleware} from "../../validation/errors-result-middleware";
 import {pageNumberQueryParamValidator, pageSizeQueryParamValidator} from "../../validation/query-params-validators";
-import {bearerAuthorizationMiddleware} from "../../middlewares/bearer-authorization-middleware";
+import {
+    bearerAuthorizationMiddleware,
+    optionalBearerAuthorizationMiddleware
+} from "../../middlewares/bearer-authorization-middleware";
 import {contentCommentFieldValidator} from "../../validation/field-validators/comments-field-validators";
 import {queryValidationErrorMiddleware} from "../../validation/query-validation-error-middleware";
 import {container} from "../../composition-root";
@@ -50,6 +53,7 @@ router.post('/:postId/comments',
     errorsResultMiddleware,
     postsController.createPostComment.bind(postsController));
 router.get('/:postId/comments',
+    optionalBearerAuthorizationMiddleware,
     pageNumberQueryParamValidator,
     pageSizeQueryParamValidator,
     queryValidationErrorMiddleware,

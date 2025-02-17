@@ -132,7 +132,8 @@ export class PostsController {
         }
 
         const createdCommentId = result.data as string;
-        const createdComment = await this.commentsQueryRepository.findCommentById(createdCommentId);
+        const createdComment = await this.commentsQueryRepository
+            .findCommentById(createdCommentId, null);
         if (!createdComment) {
             res.sendStatus(HTTP_STATUSES.INTERNAL_SERVER_ERROR_500);
             return;
@@ -144,6 +145,7 @@ export class PostsController {
     };
     async getPostComments (req: RequestWithParamsAndQuery<{ postId: string }, QueryCommentsModel>,
                            res: Response<Paginator<CommentViewModel>>) {
+        const userId = req.user ? req.user.id : null;
         const postId = req.params.postId;
         const {
             sortBy,
@@ -163,7 +165,7 @@ export class PostsController {
 
         const foundComments = result.data as CommentType[];
         const commentsOutput = await Promise.all(
-            foundComments.map(this.commentsQueryRepository.mapBusinessEntityToOutput));
+            foundComments.map(c => this.commentsQueryRepository.mapBusinessEntityToOutput(c, userId)));
 
         const totalCount = await this.commentsQueryRepository.countPostComments(postId);
         const pagesCount = Math.ceil(totalCount / pageSize);

@@ -75,16 +75,19 @@ export class AttemptDBType {
     ) {}
 }
 
-export enum LikeStatus {
+export enum LikeStatusEnum {
     like = 'like',
     dislike = 'dislike',
     none = 'none',
 }
 
-export enum LikeOrDislike {
+export enum LikeOrDislikeEnum {
     like = 'like',
     dislike = 'dislike',
 }
+
+export type LikeOrDislike = LikeStatusEnum.like | LikeStatusEnum.dislike;
+export type LikeStatus = LikeOrDislike | LikeStatusEnum.none;
 
 export class CommentLikeDBType {
     constructor(public userId: string,

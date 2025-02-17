@@ -1,5 +1,8 @@
 import {Router} from "express";
-import {bearerAuthorizationMiddleware} from "../../middlewares/bearer-authorization-middleware";
+import {
+    bearerAuthorizationMiddleware,
+    optionalBearerAuthorizationMiddleware
+} from "../../middlewares/bearer-authorization-middleware";
 import {contentCommentFieldValidator} from "../../validation/field-validators/comments-field-validators";
 import {errorsResultMiddleware} from "../../validation/errors-result-middleware";
 import {commentIdUriParamValidator, idUriParamValidator} from "../../validation/uri-params-validators";
@@ -13,6 +16,7 @@ const commentsController = container.get<CommentsController>(CommentsController)
 const router = Router();
 
 router.get('/:id',
+    optionalBearerAuthorizationMiddleware,
     idUriParamValidator,
     uriParamsValidationErrorMiddleware,
     commentsController.getComment.bind(commentsController));

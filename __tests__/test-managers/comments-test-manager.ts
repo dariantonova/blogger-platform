@@ -26,7 +26,7 @@ export const commentsTestManager = {
         const getCommentResponse = await req
             .get(SETTINGS.PATH.COMMENTS + '/' + comment._id.toString())
             .expect(HTTP_STATUSES.OK_200);
-        const expected = await commentsQueryRepository.mapToOutput(comment);
+        const expected = await commentsQueryRepository.mapToOutput(comment, null);
         expect(getCommentResponse.body).toEqual(expected);
     },
 };

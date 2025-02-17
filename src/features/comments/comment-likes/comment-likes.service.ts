@@ -1,12 +1,12 @@
 import {inject, injectable} from "inversify";
 import {CommentLikesRepository} from "./comment-likes.repository";
 import {CommentsRepository} from "../comments.repository";
-import {LikeOrDislike, LikeStatus} from "../../../types/types";
+import {LikeOrDislike, LikeStatusEnum} from "../../../types/types";
 import {Result} from "../../../common/result/result.type";
 import {ResultStatus} from "../../../common/result/resultStatus";
 
 const isLikeOrDislike = (likeStatus: any): likeStatus is LikeOrDislike => {
-    return likeStatus !== LikeStatus.none;
+    return likeStatus !== LikeStatusEnum.none;
 };
 
 @injectable()
@@ -16,7 +16,7 @@ export class CommentLikesService {
         @inject(CommentsRepository) protected commentsRepository: CommentsRepository
     ) {}
 
-    async updateCommentLikeStatus(commentId: string, userId: string, likeStatus: LikeStatus): Promise<Result<null>> {
+    async updateCommentLikeStatus(commentId: string, userId: string, likeStatus: LikeStatusEnum): Promise<Result<null>> {
         const comment = await this.commentsRepository.findCommentById(commentId);
         if (!comment) {
             return {

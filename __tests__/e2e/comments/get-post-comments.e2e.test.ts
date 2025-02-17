@@ -109,6 +109,7 @@ describe('tests for get post comments endpoint', () => {
             DEFAULT_QUERY_VALUES.USERS.pageSize,
             0,
             0,
+            null
         );
 
         const response = await postsTestManager.getPostComments(postId, HTTP_STATUSES.OK_200);
@@ -220,6 +221,7 @@ describe('tests for get post comments endpoint', () => {
             DEFAULT_QUERY_VALUES.COMMENTS.pageSize,
             1,
             expectedComments.length,
+            null
         );
 
         const response = await postsTestManager.getPostComments(postId, HTTP_STATUSES.OK_200);
@@ -236,6 +238,7 @@ describe('tests for get post comments endpoint', () => {
             DEFAULT_QUERY_VALUES.COMMENTS.pageSize,
             1,
             expectedComments.length,
+            null
         );
 
         const response = await postsTestManager.getPostComments(postId, HTTP_STATUSES.OK_200);
@@ -320,6 +323,7 @@ describe('tests for get post comments endpoint', () => {
             DEFAULT_QUERY_VALUES.COMMENTS.pageSize,
             1,
             expectedComments.length,
+            null
         );
 
         const response1 = await postsTestManager.getPostComments(postId, HTTP_STATUSES.OK_200,
@@ -351,6 +355,7 @@ describe('tests for get post comments endpoint', () => {
             DEFAULT_QUERY_VALUES.COMMENTS.pageSize,
             1,
             expectedComments.length,
+            null
         );
 
         const response1 = await postsTestManager.getPostComments(postId, HTTP_STATUSES.OK_200,
@@ -375,6 +380,7 @@ describe('tests for get post comments endpoint', () => {
             DEFAULT_QUERY_VALUES.COMMENTS.pageSize,
             1,
             expectedComments.length,
+            null
         );
 
         const response1 = await postsTestManager.getPostComments(postId, HTTP_STATUSES.OK_200,
@@ -399,6 +405,7 @@ describe('tests for get post comments endpoint', () => {
             DEFAULT_QUERY_VALUES.COMMENTS.pageSize,
             1,
             expectedComments.length,
+            null
         );
 
         const response = await postsTestManager.getPostComments(postId, HTTP_STATUSES.OK_200,
@@ -419,6 +426,7 @@ describe('tests for get post comments endpoint', () => {
             DEFAULT_QUERY_VALUES.COMMENTS.pageSize,
             1,
             expectedComments.length,
+            null
         );
 
         const response1 = await postsTestManager.getPostComments(postId, HTTP_STATUSES.OK_200,
@@ -443,6 +451,7 @@ describe('tests for get post comments endpoint', () => {
             DEFAULT_QUERY_VALUES.COMMENTS.pageSize,
             1,
             expectedComments.length,
+            null
         );
 
         const response = await postsTestManager.getPostComments(postId, HTTP_STATUSES.OK_200,
@@ -463,6 +472,7 @@ describe('tests for get post comments endpoint', () => {
             DEFAULT_QUERY_VALUES.COMMENTS.pageSize,
             1,
             expectedComments.length,
+            null
         );
 
         const response1 = await postsTestManager.getPostComments(postId, HTTP_STATUSES.OK_200,
@@ -487,6 +497,7 @@ describe('tests for get post comments endpoint', () => {
             DEFAULT_QUERY_VALUES.COMMENTS.pageSize,
             1,
             expectedComments.length,
+            null
         );
 
         const response = await postsTestManager.getPostComments(postId, HTTP_STATUSES.OK_200,
@@ -507,6 +518,7 @@ describe('tests for get post comments endpoint', () => {
             DEFAULT_QUERY_VALUES.COMMENTS.pageSize,
             1,
             expectedComments.length,
+            null
         );
 
         const response1 = await postsTestManager.getPostComments(postId, HTTP_STATUSES.OK_200,
@@ -531,6 +543,7 @@ describe('tests for get post comments endpoint', () => {
             DEFAULT_QUERY_VALUES.COMMENTS.pageSize,
             1,
             expectedComments.length,
+            null
         );
 
         const response = await postsTestManager.getPostComments(postId, HTTP_STATUSES.OK_200,
@@ -551,6 +564,7 @@ describe('tests for get post comments endpoint', () => {
             DEFAULT_QUERY_VALUES.COMMENTS.pageSize,
             1,
             expectedComments.length,
+            null
         );
 
         const response = await postsTestManager.getPostComments(postId, HTTP_STATUSES.OK_200,
@@ -928,7 +942,7 @@ describe('tests for get post comments endpoint', () => {
 
         const postId = initialDbPosts[0].id;
         const expected = await commentsQueryRepository.createCommentsPaginator(
-            [], 0, 0, 0, 0,
+            [], 0, 0, 0, 0, null
         );
         for (const invalidPageNumber of invalidPageNumbers) {
             const response = await postsTestManager.getPostComments(postId, HTTP_STATUSES.OK_200,
@@ -941,7 +955,7 @@ describe('tests for get post comments endpoint', () => {
     it('should return empty array if page size is invalid', async () => {
         const postId = initialDbPosts[0].id;
         const expected = await commentsQueryRepository.createCommentsPaginator(
-            [], 0, 0, 0, 0,
+            [], 0, 0, 0, 0, null
         );
         for (const invalidPageSize of invalidPageSizes) {
             const response = await postsTestManager.getPostComments(postId, HTTP_STATUSES.OK_200,
@@ -958,7 +972,7 @@ describe('tests for get post comments endpoint', () => {
 
         const postId = initialDbPosts[0].id;
         const expected = await commentsQueryRepository.createCommentsPaginator(
-            [], 0, 0, 0, 0,
+            [], 0, 0, 0, 0, null
         );
         const response = await postsTestManager.getPostComments(postId, HTTP_STATUSES.OK_200,
             'pageNumber=' + invalidPageNumber
@@ -979,6 +993,7 @@ describe('tests for get post comments endpoint', () => {
             defaultPageSize,
             Math.ceil(initialDbComments.length / defaultPageSize),
             initialDbComments.length,
+            null
         );
 
         const response = await postsTestManager.getPostComments(postId, HTTP_STATUSES.OK_200);
@@ -999,6 +1014,7 @@ describe('tests for get post comments endpoint', () => {
             pageSize,
             Math.ceil(initialDbComments.length / pageSize),
             initialDbComments.length,
+            null
         );
 
         const response = await postsTestManager.getPostComments(postId, HTTP_STATUSES.OK_200,
@@ -1019,6 +1035,7 @@ describe('tests for get post comments endpoint', () => {
             pageSize,
             Math.ceil(initialDbComments.length / pageSize),
             initialDbComments.length,
+            null
         );
 
         const response = await postsTestManager.getPostComments(postId, HTTP_STATUSES.OK_200,
@@ -1042,6 +1059,7 @@ describe('tests for get post comments endpoint', () => {
             pageSize,
             Math.ceil(initialDbComments.length / pageSize),
             initialDbComments.length,
+            null
         );
 
         const response = await postsTestManager.getPostComments(postId, HTTP_STATUSES.OK_200,
@@ -1065,7 +1083,8 @@ describe('tests for get post comments endpoint', () => {
             pageNumber,
             pageSize,
             pagesCount,
-            totalCount
+            totalCount,
+            null
         );
 
         const response = await postsTestManager.getPostComments(postId, HTTP_STATUSES.OK_200,
@@ -1086,7 +1105,8 @@ describe('tests for get post comments endpoint', () => {
             DEFAULT_QUERY_VALUES.COMMENTS.pageNumber,
             pageSize,
             Math.ceil(totalCount / pageSize),
-            totalCount
+            totalCount,
+            null
         );
 
         const response = await postsTestManager.getPostComments(postId, HTTP_STATUSES.OK_200,

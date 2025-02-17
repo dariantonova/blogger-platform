@@ -25,3 +25,25 @@ export const bearerAuthorizationMiddleware = async (req: Request, res: Response,
 
     next();
 };
+
+export const optionalBearerAuthorizationMiddleware = async (req: Request, res: Response, next: NextFunction) => {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+        req.user = null;
+        next();
+        return;
+    }
+
+    const token = authHeader.split(' ')[1];
+
+    const verificationResult = await authService.verifyAccessToken(token);
+    if (verificationResult.status !== ResultStatus.SUCCESS) {
+        req.user = null;
+        next();
+        return;
+    }
+
+    req.user = verificationResult.data;
+
+    next();
+};
