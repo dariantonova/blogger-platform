@@ -6,13 +6,15 @@ import {CommentsRepository} from "./comments.repository";
 import {ResultStatus} from "../../common/result/resultStatus";
 import {SortDirections} from "../../types/types";
 import {inject, injectable} from "inversify";
+import {CommentLikesRepository} from "./comment-likes/comment-likes.repository";
 
 @injectable()
 export class CommentsService {
     constructor(
         @inject(CommentsRepository) protected commentsRepository: CommentsRepository,
         @inject(PostsService) protected postsService: PostsService,
-        @inject(UsersService) protected usersService: UsersService
+        @inject(UsersService) protected usersService: UsersService,
+        @inject(CommentLikesRepository) protected commentLikesRepository: CommentLikesRepository,
     ) {}
 
     async createComment(postId: string, userId: string, content: string): Promise<Result<string | null>> {
@@ -93,6 +95,15 @@ export class CommentsService {
 
         const isDeleted = await this.commentsRepository.deleteComment(commentId);
         if (!isDeleted) {
+            return {
+                status: ResultStatus.INTERNAL_SERVER_ERROR,
+                data: null,
+                extensions: [],
+            };
+        }
+
+        const areCommentLikesDeleted = this.commentLikesRepository.deleteLikesOfComment(commentId);
+        if (!areCommentLikesDeleted) {
             return {
                 status: ResultStatus.INTERNAL_SERVER_ERROR,
                 data: null,

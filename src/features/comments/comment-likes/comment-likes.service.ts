@@ -57,11 +57,11 @@ export class CommentLikesService {
             };
         }
 
-        const likesCountUpdateResult = await this._updateCommentLikesCount(commentId);
+        const likesCountUpdateResult = await this.updateCommentLikesCount(commentId);
         if (likesCountUpdateResult.status !== ResultStatus.SUCCESS) {
             return likesCountUpdateResult;
         }
-        const dislikesCountUpdateResult = await this._updateCommentDislikesCount(commentId);
+        const dislikesCountUpdateResult = await this.updateCommentDislikesCount(commentId);
         if (dislikesCountUpdateResult.status !== ResultStatus.SUCCESS) {
             return dislikesCountUpdateResult;
         }
@@ -72,7 +72,7 @@ export class CommentLikesService {
             extensions: [],
         };
     };
-    async _updateCommentLikesCount(commentId: string): Promise<Result<null>> {
+    async updateCommentLikesCount(commentId: string): Promise<Result<null>> {
         const newLikesCount = await this.commentLikesRepository.countCommentLikes(commentId);
         const isCountUpdated = await this.commentsRepository.updateCommentLikesCount(commentId, newLikesCount);
         if (!isCountUpdated) {
@@ -89,7 +89,7 @@ export class CommentLikesService {
             extensions: [],
         };
     };
-    async _updateCommentDislikesCount(commentId: string): Promise<Result<null>> {
+    async updateCommentDislikesCount(commentId: string): Promise<Result<null>> {
         const newDislikesCount = await this.commentLikesRepository.countCommentDislikes(commentId);
         const isCountUpdated = await this.commentsRepository
             .updateCommentDislikesCount(commentId, newDislikesCount);

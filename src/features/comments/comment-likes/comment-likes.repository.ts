@@ -47,4 +47,14 @@ export class CommentLikesRepository {
                                               commentId: string): Promise<WithId<CommentLikeDBType> | null> {
         return CommentLikeModel.findOne({ userId, commentId }).lean();
     };
+    async deleteLikesOfComment(commentId: string) {
+        await CommentLikeModel.deleteMany({ commentId });
+    };
+    async deleteLikesOfUser(userId: string) {
+        await CommentLikeModel.deleteMany({ userId });
+    };
+    async findCommentsLikedByUser(userId: string): Promise<string[]> {
+        const commentLikes: CommentLikeDBType[] = await CommentLikeModel.find({ userId }).lean();
+        return commentLikes.map(like => like.commentId);
+    };
 }

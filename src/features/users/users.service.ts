@@ -7,6 +7,8 @@ import {Result} from "../../common/result/result.type";
 import {ResultStatus} from "../../common/result/resultStatus";
 import {DeviceAuthSessionsRepository} from "../auth/device-auth-sessions.repository";
 import {inject, injectable} from "inversify";
+import {CommentLikesRepository} from "../comments/comment-likes/comment-likes.repository";
+import {CommentLikesService} from "../comments/comment-likes/comment-likes.service";
 
 export const confirmationCodeLifetime = {
     hours: 1,
@@ -18,7 +20,9 @@ export class UsersService {
     constructor(
         @inject(UsersRepository) protected usersRepository: UsersRepository,
         @inject(DeviceAuthSessionsRepository) protected deviceAuthSessionsRepository: DeviceAuthSessionsRepository,
-        @inject(CryptoService) protected cryptoService: CryptoService
+        @inject(CryptoService) protected cryptoService: CryptoService,
+        @inject(CommentLikesRepository) protected commentLikesRepository: CommentLikesRepository,
+        @inject(CommentLikesService) protected commentLikesService: CommentLikesService
     ) {}
 
     async createUser(login: string, email: string, password: string, isConfirmed: boolean): Promise<Result<string | null>> {
@@ -94,6 +98,13 @@ export class UsersService {
 
         if (isUserDeleted) {
             await this.deviceAuthSessionsRepository.deleteUserSessions(id);
+
+            const likedCommentsIds = await this.commentLikesRepository.findCommentsLikedByUser(id);
+            await this.commentLikesRepository.deleteLikesOfUser(id);
+            for (const likedCommentId of likedCommentsIds) {
+                await this.commentLikesService.updateCommentLikesCount(likedCommentId);
+                await this.commentLikesService.updateCommentDislikesCount(likedCommentId);
+            }
         }
 
         return isUserDeleted;
