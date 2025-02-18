@@ -29,4 +29,25 @@ export const commentsTestManager = {
         const expected = await commentsQueryRepository.mapToOutput(comment, null);
         expect(getCommentResponse.body).toEqual(expected);
     },
+    async updateCommentLikeStatus(commentId: string, data: any, auth: string, expectedStatusCode: number) {
+        return req
+            .put(SETTINGS.PATH.COMMENTS + '/' + commentId + '/like-status')
+            .set('Authorization', auth)
+            .send(data)
+            .expect(expectedStatusCode);
+    },
+    async getComment(commentId: string, expectedStatusCode: number, auth: string = '') {
+        return req
+            .get(SETTINGS.PATH.COMMENTS + '/' + commentId)
+            .set('Authorization', auth)
+            .expect(expectedStatusCode);
+    },
+    async checkCommentLikesCount(commentId: string, likesCount: number, auth: string = '') {
+        const getCommentResponse = await this.getComment(commentId, HTTP_STATUSES.OK_200, auth);
+        expect(getCommentResponse.body.likesInfo.likesCount).toBe(likesCount);
+    },
+    async checkCommentDislikesCount(commentId: string, dislikesCount: number, auth: string = '') {
+        const getCommentResponse = await this.getComment(commentId, HTTP_STATUSES.OK_200, auth);
+        expect(getCommentResponse.body.likesInfo.dislikesCount).toBe(dislikesCount);
+    },
 };
