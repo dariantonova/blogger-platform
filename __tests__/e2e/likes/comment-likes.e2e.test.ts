@@ -5,9 +5,7 @@ import {ObjectId, WithId} from "mongodb";
 import {
     CommentDBType,
     CommentViewModel,
-    CreateCommentInputModel,
-    LikeInputModel,
-    LikesInfoViewModel
+    CreateCommentInputModel
 } from "../../../src/features/comments/comments.types";
 import {client, runDb, setDb} from "../../../src/db/db";
 import {usersTestManager} from "../../test-managers/users-test-manager";
@@ -22,6 +20,7 @@ import {defaultAccessTokenLife} from "../../datasets/authorization-data";
 import {requestsLimit} from "../../../src/middlewares/rate-limiting-middleware";
 import {validCommentFieldInput} from "../../datasets/validation/comments-validation-data";
 import {postsTestManager} from "../../test-managers/posts-test-manager";
+import {LikeInputModel, LikesInfoViewModel} from "../../../src/features/likes/likes.types";
 
 describe('tests for comment likes',  () => {
     let server: MongoMemoryServer;
@@ -167,22 +166,6 @@ describe('tests for comment likes',  () => {
         const loginResponse = await authTestManager.login(loginData, HTTP_STATUSES.OK_200);
         return loginResponse.body.accessToken;
     };
-
-    // it('should like comment', async () => {
-    //     const loginData: LoginInputModel = {
-    //         loginOrEmail: createUsersData[0].login,
-    //         password: createUsersData[0].password,
-    //     };
-    //     const loginResponse = await authTestManager.login(loginData, HTTP_STATUSES.OK_200);
-    //     const accessToken = loginResponse.body.accessToken;
-    //
-    //     const commentId = initialDbComments[0]._id.toString();
-    //     await req
-    //         .put(SETTINGS.PATH.COMMENTS + '/' + commentId + '/like-status')
-    //         .set('Authorization', `Bearer ${accessToken}`)
-    //         .send({ likeStatus: 'Like' })
-    //         .expect(HTTP_STATUSES.NO_CONTENT_204);
-    // });
 
     // auth problems
     // - no auth

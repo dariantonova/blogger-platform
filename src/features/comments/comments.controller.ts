@@ -1,5 +1,5 @@
 import {RequestWithParams, RequestWithParamsAndBody} from "../../types/types";
-import {CommentViewModel, LikeInputModel, UpdateCommentInputModel, URIParamsCommentIdModel} from "./comments.types";
+import {CommentViewModel, UpdateCommentInputModel, URIParamsCommentIdModel} from "./comments.types";
 import {Response} from 'express';
 import {CommentsQueryRepository} from "./comments.query.repository";
 import {HTTP_STATUSES} from "../../utils";
@@ -7,14 +7,13 @@ import {CommentsService} from "./comments.service";
 import {ResultStatus} from "../../common/result/resultStatus";
 import {resultStatusToHttp} from "../../common/result/resultStatusToHttp";
 import {inject, injectable} from "inversify";
-import {CommentLikesService} from "./comment-likes/comment-likes.service";
+import {LikeInputModel} from "../likes/likes.types";
 
 @injectable()
 export class CommentsController {
     constructor(
         @inject(CommentsService) protected commentsService: CommentsService,
-        @inject(CommentsQueryRepository) protected commentsQueryRepository: CommentsQueryRepository,
-        @inject(CommentLikesService) protected commentLikesService: CommentLikesService
+        @inject(CommentsQueryRepository) protected commentsQueryRepository: CommentsQueryRepository
     ) {}
 
     async getComment(req: RequestWithParams<URIParamsCommentIdModel>,
@@ -63,7 +62,7 @@ export class CommentsController {
             return;
         }
 
-        const result = await this.commentLikesService.updateCommentLikeStatus(
+        const result = await this.commentsService.makeCommentLikeOperation(
             commentId, user.id, likeStatus
         );
         if (result.status !== ResultStatus.SUCCESS) {

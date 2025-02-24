@@ -28,8 +28,8 @@ import {SecurityDevicesController} from "./features/security-devices/security-de
 import {UsersController} from "./features/users/users.controller";
 import {Container} from "inversify";
 import "reflect-metadata";
-import {CommentLikesRepository} from "./features/comments/comment-likes/comment-likes.repository";
-import {CommentLikesService} from "./features/comments/comment-likes/comment-likes.service";
+import {LikesRepository} from "./features/likes/likes.repository";
+import {LikesService} from "./features/likes/likes.service";
 
 const container = new Container();
 
@@ -61,8 +61,8 @@ container.bind(CommentsController).to(CommentsController);
 container.bind(PostsController).to(PostsController);
 container.bind(SecurityDevicesController).to(SecurityDevicesController);
 container.bind(UsersController).to(UsersController);
-container.bind(CommentLikesRepository).to(CommentLikesRepository);
-container.bind(CommentLikesService).to(CommentLikesService);
+container.bind(LikesRepository).to(LikesRepository);
+container.bind(LikesService).to(LikesService);
 
 export { container };
 

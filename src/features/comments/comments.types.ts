@@ -1,4 +1,4 @@
-import {LikeStatus} from "../../types/types";
+import {LikesInfo, LikesInfoViewModel} from "../likes/likes.types";
 
 export type CreateCommentInputModel = {
     content: string,
@@ -11,18 +11,6 @@ export type UpdateCommentInputModel = {
 export class CommentatorInfo {
     constructor(public userId: string,
                 public userLogin: string
-    ) {}
-}
-
-export type LikesInfo = {
-    likesCount: number,
-    dislikesCount: number,
-};
-
-export class LikesInfoViewModel {
-    constructor(public likesCount: number,
-                public dislikesCount: number,
-                public myStatus: LikeStatus,
     ) {}
 }
 
@@ -57,10 +45,6 @@ export class CommentViewModel {
 
 export type URIParamsCommentIdModel = {
     id: string,
-};
-
-export type LikeInputModel = {
-    likeStatus: LikeStatus,
 };
 
 export type UpdateCommentLikeInfo = {

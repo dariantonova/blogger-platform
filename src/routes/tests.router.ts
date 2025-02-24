@@ -9,7 +9,7 @@ import {CommentsService} from "../features/comments/comments.service";
 import {EmailManager} from "../application/email.manager";
 import {PostsService} from "../features/posts/posts.service";
 import {UsersService} from "../features/users/users.service";
-import {CommentLikesService} from "../features/comments/comment-likes/comment-likes.service";
+import {LikesService} from "../features/likes/likes.service";
 
 const attemptsService = container.get<AttemptsService>(AttemptsService);
 const authService = container.get<AuthService>(AuthService);
@@ -18,7 +18,7 @@ const commentsService = container.get<CommentsService>(CommentsService);
 const emailManager = container.get<EmailManager>(EmailManager);
 const postsService = container.get<PostsService>(PostsService);
 const usersService = container.get<UsersService>(UsersService);
-const commentLikesService = container.get<CommentLikesService>(CommentLikesService);
+const likesService = container.get<LikesService>(LikesService);
 
 const router = Router();
 
@@ -29,7 +29,7 @@ router.delete('/all-data', async (req: Request, res: Response) => {
     await commentsService.deleteAllComments();
     await authService.deleteAllDeviceAuthSessions();
     await attemptsService.deleteAllAttempts();
-    await commentLikesService.deleteAllCommentLikes();
+    await likesService.deleteAllLikes();
 
     res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
 });

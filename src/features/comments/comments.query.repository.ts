@@ -1,14 +1,15 @@
-import {CommentDBType, CommentType, CommentViewModel, LikesInfoViewModel} from "./comments.types";
+import {CommentDBType, CommentType, CommentViewModel} from "./comments.types";
 import {CommentModel} from "../../db/db";
 import {ObjectId, WithId} from "mongodb";
 import {LikeStatus, LikeStatusEnum, Paginator} from "../../types/types";
 import {inject, injectable} from "inversify";
-import {CommentLikesRepository} from "./comment-likes/comment-likes.repository";
+import {LikesInfoViewModel} from "../likes/likes.types";
+import {LikesRepository} from "../likes/likes.repository";
 
 @injectable()
 export class CommentsQueryRepository {
     constructor(
-        @inject(CommentLikesRepository) protected commentLikesRepository: CommentLikesRepository
+        @inject(LikesRepository) protected likesRepository: LikesRepository
     ) {}
 
     async findCommentById(id: string, userId: string | null): Promise<CommentViewModel | null> {
@@ -36,9 +37,9 @@ export class CommentsQueryRepository {
         );
     };
     async _getUserCommentLikeStatus(userId: string, commentId: string): Promise<LikeStatus> {
-        const commentLike = await this.commentLikesRepository
-            .findCommentLikeByUserIdAndCommentId(userId, commentId);
-        return commentLike ? commentLike.likeStatus : LikeStatusEnum.none;
+        const commentLike = await this.likesRepository
+            .findLikeByUserAndParent(userId, commentId);
+        return commentLike ? commentLike.status : LikeStatusEnum.none;
     };
     async createCommentsPaginator(items: WithId<CommentDBType>[], page: number, pageSize: number,
                                   pagesCount: number, totalCount: number, userId: string | null): Promise<Paginator<CommentViewModel>> {

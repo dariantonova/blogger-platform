@@ -81,18 +81,12 @@ export enum LikeStatusEnum {
     none = 'None',
 }
 
-export enum LikeOrDislikeEnum {
-    like = 'Like',
-    dislike = 'Dislike',
-}
+export type LikeStatus = `${LikeStatusEnum}`;
 
-export type LikeOrDislike = LikeStatusEnum.like | LikeStatusEnum.dislike;
-export type LikeStatus = LikeOrDislike | LikeStatusEnum.none;
-
-export class CommentLikeDBType {
+export class LikeDBType {
     constructor(public userId: string,
-                public commentId: string,
-                public likeStatus: LikeOrDislike,
+                public parentId: string,
+                public status: LikeStatus,
                 public createdAt: Date,
     ) {}
 }
@@ -104,7 +98,7 @@ export class DBType {
                 public comments: OptionalId<CommentDBType>[],
                 public deviceAuthSessions: OptionalId<DeviceAuthSessionDBType>[],
                 public attempts: OptionalId<AttemptDBType>[],
-                public commentLikes: OptionalId<CommentLikeDBType>[],
+                public likes: OptionalId<LikeDBType>[],
     ) {}
 }
 

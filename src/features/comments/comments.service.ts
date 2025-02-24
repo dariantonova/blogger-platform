@@ -1,12 +1,14 @@
 import {Result} from "../../common/result/result.type";
 import {PostsService} from "../posts/posts.service";
 import {UsersService} from "../users/users.service";
-import {CommentatorInfo, CommentType, LikesInfo} from "./comments.types";
+import {CommentatorInfo, CommentType} from "./comments.types";
 import {CommentsRepository} from "./comments.repository";
 import {ResultStatus} from "../../common/result/resultStatus";
-import {SortDirections} from "../../types/types";
+import {LikeStatus, SortDirections} from "../../types/types";
 import {inject, injectable} from "inversify";
-import {CommentLikesRepository} from "./comment-likes/comment-likes.repository";
+import {LikesInfo} from "../likes/likes.types";
+import {LikesService} from "../likes/likes.service";
+import {LikesRepository} from "../likes/likes.repository";
 
 @injectable()
 export class CommentsService {
@@ -14,7 +16,8 @@ export class CommentsService {
         @inject(CommentsRepository) protected commentsRepository: CommentsRepository,
         @inject(PostsService) protected postsService: PostsService,
         @inject(UsersService) protected usersService: UsersService,
-        @inject(CommentLikesRepository) protected commentLikesRepository: CommentLikesRepository,
+        @inject(LikesService) protected likesService: LikesService,
+        @inject(LikesRepository) protected likesRepository: LikesRepository,
     ) {}
 
     async createComment(postId: string, userId: string, content: string): Promise<Result<string | null>> {
@@ -102,7 +105,7 @@ export class CommentsService {
             };
         }
 
-        const areCommentLikesDeleted = this.commentLikesRepository.deleteLikesOfComment(commentId);
+        const areCommentLikesDeleted = this.likesRepository.deleteLikesOfParent(commentId);
         if (!areCommentLikesDeleted) {
             return {
                 status: ResultStatus.INTERNAL_SERVER_ERROR,
@@ -150,5 +153,17 @@ export class CommentsService {
             data: null,
             extensions: [],
         };
+    };
+    async makeCommentLikeOperation(commentId: string, userId: string, likeStatus: LikeStatus): Promise<Result<null>> {
+        const comment = await this.commentsRepository.findCommentById(commentId);
+        if (!comment) {
+            return {
+                status: ResultStatus.NOT_FOUND,
+                data: null,
+                extensions: [],
+            };
+        }
+
+        return this.likesService.makeLikeOperation(userId, commentId, likeStatus);
     };
 }

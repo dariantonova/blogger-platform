@@ -1,9 +1,9 @@
 import {
     AttemptDBType,
     BlogDBType,
-    CommentLikeDBType,
     DBType,
-    LikeOrDislikeEnum,
+    LikeDBType,
+    LikeStatusEnum,
     PostDBType,
     UserDBType
 } from "../types/types";
@@ -84,10 +84,10 @@ const attemptSchema = new Schema<WithId<AttemptDBType>>({
     date: { type: Date, required: true },
 });
 
-const commentLikeSchema = new Schema<WithId<CommentLikeDBType>>({
+const likeSchema = new Schema<WithId<LikeDBType>>({
     userId: { type: String, required: true },
-    commentId: { type: String, required: true },
-    likeStatus: { type: String, enum: LikeOrDislikeEnum, required: true},
+    parentId: { type: String, required: true },
+    status: { type: String, enum: LikeStatusEnum, required: true},
     createdAt: { type: Date, required: true },
 });
 
@@ -97,7 +97,7 @@ export const UserModel = mongoose.model('users', userSchema);
 export const CommentModel = mongoose.model('comments', commentSchema);
 export const DeviceAuthSessionModel = mongoose.model('device-auth-sessions', deviceAuthSessionSchema);
 export const AttemptModel = mongoose.model('attempts', attemptSchema);
-export const CommentLikeModel = mongoose.model('comment-likes', commentLikeSchema);
+export const LikeModel = mongoose.model('likes', likeSchema);
 
 export let client: MongoClient;
 export let blogsCollection: Collection<BlogDBType>;
@@ -106,7 +106,7 @@ export let usersCollection: Collection<UserDBType>;
 export let commentsCollection: Collection<CommentDBType>;
 export let deviceAuthSessionsCollection: Collection<DeviceAuthSessionDBType>;
 export let attemptsCollection: Collection<AttemptDBType>;
-export let commentLikesCollection: Collection<CommentLikeDBType>;
+export let likeCollection: Collection<LikeDBType>;
 
 export const runDb = async (url: string): Promise<boolean> => {
     try {
@@ -124,7 +124,7 @@ export const runDb = async (url: string): Promise<boolean> => {
         commentsCollection = db.collection<CommentDBType>('comments');
         deviceAuthSessionsCollection = db.collection<DeviceAuthSessionDBType>('device-auth-sessions');
         attemptsCollection = db.collection<AttemptDBType>('attempts');
-        commentLikesCollection = db.collection<CommentLikeDBType>('comment-likes');
+        likeCollection = db.collection<LikeDBType>('likes');
 
         await client.connect();
         await db.command({ ping: 1 });
@@ -147,7 +147,7 @@ export const setDb = async (dataset?: Partial<DBType>) => {
         await commentsCollection.drop();
         await deviceAuthSessionsCollection.drop();
         await attemptsCollection.drop();
-        await commentLikesCollection.drop();
+        await likeCollection.drop();
         return;
     }
 
@@ -199,12 +199,12 @@ export const setDb = async (dataset?: Partial<DBType>) => {
         }
     }
 
-    if (dataset.commentLikes) {
-        await commentLikesCollection.drop();
-        if (dataset.commentLikes.length > 0) {
-            const commentLikesToInsert = dataset.commentLikes[0]._id ?
-                dataset.commentLikes : structuredClone(dataset.commentLikes);
-            await commentLikesCollection.insertMany(commentLikesToInsert);
+    if (dataset.likes) {
+        await likeCollection.drop();
+        if (dataset.likes.length > 0) {
+            const likesToInsert = dataset.likes[0]._id ?
+                dataset.likes : structuredClone(dataset.likes);
+            await likeCollection.insertMany(likesToInsert);
         }
     }
 };
@@ -255,7 +255,7 @@ const users: UserDBType[] = [];
 const comments: CommentDBType[] = [];
 const deviceAuthSessions: DeviceAuthSessionDBType[] = [];
 const attempts: AttemptDBType[] = [];
-const commentLikes: CommentLikeDBType[] = [];
+const likes: LikeDBType[] = [];
 
 export const initialDb = new DBType(
     blogs,
@@ -264,5 +264,5 @@ export const initialDb = new DBType(
     comments,
     deviceAuthSessions,
     attempts,
-    commentLikes
+    likes
 );

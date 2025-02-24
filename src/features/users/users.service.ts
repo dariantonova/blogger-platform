@@ -7,8 +7,8 @@ import {Result} from "../../common/result/result.type";
 import {ResultStatus} from "../../common/result/resultStatus";
 import {DeviceAuthSessionsRepository} from "../auth/device-auth-sessions.repository";
 import {inject, injectable} from "inversify";
-import {CommentLikesRepository} from "../comments/comment-likes/comment-likes.repository";
-import {CommentLikesService} from "../comments/comment-likes/comment-likes.service";
+import {LikesRepository} from "../likes/likes.repository";
+import {LikesService} from "../likes/likes.service";
 
 export const confirmationCodeLifetime = {
     hours: 1,
@@ -21,8 +21,8 @@ export class UsersService {
         @inject(UsersRepository) protected usersRepository: UsersRepository,
         @inject(DeviceAuthSessionsRepository) protected deviceAuthSessionsRepository: DeviceAuthSessionsRepository,
         @inject(CryptoService) protected cryptoService: CryptoService,
-        @inject(CommentLikesRepository) protected commentLikesRepository: CommentLikesRepository,
-        @inject(CommentLikesService) protected commentLikesService: CommentLikesService
+        @inject(LikesRepository) protected likesRepository: LikesRepository,
+        @inject(LikesService) protected likesService: LikesService,
     ) {}
 
     async createUser(login: string, email: string, password: string, isConfirmed: boolean): Promise<Result<string | null>> {
@@ -99,11 +99,10 @@ export class UsersService {
         if (isUserDeleted) {
             await this.deviceAuthSessionsRepository.deleteUserSessions(id);
 
-            const likedCommentsIds = await this.commentLikesRepository.findCommentsLikedByUser(id);
-            await this.commentLikesRepository.deleteLikesOfUser(id);
-            for (const likedCommentId of likedCommentsIds) {
-                await this.commentLikesService.updateCommentLikesCount(likedCommentId);
-                await this.commentLikesService.updateCommentDislikesCount(likedCommentId);
+            const userLikes = await this.likesRepository.findLikesOfUser(id);
+            await this.likesRepository.deleteLikesOfUser(id);
+            for (const userLike of userLikes) {
+                await this.likesService.updateRelatedEntityLikesInfo(userLike.parentId);
             }
         }
 
