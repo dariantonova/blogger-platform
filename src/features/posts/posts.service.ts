@@ -1,15 +1,22 @@
-import {PostDBType, SortDirections} from "../../types/types";
+import {LikeStatus, PostDBType, SortDirections} from "../../types/types";
 import {PostsRepository} from "./repositories/posts.repository";
 import {BlogsRepository} from "../blogs/repositories/blogs.repository";
 import {CommentsRepository} from "../comments/comments.repository";
 import {inject, injectable} from "inversify";
+import {Result} from "../../common/result/result.type";
+import {ResultStatus} from "../../common/result/resultStatus";
+import {LikesService} from "../likes/likes.service";
+import {LikesRepository} from "../likes/likes.repository";
+import {ExtendedLikesInfo} from "../likes/likes.types";
 
 @injectable()
 export class PostsService {
     constructor(
         @inject(PostsRepository) protected postsRepository: PostsRepository,
         @inject(BlogsRepository) protected blogsRepository: BlogsRepository,
-        @inject(CommentsRepository) protected commentsRepository: CommentsRepository
+        @inject(CommentsRepository) protected commentsRepository: CommentsRepository,
+        @inject(LikesService) protected likesService: LikesService,
+        @inject(LikesRepository) protected likesRepository: LikesRepository,
     ) {}
 
     async deletePost(id: string): Promise<boolean> {
@@ -17,6 +24,11 @@ export class PostsService {
 
         if (isDeleted) {
             await this.commentsRepository.deletePostComments(id);
+
+            const arePostLikesDeleted = this.likesRepository.deleteLikesOfParent(id);
+            if (!arePostLikesDeleted) {
+                return false;
+            }
         }
 
         return isDeleted;
@@ -27,6 +39,11 @@ export class PostsService {
             return null;
         }
 
+        const extendedLikesInfo: ExtendedLikesInfo = {
+            likesCount: 0,
+            dislikesCount: 0,
+            newestLikes: [],
+        };
         const createdPost = new PostDBType(
             String(+new Date()),
             title,
@@ -35,7 +52,8 @@ export class PostsService {
             blogId,
             blog.name,
             false,
-            new Date().toISOString()
+            new Date().toISOString(),
+            extendedLikesInfo
         );
 
         await this.postsRepository.createPost(createdPost);
@@ -67,5 +85,17 @@ export class PostsService {
     };
     async findPostById(id: string): Promise<PostDBType | null> {
         return this.postsRepository.findPostById(id);
+    };
+    async makePostLikeOperation(postId: string, userId: string, likeStatus: LikeStatus): Promise<Result<null>> {
+        const post = await this.postsRepository.findPostById(postId);
+        if (!post) {
+            return {
+                status: ResultStatus.NOT_FOUND,
+                data: null,
+                extensions: [],
+            };
+        }
+
+        return this.likesService.makeLikeOperation(userId, postId, likeStatus);
     };
 }

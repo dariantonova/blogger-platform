@@ -34,6 +34,16 @@ const postSchema = new Schema<WithId<PostDBType>>({
     blogName: { type: String, required: true },
     isDeleted: { type: Boolean, required: true },
     createdAt: { type: String, required: true },
+    extendedLikesInfo: {
+        likesCount: { type: Number, required: true },
+        dislikesCount: { type: Number, required: true },
+        newestLikes: [{
+            description: { type: String, default: '' },
+            addedAt: { type: Date, required: true },
+            userId: { type: String, required: true },
+            login: { type: String, required: true },
+        }],
+    },
 });
 
 const userSchema = new Schema<WithId<UserDBType>>({
@@ -239,7 +249,12 @@ const posts: PostDBType[] = [
         '2',
         'blog 2',
         false,
-        '2024-12-15T05:32:26.882Z'),
+        '2024-12-15T05:32:26.882Z',
+        {
+            likesCount: 0,
+            dislikesCount: 0,
+            newestLikes: [],
+        }),
     new PostDBType(
         '2',
         'post 2',
@@ -248,7 +263,12 @@ const posts: PostDBType[] = [
         '1',
         'blog 1',
         false,
-        '2024-12-16T05:32:26.882Z')
+        '2024-12-16T05:32:26.882Z',
+        {
+            likesCount: 0,
+            dislikesCount: 0,
+            newestLikes: [],
+        })
 ];
 
 const users: UserDBType[] = [];

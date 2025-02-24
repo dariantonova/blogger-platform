@@ -99,6 +99,7 @@ export class BlogsController {
     async getBlogPosts (req: RequestWithParamsAndQuery<URIParamsPostBlogIdModel, QueryPostsModel>,
                         res: Response<Paginator<PostViewModel>>) {
         const blogId = req.params.blogId;
+        const userId = req.user ? req.user.id : null;
         const {
             sortBy,
             sortDirection,
@@ -118,7 +119,7 @@ export class BlogsController {
         const pagesCount = Math.ceil(totalCount / pageSize);
 
         const output = await this.postsQueryRepository.createPostsPaginator(
-            foundPosts, pageNumber, pageSize, pagesCount, totalCount
+            foundPosts, pageNumber, pageSize, pagesCount, totalCount, userId
         );
 
         res.json(output);
@@ -133,7 +134,7 @@ export class BlogsController {
             return;
         }
 
-        const createdPost = await this.postsQueryRepository.findPostById(createdPostId);
+        const createdPost = await this.postsQueryRepository.findPostById(createdPostId, null);
         if (!createdPost) {
             res.sendStatus(HTTP_STATUSES.INTERNAL_SERVER_ERROR_500);
             return;

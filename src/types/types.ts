@@ -2,6 +2,7 @@ import {Request} from 'express';
 import {CommentDBType} from "../features/comments/comments.types";
 import {OptionalId} from "mongodb";
 import {DeviceAuthSessionDBType} from "../features/auth/types/auth.types";
+import {ExtendedLikesInfo} from "../features/likes/likes.types";
 
 export type RequestWithBody<T> = Request<{}, {}, T>;
 export type RequestWithParams<T> = Request<T>;
@@ -39,7 +40,8 @@ export class PostDBType {
                 public blogId: string,
                 public blogName: string,
                 public isDeleted: boolean,
-                public createdAt: string
+                public createdAt: string,
+                public extendedLikesInfo: ExtendedLikesInfo,
     ) {}
 }
 

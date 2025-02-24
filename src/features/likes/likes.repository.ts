@@ -35,4 +35,16 @@ export class LikesRepository {
     async deleteLikesOfParent(parentId: string) {
         await LikeModel.deleteMany({ parentId });
     };
+    async findNewestLikesOfParent(parentId: string, quantity: number): Promise<LikeDBType[]> {
+        const sortObj: any = {
+            createdAt: -1,
+            _id: 1,
+        };
+
+        return LikeModel
+            .find({ parentId }, { _id: 0 })
+            .sort(sortObj)
+            .limit(quantity)
+            .lean();
+    };
 }

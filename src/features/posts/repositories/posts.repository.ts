@@ -1,6 +1,7 @@
 import {PostModel} from "../../../db/db";
 import {PostDBType, SortDirections} from "../../../types/types";
 import {injectable} from "inversify";
+import {ExtendedLikesInfo} from "../../likes/likes.types";
 
 @injectable()
 export class PostsRepository {
@@ -58,5 +59,12 @@ export class PostsRepository {
     async findPostById(id: string): Promise<PostDBType | null> {
         const filterObj: any = { isDeleted: false, id };
         return PostModel.findOne(filterObj, { _id: 0 }).lean();
+    };
+    async updatePostExtendedLikesInfo(id: string, extendedLikesInfo: ExtendedLikesInfo): Promise<boolean> {
+        const updateInfo = await PostModel.updateOne(
+            { isDeleted: false, id },
+            { extendedLikesInfo }
+        );
+        return updateInfo.matchedCount === 1;
     };
 }

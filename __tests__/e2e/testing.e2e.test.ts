@@ -62,6 +62,11 @@ describe('tests for /testing', () => {
                 blogName: 'blog 2',
                 isDeleted: false,
                 createdAt: '2024-12-15T05:32:26.882Z',
+                extendedLikesInfo: {
+                    likesCount: 0,
+                    dislikesCount: 0,
+                    newestLikes: [],
+                },
             },
             {
                 id: '2',
@@ -72,6 +77,11 @@ describe('tests for /testing', () => {
                 blogName: 'blog 1',
                 isDeleted: false,
                 createdAt: '2024-12-16T05:32:26.882Z',
+                extendedLikesInfo: {
+                    likesCount: 0,
+                    dislikesCount: 0,
+                    newestLikes: [],
+                },
             },
             {
                 id: '3',
@@ -82,6 +92,11 @@ describe('tests for /testing', () => {
                 blogName: 'blog 1',
                 isDeleted: true,
                 createdAt: '2024-12-16T05:32:26.882Z',
+                extendedLikesInfo: {
+                    likesCount: 0,
+                    dislikesCount: 0,
+                    newestLikes: [],
+                },
             },
             {
                 id: '4',
@@ -92,6 +107,11 @@ describe('tests for /testing', () => {
                 blogName: 'blog 1',
                 isDeleted: false,
                 createdAt: '2024-12-16T05:32:26.882Z',
+                extendedLikesInfo: {
+                    likesCount: 0,
+                    dislikesCount: 0,
+                    newestLikes: [],
+                },
             },
         ];
 

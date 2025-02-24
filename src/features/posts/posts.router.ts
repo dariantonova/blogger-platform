@@ -16,17 +16,20 @@ import {contentCommentFieldValidator} from "../../validation/field-validators/co
 import {queryValidationErrorMiddleware} from "../../validation/query-validation-error-middleware";
 import {container} from "../../composition-root";
 import {PostsController} from "./posts.controller";
+import {likeStatusValidator} from "../comments/validation/like-validators";
 
 const postsController = container.get<PostsController>(PostsController);
 
 const router = Router();
 
 router.get('/',
+    optionalBearerAuthorizationMiddleware,
     pageNumberQueryParamValidator,
     pageSizeQueryParamValidator,
     queryValidationErrorMiddleware,
     postsController.getPosts.bind(postsController));
 router.get('/:id',
+    optionalBearerAuthorizationMiddleware,
     postsController.getPost.bind(postsController));
 router.delete('/:id',
     basicAuthorizationMiddleware,
@@ -58,5 +61,10 @@ router.get('/:postId/comments',
     pageSizeQueryParamValidator,
     queryValidationErrorMiddleware,
     postsController.getPostComments.bind(postsController));
+router.put('/:postId/like-status',
+    bearerAuthorizationMiddleware,
+    likeStatusValidator,
+    errorsResultMiddleware,
+    postsController.updatePostLikeStatus.bind(postsController));
 
 export { router as postsRouter };

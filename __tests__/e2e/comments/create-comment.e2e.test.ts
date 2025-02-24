@@ -54,6 +54,11 @@ describe('tests for create comments endpoint', () => {
                 blogName: 'blog 1',
                 isDeleted: false,
                 createdAt: '2024-12-16T05:32:26.882Z',
+                extendedLikesInfo: {
+                    likesCount: 0,
+                    dislikesCount: 0,
+                    newestLikes: [],
+                },
             },
             {
                 id: '2',
@@ -64,6 +69,11 @@ describe('tests for create comments endpoint', () => {
                 blogName: 'blog 1',
                 isDeleted: true,
                 createdAt: '2024-12-16T05:32:26.882Z',
+                extendedLikesInfo: {
+                    likesCount: 0,
+                    dislikesCount: 0,
+                    newestLikes: [],
+                },
             },
         ];
 
@@ -99,6 +109,11 @@ describe('tests for create comments endpoint', () => {
                 blogName: 'blog 1',
                 isDeleted: false,
                 createdAt: '2024-12-16T05:32:26.882Z',
+                extendedLikesInfo: {
+                    likesCount: 0,
+                    dislikesCount: 0,
+                    newestLikes: [],
+                },
             },
             {
                 id: '2',
@@ -109,6 +124,11 @@ describe('tests for create comments endpoint', () => {
                 blogName: 'blog 1',
                 isDeleted: true,
                 createdAt: '2024-12-16T05:32:26.882Z',
+                extendedLikesInfo: {
+                    likesCount: 0,
+                    dislikesCount: 0,
+                    newestLikes: [],
+                },
             },
         ];
 

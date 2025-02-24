@@ -36,7 +36,7 @@ export type ExtendedLikesInfoViewModel = {
     likesCount: number,
     dislikesCount: number,
     myStatus: LikeStatus,
-    newestLikes: LikeDetails[],
+    newestLikes: LikeDetailsViewModel[],
 };
 
 export type LikeInputModel = {

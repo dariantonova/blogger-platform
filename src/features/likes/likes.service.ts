@@ -3,14 +3,18 @@ import {LikesRepository} from "./likes.repository";
 import {LikeDBType, LikeStatus} from "../../types/types";
 import {Result} from "../../common/result/result.type";
 import {ResultStatus} from "../../common/result/resultStatus";
-import {LikesInfo} from "./likes.types";
+import {ExtendedLikesInfo, LikeDetails, LikesInfo} from "./likes.types";
 import {CommentsRepository} from "../comments/comments.repository";
+import {PostsRepository} from "../posts/repositories/posts.repository";
+import {UsersRepository} from "../users/repositories/users.repository";
 
 @injectable()
 export class LikesService {
     constructor(
         @inject(LikesRepository) protected likesRepository: LikesRepository,
         @inject(CommentsRepository) protected commentsRepository: CommentsRepository,
+        @inject(PostsRepository) protected postsRepository: PostsRepository,
+        @inject(UsersRepository) protected usersRepository: UsersRepository,
     ) {}
 
     async makeLikeOperation(userId: string, parentId: string, likeStatus: LikeStatus): Promise<Result<null>> {
@@ -74,12 +78,13 @@ export class LikesService {
         };
     };
     async updateRelatedEntityLikesInfo(likeParentId: string): Promise<Result<null>> {
-        // call update likes info:
-        // - comment
-        // - post (later)
         const commentResult = await this._updateCommentLikesInfo(likeParentId);
         if (commentResult.status !== ResultStatus.SUCCESS) {
             return commentResult;
+        }
+        const postResult = await this._updatePostExtendedLikesInfo(likeParentId);
+        if (postResult.status !== ResultStatus.SUCCESS) {
+            return postResult;
         }
 
         return {
@@ -100,13 +105,13 @@ export class LikesService {
 
         const likesCount = await this.likesRepository.countLikesOfParent(commentId);
         const dislikesCount = await this.likesRepository.countDislikesOfParent(commentId);
-        const newLikesInfo: LikesInfo = {
+        const likesInfo: LikesInfo = {
             likesCount,
             dislikesCount,
         };
 
         const isLikesInfoUpdated = await this.commentsRepository
-            .updateCommentLikesInfo(commentId, newLikesInfo);
+            .updateCommentLikesInfo(commentId, likesInfo);
         if (!isLikesInfoUpdated) {
             return {
                 status: ResultStatus.INTERNAL_SERVER_ERROR,
@@ -119,6 +124,69 @@ export class LikesService {
             status: ResultStatus.SUCCESS,
             data: null,
             extensions: [],
+        };
+    };
+    async _updatePostExtendedLikesInfo(postId: string): Promise<Result<null>> {
+        const post = await this.postsRepository.findPostById(postId);
+        if (!post) {
+            return {
+                status: ResultStatus.SUCCESS,
+                data: null,
+                extensions: [],
+            };
+        }
+
+        const likesCount = await this.likesRepository.countLikesOfParent(postId);
+        const dislikesCount = await this.likesRepository.countDislikesOfParent(postId);
+        const numberOfNewestLikes = 3;
+        const newestLikes = await this.likesRepository
+            .findNewestLikesOfParent(postId, numberOfNewestLikes);
+        let newestLikesDetails: LikeDetails[];
+        try {
+            newestLikesDetails = await Promise.all(newestLikes.map(this._mapLikeToLikeDetails));
+        }
+        catch (err) {
+            return {
+                status: ResultStatus.INTERNAL_SERVER_ERROR,
+                data: null,
+                extensions: [],
+            };
+        }
+
+        const extendedLikesInfo: ExtendedLikesInfo = {
+            likesCount,
+            dislikesCount,
+            newestLikes: newestLikesDetails,
+        };
+
+        const isLikesInfoUpdated = await this.postsRepository
+            .updatePostExtendedLikesInfo(postId, extendedLikesInfo);
+        if (!isLikesInfoUpdated) {
+            return {
+                status: ResultStatus.INTERNAL_SERVER_ERROR,
+                data: null,
+                extensions: [],
+            };
+        }
+
+        return {
+            status: ResultStatus.SUCCESS,
+            data: null,
+            extensions: [],
+        };
+    };
+    async _mapLikeToLikeDetails(like: LikeDBType): Promise<LikeDetails> {
+        const user = await this.usersRepository.findUserById(like.userId);
+        if (!user) {
+            throw new Error('Failed to find like user');
+        }
+
+        const login = user.login;
+        return {
+            description: '',
+            addedAt: like.createdAt,
+            userId: like.userId,
+            login,
         };
     };
     async deleteAllLikes() {

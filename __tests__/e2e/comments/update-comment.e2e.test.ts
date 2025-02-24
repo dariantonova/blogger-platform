@@ -64,6 +64,11 @@ describe('tests for update comment endpoint', () => {
                 blogName: 'blog 1',
                 isDeleted: false,
                 createdAt: '2024-12-16T05:32:26.882Z',
+                extendedLikesInfo: {
+                    likesCount: 0,
+                    dislikesCount: 0,
+                    newestLikes: [],
+                },
             },
         ];
 

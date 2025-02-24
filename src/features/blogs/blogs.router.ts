@@ -18,6 +18,7 @@ import {
 import {queryValidationErrorMiddleware} from "../../validation/query-validation-error-middleware";
 import {container} from "../../composition-root";
 import {BlogsController} from "./blogs.controller";
+import {optionalBearerAuthorizationMiddleware} from "../../middlewares/bearer-authorization-middleware";
 
 const blogsController = container.get<BlogsController>(BlogsController);
 
@@ -48,6 +49,7 @@ router.put('/:id',
     errorsResultMiddleware,
     blogsController.updateBlog.bind(blogsController));
 router.get('/:blogId/posts',
+    optionalBearerAuthorizationMiddleware,
     pageNumberQueryParamValidator,
     pageSizeQueryParamValidator,
     queryValidationErrorMiddleware,

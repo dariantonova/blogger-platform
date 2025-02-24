@@ -5,6 +5,7 @@ import {PostViewModel} from "../../src/features/posts/models/PostViewModel";
 import {blogsCollection, postsCollection} from "../../src/db/db";
 import {VALID_AUTH} from "../datasets/authorization-data";
 import {CreatePostInputModel} from "../../src/features/posts/models/CreatePostInputModel";
+import {LikeStatusEnum} from "../../src/types/types";
 
 export const postsTestManager = {
     async deletePost(postId: string, expectedStatusCode: number, auth: string = VALID_AUTH) {
@@ -45,6 +46,12 @@ export const postsTestManager = {
             blogId: input.blogId,
             blogName: dbRelatedBlog?.name || '',
             createdAt: expect.any(String),
+            extendedLikesInfo: {
+                likesCount: 0,
+                dislikesCount: 0,
+                myStatus: LikeStatusEnum.none,
+                newestLikes: [],
+            },
         });
 
         expect((new Date(createdPost.createdAt).getTime())).not.toBeNaN();
