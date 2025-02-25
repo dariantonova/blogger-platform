@@ -38,7 +38,6 @@ const postSchema = new Schema<WithId<PostDBType>>({
         likesCount: { type: Number, required: true },
         dislikesCount: { type: Number, required: true },
         newestLikes: [{
-            description: { type: String, default: '' },
             addedAt: { type: Date, required: true },
             userId: { type: String, required: true },
             login: { type: String, required: true },

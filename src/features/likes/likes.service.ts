@@ -143,7 +143,7 @@ export class LikesService {
             .findNewestLikesOfParent(postId, numberOfNewestLikes);
         let newestLikesDetails: LikeDetails[];
         try {
-            newestLikesDetails = await Promise.all(newestLikes.map(this._mapLikeToLikeDetails));
+            newestLikesDetails = await Promise.all(newestLikes.map(this._mapLikeToLikeDetails.bind(this)));
         }
         catch (err) {
             return {
@@ -183,7 +183,6 @@ export class LikesService {
 
         const login = user.login;
         return {
-            description: '',
             addedAt: like.createdAt,
             userId: like.userId,
             login,

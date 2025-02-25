@@ -6,7 +6,6 @@ export type LikesInfo = {
 };
 
 export type LikeDetails = {
-    description: string,
     addedAt: Date,
     userId: string,
     login: string,
@@ -26,7 +25,6 @@ export class LikesInfoViewModel {
 }
 
 export type LikeDetailsViewModel = {
-    description: string,
     addedAt: Date,
     userId: string,
     login: string,

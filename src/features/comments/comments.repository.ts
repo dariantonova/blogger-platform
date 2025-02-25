@@ -61,9 +61,14 @@ export class CommentsRepository {
         await CommentModel.deleteMany({});
     };
     async findCommentById(id: string): Promise<CommentType | null> {
-        const filterObj = { isDeleted: false, _id: new ObjectId(id) };
-        const foundComment = await CommentModel.findOne(filterObj).lean();
-        return foundComment ? this.mapToBusinessEntity(foundComment) : null;
+        try {
+            const filterObj = { isDeleted: false, _id: new ObjectId(id) };
+            const foundComment = await CommentModel.findOne(filterObj).lean();
+            return foundComment ? this.mapToBusinessEntity(foundComment) : null;
+        }
+        catch (err) {
+            return null;
+        }
     };
     async deleteComment(id: string): Promise<boolean> {
         const updateInfo = await CommentModel.updateOne(

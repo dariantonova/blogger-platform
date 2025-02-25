@@ -2,7 +2,7 @@ import {LikeStatus, LikeStatusEnum, Paginator, PostDBType, SortDirections} from 
 import {PostModel} from "../../../db/db";
 import {PostViewModel} from "../models/PostViewModel";
 import {inject, injectable} from "inversify";
-import {ExtendedLikesInfoViewModel, LikeDetailsViewModel} from "../../likes/likes.types";
+import {ExtendedLikesInfoViewModel, LikeDetails, LikeDetailsViewModel} from "../../likes/likes.types";
 import {LikesRepository} from "../../likes/likes.repository";
 
 @injectable()
@@ -52,14 +52,8 @@ export class PostsQueryRepository {
         const postId = dbPost.id
         const myStatus = userId === null ? LikeStatusEnum.none
             : await this._getUserPostLikeStatus(userId, postId);
-        const newestLikes: LikeDetailsViewModel[] = dbPost.extendedLikesInfo.newestLikes.map(likeDetails => {
-            return {
-                description: likeDetails.description,
-                addedAt: likeDetails.addedAt,
-                userId: likeDetails.userId,
-                login: likeDetails.login,
-            };
-        });
+        const newestLikes: LikeDetailsViewModel[] = dbPost.extendedLikesInfo.newestLikes
+            .map(this._mapLikeDetailsToOutput);
 
         const extendedLikesInfo: ExtendedLikesInfoViewModel = {
             likesCount: dbPost.extendedLikesInfo.likesCount,
@@ -83,6 +77,13 @@ export class PostsQueryRepository {
         const postLike = await this.likesRepository
             .findLikeByUserAndParent(userId, postId);
         return postLike ? postLike.status : LikeStatusEnum.none;
+    };
+    _mapLikeDetailsToOutput(likeDetails: LikeDetails): LikeDetailsViewModel {
+        return {
+            addedAt: likeDetails.addedAt,
+            userId: likeDetails.userId,
+            login: likeDetails.login,
+        };
     };
     async createPostsPaginator(items: PostDBType[], page: number, pageSize: number,
                                pagesCount: number, totalCount: number, userId: string | null): Promise<Paginator<PostViewModel>> {

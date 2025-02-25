@@ -109,4 +109,25 @@ export const postsTestManager = {
         const getPostCommentsResponse = await this.getPostComments(postId, HTTP_STATUSES.OK_200);
         expect(getPostCommentsResponse.body.totalCount).toBe(quantity);
     },
+    async updatePostLikeStatus(postId: string, data: any, auth: string, expectedStatusCode: number) {
+        return req
+            .put(SETTINGS.PATH.POSTS + '/' + postId + '/like-status')
+            .set('Authorization', auth)
+            .send(data)
+            .expect(expectedStatusCode);
+    },
+    async getPost(postId: string, expectedStatusCode: number, auth: string = '') {
+        return req
+            .get(SETTINGS.PATH.POSTS + '/' + postId)
+            .set('Authorization', auth)
+            .expect(expectedStatusCode);
+    },
+    async checkPostLikesCount(postId: string, likesCount: number, auth: string = '') {
+        const getPostResponse = await this.getPost(postId, HTTP_STATUSES.OK_200, auth);
+        expect(getPostResponse.body.extendedLikesInfo.likesCount).toBe(likesCount);
+    },
+    async checkPostDislikesCount(postId: string, dislikesCount: number, auth: string = '') {
+        const getPostResponse = await this.getPost(postId, HTTP_STATUSES.OK_200, auth);
+        expect(getPostResponse.body.extendedLikesInfo.dislikesCount).toBe(dislikesCount);
+    },
 };
