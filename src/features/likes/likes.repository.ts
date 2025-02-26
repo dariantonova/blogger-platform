@@ -42,7 +42,7 @@ export class LikesRepository {
         };
 
         return LikeModel
-            .find({ parentId }, { _id: 0 })
+            .find({ parentId, status: LikeStatusEnum.like }, { _id: 0 })
             .sort(sortObj)
             .limit(quantity)
             .lean();
